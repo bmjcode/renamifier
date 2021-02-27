@@ -1,0 +1,23 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    <!--
+      Sure, let's embed the project's source code as sample data.
+      What could possibly go wrong?
+      -->
+    <file>CMakeLists.txt</file>
+    <file>COPYING</file>
+    <file>mainwindow.cpp</file>
+    <file>mainwindow.h</file>
+    <file>renamifier.cpp</file>
+    <file>renamifier.h</file>
+    <file>renamifier.qrc</file>
+    <file>renderer.cpp</file>
+    <file>renderer.h</file>
+    <file>test.cpp</file>
+    <file>test.h</file>
+    <file>test.qrc</file>
+    <file>viewer.cpp</file>
+    <file>viewer.h</file>
+  </qresource>
+</RCC>

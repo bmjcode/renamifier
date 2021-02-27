@@ -1,0 +1,25 @@
+# File extensions
+*.a
+*.cmake
+*.dll
+*.exe
+*.o
+*.swp
+
+# Build artifacts
+CMakeCache.txt
+CMakeFiles/
+Makefile
+renamifier
+renamifier_autogen/
+renamifier-test
+renamifier-test_autogen/
+renamifier-ui_autogen/
+Testing/
+
+# Qt deployment artifacts
+iconengines/
+imageformats/
+platforms/
+styles/
+translations/

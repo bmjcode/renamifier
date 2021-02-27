@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    <file>icons/action_back.gif</file>
+    <file>icons/action_forward.gif</file>
+    <file>icons/icon_wand.gif</file>
+  </qresource>
+</RCC>
