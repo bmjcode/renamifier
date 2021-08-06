@@ -29,14 +29,12 @@
 
 #include "mainwindow.h"
 
-class TestMainWindow;
-
 class RenamifierTest : public QObject
 {
     Q_OBJECT
 
 private:
-    TestMainWindow *mainWindow;
+    MainWindow *mainWindow;
     QStringList testFiles;
     QStringList tempFiles;
 
@@ -63,33 +61,6 @@ private:
     void confirmThatNothingIsOpen();
     void confirmThatFileIsDisplayed(int index);
     QTemporaryFile* renameTestFile();
-};
-
-/*
- * Renamifier's MainWindow with some additional hooks for testing.
- *
- * Basically this exposes a whole bunch of things that shouldn't ordinarily
- * be public so we can verify its internals work as intended.
- */
-class TestMainWindow : public MainWindow
-{
-    Q_OBJECT
-
-public:
-    inline int getCurrentFileIndex() const { return currentFileIndex; }
-    inline const QStringList getFileNames() const { return fileNames; }
-
-    inline void clearNameEntry()
-        { nameEntry->clear(); }
-    inline void setNameEntryText(const QString &text)
-        { nameEntry->setText(text); }
-
-    inline bool processRename()
-        { return MainWindow::processRename(); }
-    inline bool processRenameAndMove()
-        { return MainWindow::processRenameAndMove(); }
-    inline bool readyToRename()
-        { return MainWindow::readyToRename(); }
 };
 
 #endif /* RENAMIFIFER_TEST_H */

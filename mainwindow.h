@@ -105,6 +105,9 @@ protected slots:
     void triggerRenameAndMove(bool checked);
     void triggerShowAbout(bool checked);
     void triggerStopRender(bool checked);
+
+private:
+    friend class RenamifierTest;
 };
 
 #endif /* MAINWINDOW_H */

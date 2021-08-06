@@ -57,7 +57,7 @@ RenamifierTest::cleanupTestCase()
 void
 RenamifierTest::init()
 {
-    mainWindow = new TestMainWindow;
+    mainWindow = new MainWindow;
 }
 
 /*
@@ -109,7 +109,7 @@ RenamifierTest::renameWorks()
     confirmThatFileIsDisplayed(0);
 
     // Simulate entering a new base name and clicking "Rename"
-    mainWindow->setNameEntryText(dstBaseName);
+    mainWindow->nameEntry->setText(dstBaseName);
     QVERIFY(mainWindow->processRename());
 
     // Confirm that the destination exists and the source doesn't
@@ -124,15 +124,15 @@ void
 RenamifierTest::displayFileWraps()
 {
     addTestFiles();
-    int numFileNames = mainWindow->getFileNames().size();
+    int numFileNames = mainWindow->fileNames.size();
 
     // Simulates clicking "Previous" when the first file is displayed
     mainWindow->displayFile(-1);
-    QCOMPARE(mainWindow->getCurrentFileIndex(), numFileNames - 1);
+    QCOMPARE(mainWindow->currentFileIndex, numFileNames - 1);
 
     // Simulates clicking "Next" when the last file is displayed
     mainWindow->displayFile(numFileNames);
-    QCOMPARE(mainWindow->getCurrentFileIndex(), 0);
+    QCOMPARE(mainWindow->currentFileIndex, 0);
 }
 
 /*
@@ -156,7 +156,7 @@ RenamifierTest::renameWithNoNameEntered()
     confirmThatFileIsDisplayed(0);
 
     // Simulate blanking the name entry and clicking "Rename"
-    mainWindow->clearNameEntry();
+    mainWindow->nameEntry->clear();
     QVERIFY(!mainWindow->processRename());
 
     // Confirm that the source still exists
@@ -170,13 +170,13 @@ void
 RenamifierTest::displayFileWithNothingOpen()
 {
     confirmThatNothingIsOpen();
-    QCOMPARE(mainWindow->getCurrentFileIndex(), -1);
+    QCOMPARE(mainWindow->currentFileIndex, -1);
 
     mainWindow->displayFile();
 
     // Make sure nothing changed
     confirmThatNothingIsOpen();
-    QCOMPARE(mainWindow->getCurrentFileIndex(), -1);
+    QCOMPARE(mainWindow->currentFileIndex, -1);
 }
 
 /*
@@ -213,7 +213,7 @@ RenamifierTest::addTestFiles()
 {
     for (int i = 0; i < testFiles.size(); ++i)
         mainWindow->addPath(":/" + testFiles[i]);
-    QCOMPARE(mainWindow->getFileNames().size(), testFiles.size());
+    QCOMPARE(mainWindow->fileNames.size(), testFiles.size());
 }
 
 /*
@@ -222,8 +222,8 @@ RenamifierTest::addTestFiles()
 void
 RenamifierTest::confirmThatNothingIsOpen()
 {
-    QVERIFY(mainWindow->getFileNames().isEmpty());
-    QCOMPARE(mainWindow->getCurrentFileIndex(), -1);
+    QVERIFY(mainWindow->fileNames.isEmpty());
+    QCOMPARE(mainWindow->currentFileIndex, -1);
 }
 
 /*
@@ -232,8 +232,8 @@ RenamifierTest::confirmThatNothingIsOpen()
 void
 RenamifierTest::confirmThatFileIsDisplayed(int index)
 {
-    QVERIFY(!mainWindow->getFileNames().isEmpty());
-    QCOMPARE(mainWindow->getCurrentFileIndex(), index);
+    QVERIFY(!mainWindow->fileNames.isEmpty());
+    QCOMPARE(mainWindow->currentFileIndex, index);
 }
 
 /*
