@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 * Follow Qt's coding style.
 * Cleaned up some messy spots in the code.
+## Fixed
+* `Enter` on the numeric keypad also triggers the rename action.
 
 ## [0.1.0] - 2021-02-27
 ## Added

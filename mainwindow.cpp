@@ -227,6 +227,19 @@ void MainWindow::createActions()
     connect(actionRenameAndDisplayNext, &QAction::triggered,
             this, &MainWindow::triggerRenameAndDisplayNext);
     nameEntry->addAction(actionRenameAndDisplayNext);
+
+    // Numeric keypad variant of the above
+    actionKpRenameOnly = new QAction(nameEntry);
+    actionKpRenameOnly->setShortcut(QKeySequence("Shift+Enter"));
+    connect(actionKpRenameOnly, &QAction::triggered,
+            this, &MainWindow::triggerRenameOnly);
+    nameEntry->addAction(actionKpRenameOnly);
+
+    actionKpRenameAndDisplayNext = new QAction(nameEntry);
+    actionKpRenameAndDisplayNext->setShortcut(QKeySequence("Enter"));
+    connect(actionKpRenameAndDisplayNext, &QAction::triggered,
+            this, &MainWindow::triggerRenameAndDisplayNext);
+    nameEntry->addAction(actionKpRenameAndDisplayNext);
 }
 
 // Use the appropriate terminology for the platform

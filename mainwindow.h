@@ -65,6 +65,8 @@ protected:
     QAction *actionFocusNameEntry;
     QAction *actionRenameOnly;
     QAction *actionRenameAndDisplayNext;
+    QAction *actionKpRenameOnly;
+    QAction *actionKpRenameAndDisplayNext;
     QAction *actionStopRender;
 
     int currentFileIndex;
