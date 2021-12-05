@@ -55,8 +55,7 @@ Viewer::Viewer(QWidget *parent)
     renderThread = nullptr;
 }
 
-void
-Viewer::display(const QString &path)
+void Viewer::display(const QString &path)
 {
     clear();
     renderThread = new QThread;
@@ -86,15 +85,13 @@ Viewer::display(const QString &path)
     renderThread->start();
 }
 
-void
-Viewer::setFocusPolicy(Qt::FocusPolicy policy)
+void Viewer::setFocusPolicy(Qt::FocusPolicy policy)
 {
     textContentViewer->setFocusPolicy(policy);
     pagedContentViewer->setFocusPolicy(policy);
 }
 
-void
-Viewer::clear()
+void Viewer::clear()
 {
     // Cancel any active rendering operation
     stopRender();
@@ -103,8 +100,7 @@ Viewer::clear()
     pagedContentViewer->clear();
 }
 
-void
-Viewer::stopRender()
+void Viewer::stopRender()
 {
     // renderer and renderThread are cleaned up by QObject::deleteLater()
     if (renderer != nullptr) {
@@ -122,20 +118,17 @@ Viewer::stopRender()
     }
 }
 
-void
-Viewer::addImage(const QImage &image)
+void Viewer::addImage(const QImage &image)
 {
     pagedContentViewer->addImage(image);
 }
 
-void
-Viewer::addPage(const QImage &image)
+void Viewer::addPage(const QImage &image)
 {
     pagedContentViewer->addPage(image);
 }
 
-void
-Viewer::addText(const QString &text)
+void Viewer::addText(const QString &text)
 {
     if (currentWidget() == textContentViewer) {
         // FIXME: This clobbers any existing content.
@@ -144,8 +137,7 @@ Viewer::addText(const QString &text)
         pagedContentViewer->addText(text);
 }
 
-void
-Viewer::setRenderMode(int mode)
+void Viewer::setRenderMode(int mode)
 {
     if (mode == Renderer::TextContent)
         setCurrentWidget(textContentViewer);
@@ -156,8 +148,7 @@ Viewer::setRenderMode(int mode)
 /*
  * Default to PagedContentViewer's preferred size.
  */
-QSize
-Viewer::sizeHint() const
+QSize Viewer::sizeHint() const
 {
     return pagedContentViewer->sizeHint();
 }
@@ -199,8 +190,7 @@ PagedContentViewer::~PagedContentViewer()
 /*
  * Add an image.
  */
-void
-PagedContentViewer::addImage(const QImage &image)
+void PagedContentViewer::addImage(const QImage &image)
 {
     addPage_(image, false);
 }
@@ -208,8 +198,7 @@ PagedContentViewer::addImage(const QImage &image)
 /*
  * Add a page from a multi-page document.
  */
-void
-PagedContentViewer::addPage(const QImage &image)
+void PagedContentViewer::addPage(const QImage &image)
 {
     addPage_(image);
 }
@@ -224,8 +213,7 @@ PagedContentViewer::addPage(const QImage &image)
  * QLabel is inefficient for displaying large amounts of text content,
  * which is why TextContentViewer exists for that.
  */
-void
-PagedContentViewer::addText(const QString &text)
+void PagedContentViewer::addText(const QString &text)
 {
     QLabel *textWidget = createContentWidget();
     textWidget->setMargin(TEXT_MARGIN);
@@ -240,8 +228,7 @@ PagedContentViewer::addText(const QString &text)
     resizeFrame();
 }
 
-void
-PagedContentViewer::clear()
+void PagedContentViewer::clear()
 {
     for (int i = 0; i < pageWidgets.size(); ++i) {
         layout->removeWidget(pageWidgets[i]);
@@ -264,8 +251,7 @@ PagedContentViewer::clear()
  * Default to a size large enough to show a reasonable amount of content on
  * most screens. The exact size is specified by INITIAL_{HEIGHT,WIDTH} above.
  */
-QSize
-PagedContentViewer::sizeHint() const
+QSize PagedContentViewer::sizeHint() const
 {
     int initialWidth, initialHeight;
     initialWidth = INITIAL_WIDTH * physicalDpiX() / INITIAL_FACTOR;
@@ -282,8 +268,7 @@ PagedContentViewer::sizeHint() const
 /*
  * Create a widget to display content.
  */
-QLabel*
-PagedContentViewer::createContentWidget(bool drawBorder)
+QLabel *PagedContentViewer::createContentWidget(bool drawBorder)
 {
     QLabel *widget = new QLabel(frame);
     if (drawBorder) {
@@ -305,8 +290,7 @@ PagedContentViewer::createContentWidget(bool drawBorder)
  * This matches the format typically used by other document and image viewers,
  * respectively.
  */
-void
-PagedContentViewer::addPage_(const QImage &image, bool drawBorder)
+void PagedContentViewer::addPage_(const QImage &image, bool drawBorder)
 {
     QLabel *pageWidget = createContentWidget(drawBorder);
     pageWidget->setPixmap(QPixmap::fromImage(image));
@@ -326,8 +310,7 @@ PagedContentViewer::addPage_(const QImage &image, bool drawBorder)
 /*
  * Resize the inner frame when the widget's size changes.
  */
-void
-PagedContentViewer::resizeEvent(QResizeEvent *event)
+void PagedContentViewer::resizeEvent(QResizeEvent *event)
 {
     resizeFrame();
 }
@@ -339,8 +322,7 @@ PagedContentViewer::resizeEvent(QResizeEvent *event)
  * so this is necessary to ensure that content is visible, and that the
  * scrollable area is sized appropriately.
  */
-void
-PagedContentViewer::resizeFrame()
+void PagedContentViewer::resizeFrame()
 {
     int width, height;
 

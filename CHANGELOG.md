@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ## Changed
+* Follow Qt's coding style.
 * Cleaned up some messy spots in the code.
 
 ## [0.1.0] - 2021-02-27

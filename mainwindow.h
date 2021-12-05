@@ -41,7 +41,7 @@ class MainWindow : public QMainWindow {
 
 public:
     MainWindow(QWidget *parent = nullptr,
-                     Qt::WindowFlags f = Qt::WindowFlags());
+               Qt::WindowFlags f = Qt::WindowFlags());
     ~MainWindow();
 
     void addPath(const QString &path, bool recurseIntoSubdirs = false);

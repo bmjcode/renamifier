@@ -53,8 +53,7 @@ Renderer::Renderer(const QString &path_, int dpiX_, int dpiY_)
 /*
  * Initialize the renderer.
  */
-void
-Renderer::init()
+void Renderer::init()
 {
     Poppler::setDebugErrorFunction(&storePopplerError, QVariant());
 }
@@ -62,8 +61,7 @@ Renderer::init()
 /*
  * Render the file.
  */
-void
-Renderer::render()
+void Renderer::render()
 {
     // Specific MIME types
     // List alphabetically by name
@@ -91,8 +89,7 @@ Renderer::render()
 /*
  * Display an error if we were unable to render a file.
  */
-void
-Renderer::renderError(const QString &details)
+void Renderer::renderError(const QString &details)
 {
     QString message;
     QTextStream textStream(&message);
@@ -115,8 +112,7 @@ Renderer::renderError(const QString &details)
 /*
  * Render an image using QImage.
  */
-void
-Renderer::renderImage()
+void Renderer::renderImage()
 {
     QImage image(path);
     if (image.isNull()) {
@@ -142,8 +138,7 @@ Renderer::renderImage()
  * The document argument is a void* so we don't have to include Poppler's
  * headers and all their clutter in renderer.h.
  */
-void
-Renderer::renderPDF(void *document_)
+void Renderer::renderPDF(void *document_)
 {
     Poppler::Document *document;
     Poppler::Page *page;
@@ -194,8 +189,7 @@ Renderer::renderPDF(void *document_)
  * This calls Ghostscript to convert the document internally to PDF,
  * which we then render normally using Poppler.
  */
-void
-Renderer::renderPS()
+void Renderer::renderPS()
 {
     QString program = findGhostscript();
     if (program.isEmpty()) {
@@ -232,8 +226,7 @@ Renderer::renderPS()
  * This calls GhostXPS to convert the document internally to PDF,
  * which we then render normally using Poppler.
  */
-void
-Renderer::renderXPS()
+void Renderer::renderXPS()
 {
     QString program = findGhostXPS();
     if (program.isEmpty()) {
@@ -264,8 +257,7 @@ Renderer::renderXPS()
 /*
  * Render a plain-text document.
  */
-void
-Renderer::renderText()
+void Renderer::renderText()
 {
     QFile file(path);
     QString contents;
@@ -287,8 +279,7 @@ Renderer::renderText()
  *
  * TODO: Implement support for multi-page TIFF files (not available in QImage).
  */
-void
-Renderer::renderTIFF()
+void Renderer::renderTIFF()
 {
     QImage image(path);
     if (image.isNull()) {
@@ -314,8 +305,7 @@ Renderer::renderTIFF()
 /*
  * Render a file whose type we are unable to identify.
  */
-void
-Renderer::renderUnidentified()
+void Renderer::renderUnidentified()
 {
     QFile file(path);
     QString output = hexDump(file);

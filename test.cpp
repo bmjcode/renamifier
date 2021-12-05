@@ -22,8 +22,7 @@
 /*
  * Initialize the test case.
  */
-void
-RenamifierTest::initTestCase()
+void RenamifierTest::initTestCase()
 {
     // Keep this in sync with test.qrc
     testFiles
@@ -46,16 +45,14 @@ RenamifierTest::initTestCase()
 /*
  * Clean up after the test case.
  */
-void
-RenamifierTest::cleanupTestCase()
+void RenamifierTest::cleanupTestCase()
 {
 }
 
 /*
  * Initialize each individual test.
  */
-void
-RenamifierTest::init()
+void RenamifierTest::init()
 {
     mainWindow = new MainWindow;
 }
@@ -63,8 +60,7 @@ RenamifierTest::init()
 /*
  * Clean up after each individual test.
  */
-void
-RenamifierTest::cleanup()
+void RenamifierTest::cleanup()
 {
     // Clean up temporary files
     for (int i = 0; i < tempFiles.size(); ++i)
@@ -77,8 +73,7 @@ RenamifierTest::cleanup()
 /*
  * Test that the rename operation works.
  */
-void
-RenamifierTest::renameWorks()
+void RenamifierTest::renameWorks()
 {
     QTemporaryFile *srcFile = renameTestFile();
     QString srcPath = srcFile->fileName();
@@ -120,8 +115,7 @@ RenamifierTest::renameWorks()
 /*
  * Test that MainWindow::displayFile() wraps around.
  */
-void
-RenamifierTest::displayFileWraps()
+void RenamifierTest::displayFileWraps()
 {
     addTestFiles();
     int numFileNames = mainWindow->fileNames.size();
@@ -138,8 +132,7 @@ RenamifierTest::displayFileWraps()
 /*
  * Test that the rename operation fails silently when no new name is entered.
  */
-void
-RenamifierTest::renameWithNoNameEntered()
+void RenamifierTest::renameWithNoNameEntered()
 {
     QTemporaryFile *srcFile = renameTestFile();
     QString srcPath = srcFile->fileName();
@@ -166,8 +159,7 @@ RenamifierTest::renameWithNoNameEntered()
 /*
  * Test that MainWindow::displayFile() does nothing when no files are open.
  */
-void
-RenamifierTest::displayFileWithNothingOpen()
+void RenamifierTest::displayFileWithNothingOpen()
 {
     confirmThatNothingIsOpen();
     QCOMPARE(mainWindow->currentFileIndex, -1);
@@ -182,8 +174,7 @@ RenamifierTest::displayFileWithNothingOpen()
 /*
  * Test that MainWindow::rename() does nothing when no files are open.
  */
-void
-RenamifierTest::renameWithNothingOpen()
+void RenamifierTest::renameWithNothingOpen()
 {
     confirmThatNothingIsOpen();
     QVERIFY(!mainWindow->readyToRename());
@@ -195,8 +186,7 @@ RenamifierTest::renameWithNothingOpen()
 /*
  * Test that MainWindow::renameAndMove() does nothing when no files are open.
  */
-void
-RenamifierTest::renameAndMoveWithNothingOpen()
+void RenamifierTest::renameAndMoveWithNothingOpen()
 {
     confirmThatNothingIsOpen();
     QVERIFY(!mainWindow->readyToRename());
@@ -208,8 +198,7 @@ RenamifierTest::renameAndMoveWithNothingOpen()
 /*
  * Add some test files.
  */
-void
-RenamifierTest::addTestFiles()
+void RenamifierTest::addTestFiles()
 {
     for (int i = 0; i < testFiles.size(); ++i)
         mainWindow->addPath(":/" + testFiles[i]);
@@ -219,8 +208,7 @@ RenamifierTest::addTestFiles()
 /*
  * Confirm that no files are open.
  */
-void
-RenamifierTest::confirmThatNothingIsOpen()
+void RenamifierTest::confirmThatNothingIsOpen()
 {
     QVERIFY(mainWindow->fileNames.isEmpty());
     QCOMPARE(mainWindow->currentFileIndex, -1);
@@ -229,8 +217,7 @@ RenamifierTest::confirmThatNothingIsOpen()
 /*
  * Confirm that the file at fileNames[index] is displayed.
  */
-void
-RenamifierTest::confirmThatFileIsDisplayed(int index)
+void RenamifierTest::confirmThatFileIsDisplayed(int index)
 {
     QVERIFY(!mainWindow->fileNames.isEmpty());
     QCOMPARE(mainWindow->currentFileIndex, index);
@@ -239,8 +226,7 @@ RenamifierTest::confirmThatFileIsDisplayed(int index)
 /*
  * Returns a temporary file for testing rename operations.
  */
-QTemporaryFile*
-RenamifierTest::renameTestFile()
+QTemporaryFile *RenamifierTest::renameTestFile()
 {
     QTemporaryFile *tempFile = new QTemporaryFile("test.XXXXXX.cpp");
     tempFile->setAutoRemove(false);

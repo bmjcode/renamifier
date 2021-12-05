@@ -51,8 +51,7 @@ MainWindow::~MainWindow()
     closeAll();
 }
 
-void
-MainWindow::addPath(const QString &path, bool recurseIntoSubdirs)
+void MainWindow::addPath(const QString &path, bool recurseIntoSubdirs)
 {
     QFileInfo fi(path);
     if (fi.isDir())
@@ -70,8 +69,7 @@ MainWindow::addPath(const QString &path, bool recurseIntoSubdirs)
 #   define BROWSE_FOR_DIR_LABEL "Select Directory"
 #endif
 
-void
-MainWindow::browseForDir()
+void MainWindow::browseForDir()
 {
     QString path = QFileDialog::getExistingDirectory(
         this,
@@ -88,8 +86,7 @@ MainWindow::browseForDir()
 
 #undef BROWSE_FOR_DIR_LABEL
 
-void
-MainWindow::browseForFiles(bool quitIfCanceled)
+void MainWindow::browseForFiles(bool quitIfCanceled)
 {
     QStringList pathList = QFileDialog::getOpenFileNames(
         this,
@@ -108,8 +105,7 @@ MainWindow::browseForFiles(bool quitIfCanceled)
     }
 }
 
-void
-MainWindow::closeAll()
+void MainWindow::closeAll()
 {
     viewer->clear();
     nameEntry->clear();
@@ -117,8 +113,7 @@ MainWindow::closeAll()
     currentFileIndex = -1;
 }
 
-void
-MainWindow::closeCurrent()
+void MainWindow::closeCurrent()
 {
     viewer->clear();
     fileNames.removeAt(currentFileIndex);
@@ -131,8 +126,7 @@ MainWindow::closeCurrent()
         displayFile(currentFileIndex % fileNames.size());
 }
 
-void
-MainWindow::displayFile(int index)
+void MainWindow::displayFile(int index)
 {
     if (!fileNames.isEmpty()) {
         int fileCount = fileNames.size();
@@ -160,20 +154,17 @@ MainWindow::displayFile(int index)
     statusBar()->clearMessage();
 }
 
-void
-MainWindow::displayNext()
+void MainWindow::displayNext()
 {
     displayFile(currentFileIndex + 1);
 }
 
-void
-MainWindow::displayPrevious()
+void MainWindow::displayPrevious()
 {
     displayFile(currentFileIndex - 1);
 }
 
-void
-MainWindow::addDir(const QString &path, bool recurseIntoSubdirs)
+void MainWindow::addDir(const QString &path, bool recurseIntoSubdirs)
 {
     QDir::Filters filters =
         (recurseIntoSubdirs ? QDir::AllEntries : QDir::Files)
@@ -192,14 +183,12 @@ MainWindow::addDir(const QString &path, bool recurseIntoSubdirs)
     }
 }
 
-void
-MainWindow::addFile(const QString &path)
+void MainWindow::addFile(const QString &path)
 {
     fileNames.append(path);
 }
 
-void
-MainWindow::createActions()
+void MainWindow::createActions()
 {
     // Main window actions
     actionFocusNameEntry = new QAction(this);
@@ -247,8 +236,7 @@ MainWindow::createActions()
 #   define BROWSE_FOR_DIR_LABEL "Open &Directory..."
 #endif
 
-void
-MainWindow::createMenus()
+void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu("&File");
     fileMenu->addAction("&Open Files...",
@@ -285,8 +273,7 @@ MainWindow::createMenus()
 
 #undef BROWSE_FOR_DIR_LABEL
 
-void
-MainWindow::createToolBar()
+void MainWindow::createToolBar()
 {
 
     toolBar = new QToolBar(this);
@@ -324,8 +311,7 @@ MainWindow::createToolBar()
         ->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 }
 
-void
-MainWindow::dragEnterEvent(QDragEnterEvent *event)
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasUrls()) {
         // Only accept the event if all paths specify local files
@@ -341,8 +327,7 @@ MainWindow::dragEnterEvent(QDragEnterEvent *event)
     }
 }
 
-void
-MainWindow::dropEvent(QDropEvent *event)
+void MainWindow::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasUrls()) {
         closeAll();
@@ -370,8 +355,7 @@ MainWindow::dropEvent(QDropEvent *event)
  *
  * Returns true if it's safe to proceed, false otherwise.
  */
-bool
-MainWindow::readyToRename()
+bool MainWindow::readyToRename()
 {
     return !(fileNames.isEmpty()
              || currentFileIndex < 0
@@ -383,8 +367,7 @@ MainWindow::readyToRename()
  *
  * Returns true if the rename succeeded, false otherwise.
  */
-bool
-MainWindow::processRename()
+bool MainWindow::processRename()
 {
     if (!readyToRename())
         return false;
@@ -412,8 +395,7 @@ MainWindow::processRename()
  *
  * Returns true if the rename succeeded, false otherwise.
  */
-bool
-MainWindow::processRenameAndMove()
+bool MainWindow::processRenameAndMove()
 {
     if (!readyToRename())
         return false;
@@ -451,8 +433,7 @@ MainWindow::processRenameAndMove()
  *
  * Returns true if the rename succeeded, false otherwise.
  */
-bool
-MainWindow::rename_(const QString &srcPath, const QString &dstPath)
+bool MainWindow::rename_(const QString &srcPath, const QString &dstPath)
 {
     // Don't do anything if the source and destination paths are the same
     if (srcPath == dstPath)
@@ -483,8 +464,7 @@ MainWindow::rename_(const QString &srcPath, const QString &dstPath)
  *
  * Call this any time fileNames and/or currentFileIndex changes.
  */
-void
-MainWindow::updateGoMenu()
+void MainWindow::updateGoMenu()
 {
     goMenu->clear();
     goMenu->addAction("&Previous File",
@@ -517,8 +497,7 @@ MainWindow::updateGoMenu()
     }
 }
 
-void
-MainWindow::updateWindowTitle()
+void MainWindow::updateWindowTitle()
 {
     QString title;
     if (fileNames.isEmpty())
@@ -530,8 +509,7 @@ MainWindow::updateWindowTitle()
     setWindowTitle(title);
 }
 
-void
-MainWindow::displayRenderProgress(int pagesDone, int pagesTotal)
+void MainWindow::displayRenderProgress(int pagesDone, int pagesTotal)
 {
     QString message;
     if (pagesDone == pagesTotal)
@@ -548,29 +526,25 @@ MainWindow::displayRenderProgress(int pagesDone, int pagesTotal)
     }
 }
 
-void
-MainWindow::triggerBrowseForDir(bool checked)
+void MainWindow::triggerBrowseForDir(bool checked)
 {
     (void)checked;
     browseForDir();
 }
 
-void
-MainWindow::triggerBrowseForFiles(bool checked)
+void MainWindow::triggerBrowseForFiles(bool checked)
 {
     (void)checked;
     browseForFiles();
 }
 
-void
-MainWindow::triggerCloseCurrent(bool checked)
+void MainWindow::triggerCloseCurrent(bool checked)
 {
     (void)checked;
     closeCurrent();
 }
 
-void
-MainWindow::triggerDisplayFile(QAction *action)
+void MainWindow::triggerDisplayFile(QAction *action)
 {
     // We're only interested in this QAction if its data() contains an
     // int value, which is the index of the file to display. Actions
@@ -580,37 +554,32 @@ MainWindow::triggerDisplayFile(QAction *action)
         displayFile(action->data().toInt());
 }
 
-void
-MainWindow::triggerDisplayNext(bool checked)
+void MainWindow::triggerDisplayNext(bool checked)
 {
     (void)checked;
     displayNext();
 }
 
-void
-MainWindow::triggerDisplayPrevious(bool checked)
+void MainWindow::triggerDisplayPrevious(bool checked)
 {
     (void)checked;
     displayPrevious();
 }
 
-void
-MainWindow::triggerFocusNameEntry(bool checked)
+void MainWindow::triggerFocusNameEntry(bool checked)
 {
     (void)checked;
     nameEntry->setFocus();
     nameEntry->selectAll();
 }
 
-void
-MainWindow::triggerQuit(bool checked)
+void MainWindow::triggerQuit(bool checked)
 {
     (void)checked;
     QTimer::singleShot(0, this, &QApplication::quit);
 }
 
-void
-MainWindow::triggerRenameOnly(bool checked)
+void MainWindow::triggerRenameOnly(bool checked)
 {
     (void)checked;
     if (processRename()) {
@@ -621,24 +590,21 @@ MainWindow::triggerRenameOnly(bool checked)
     }
 }
 
-void
-MainWindow::triggerRenameAndDisplayNext(bool checked)
+void MainWindow::triggerRenameAndDisplayNext(bool checked)
 {
     (void)checked;
     if (processRename())
         displayNext();
 }
 
-void
-MainWindow::triggerRenameAndMove(bool checked)
+void MainWindow::triggerRenameAndMove(bool checked)
 {
     (void)checked;
     if (processRenameAndMove())
         displayNext();
 }
 
-void
-MainWindow::triggerShowAbout(bool checked)
+void MainWindow::triggerShowAbout(bool checked)
 {
     (void)checked;
     QString details;
@@ -649,8 +615,7 @@ MainWindow::triggerShowAbout(bool checked)
     QMessageBox::about(this, "About Renamifier", details);
 }
 
-void
-MainWindow::triggerStopRender(bool checked)
+void MainWindow::triggerStopRender(bool checked)
 {
     (void)checked;
     viewer->stopRender();

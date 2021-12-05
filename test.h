@@ -60,7 +60,7 @@ private:
     void addTestFiles();
     void confirmThatNothingIsOpen();
     void confirmThatFileIsDisplayed(int index);
-    QTemporaryFile* renameTestFile();
+    QTemporaryFile *renameTestFile();
 };
 
 #endif /* RENAMIFIFER_TEST_H */

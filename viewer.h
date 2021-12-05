@@ -120,7 +120,7 @@ private:
     QVector<QLabel*> textWidgets;
     int totalPageWidth, totalPageHeight;
 
-    QLabel* createContentWidget(bool drawBorder = true);
+    QLabel *createContentWidget(bool drawBorder = true);
     void addPage_(const QImage &image, bool drawBorder = true);
     void resizeEvent(QResizeEvent *event);
 
