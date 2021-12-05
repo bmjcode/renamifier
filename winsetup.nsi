@@ -8,6 +8,9 @@
 ; makensis winsetup.nsi                     (for the 64-bit version)
 ; makensis /DPLATFORM=win32 winsetup.nsi    (for the 32-bit version)
 
+!define MULTIUSER_EXECUTIONLEVEL Highest
+!include MultiUser.nsh
+
 ; Sync this with renamifier.h
 !ifndef VERSION
   !define VERSION "0.1.0"
@@ -187,3 +190,13 @@ Section "Uninstall"
   ; Remove the application directory if it's empty
   RMDir "$INSTDIR"
 SectionEnd
+
+; ------------------------------------------------------------------------
+
+Function .onInit
+  !insertmacro MULTIUSER_INIT
+FunctionEnd
+
+Function un.onInit
+  !insertmacro MULTIUSER_UNINIT
+FunctionEnd

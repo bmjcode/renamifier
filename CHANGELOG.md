@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 * `Enter` on the numeric keypad also triggers the rename action.
 * Improve paged content rendering on high-DPI screens.
+* Create Start menu and desktop shortcuts system-wide rather than per-user.
 
 ## [0.1.0] - 2021-02-27
 ## Added
