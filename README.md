@@ -16,8 +16,6 @@ Using Renamifier is pretty straightforward:
 3. Press Enter (or click the "Rename" button) to rename this file. The next file will be displayed.
 4. Repeats steps 2 and 3 for each remaining file.
 
-After you rename the last file, Renamifier will loop back to the first one. Congratulations, you are done. You can either close the application, or browse for more files to rename.
-
 
 ## Supported File Formats
 
