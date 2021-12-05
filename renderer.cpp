@@ -335,8 +335,7 @@ void Renderer::renderUnidentified()
 /*
  * Returns a hex dump of the specified file in the style of xxd(1).
  */
-static const QString
-hexDump(QIODevice &device)
+static const QString hexDump(QIODevice &device)
 {
     QString output;
     QTextStream outputStream(&output);
@@ -392,8 +391,7 @@ hexDump(QIODevice &device)
  * Stores debug and error messages from Poppler so we can display them
  * in the application.
  */
-static void
-storePopplerError(const QString &message, const QVariant &closure)
+static void storePopplerError(const QString &message, const QVariant &closure)
 {
     (void)closure;
     if (!popplerError.isEmpty())
@@ -404,8 +402,7 @@ storePopplerError(const QString &message, const QVariant &closure)
 /*
  * Helper function to return the path to the Ghostscript executable.
  */
-static const QString
-findGhostscript()
+static const QString findGhostscript()
 {
     static QString program;
     if (program.isEmpty()) {
@@ -457,8 +454,7 @@ findGhostscript()
 /*
  * Helper function to return the path to the GhostXPS executable.
  */
-static const QString
-findGhostXPS()
+static const QString findGhostXPS()
 {
     static QString program;
     if (program.isEmpty()) {
@@ -498,8 +494,7 @@ findGhostXPS()
  * Returns the full path to the program executable if found, or an empty
  * string otherwise.
  */
-static const QString
-findInSystemPath(const QString &fileName)
+static const QString findInSystemPath(const QString &fileName)
 {
     QString program, candidate;
     QStringList paths = QString(std::getenv("PATH")).split(":");
