@@ -607,7 +607,19 @@ void MainWindow::triggerRenameAndDisplayNext(bool checked)
 {
     (void)checked;
     if (processRename())
-        displayNext();
+        if (currentFileIndex + 1 == fileNames.size()) {
+            QMessageBox::StandardButton response = QMessageBox::question(
+                this,
+                "Done Renaming Files",
+                "All files have been renamed. Exit now?",
+                QMessageBox::Yes | QMessageBox::No
+            );
+            if (response == QMessageBox::Yes)
+                QTimer::singleShot(0, this, &QApplication::quit);
+            else
+                displayNext();
+        } else
+            displayNext();
 }
 
 void MainWindow::triggerRenameAndMove(bool checked)

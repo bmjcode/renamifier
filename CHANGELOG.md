@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ## Changed
+* Prompt to exit the application after renaming the last file.
 * Follow Qt's coding style.
 * Cleaned up some messy spots in the code.
 ## Fixed
