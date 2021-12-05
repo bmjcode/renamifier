@@ -59,7 +59,8 @@ void Viewer::display(const QString &path)
 {
     clear();
     renderThread = new QThread;
-    renderer = new Renderer(path, physicalDpiX(), physicalDpiY());
+    // Always use logical DPI for correctly-scaled output on high-DPI screens
+    renderer = new Renderer(path, logicalDpiX(), logicalDpiY());
     renderer->moveToThread(renderThread);
 
     // QThread signals
@@ -254,8 +255,8 @@ void PagedContentViewer::clear()
 QSize PagedContentViewer::sizeHint() const
 {
     int initialWidth, initialHeight;
-    initialWidth = INITIAL_WIDTH * physicalDpiX() / INITIAL_FACTOR;
-    initialHeight = INITIAL_HEIGHT * physicalDpiY();
+    initialWidth = INITIAL_WIDTH * logicalDpiX() / INITIAL_FACTOR;
+    initialHeight = INITIAL_HEIGHT * logicalDpiY();
 
     // Compensate for the viewport margins and vertical scroll bar
     QMargins margins = viewportMargins();
