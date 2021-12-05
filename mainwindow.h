@@ -82,9 +82,7 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
     // The rename methods are protected because they should only be triggered
-    // interactively by the user, not programatically. There is an exception
-    // for test.cpp, which uses a subclass to expose the internals it needs for
-    // unit testing (this is also why we use protected rather than private).
+    // interactively by the user, not programatically.
     bool processRename();
     bool processRenameAndMove();
     bool readyToRename();
