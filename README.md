@@ -9,10 +9,10 @@ Renamifier lets you rename files while you're viewing them, making it easier to 
 
 File | Size | Description
 ---- | ---- | -----------
-[renamifier-0.1.0-win32-setup.exe](https://github.com/bmjcode/renamifier/releases/download/v0.1.0/renamifier-0.1.0-win32-setup.exe) | 36 MB | Windows (32-bit installer)
-[renamifier-0.1.0-win64-setup.exe](https://github.com/bmjcode/renamifier/releases/download/v0.1.0/renamifier-0.1.0-win64-setup.exe) | 36 MB | Windows (64-bit installer)
-[renamifier-0.1.0.zip](https://github.com/bmjcode/renamifier/archive/refs/tags/v0.1.0.zip) | | source code (zip)
-[renamifier-0.1.0.tar.gz](https://github.com/bmjcode/renamifier/archive/refs/tags/v0.1.0.tar.gz) | | source code (tar.gz)
+[renamifier-0.1.1-win32-setup.exe](https://github.com/bmjcode/renamifier/releases/download/v0.1.1/renamifier-0.1.1-win32-setup.exe) | 37 MB | Windows (32-bit installer)
+[renamifier-0.1.1-win64-setup.exe](https://github.com/bmjcode/renamifier/releases/download/v0.1.1/renamifier-0.1.1-win64-setup.exe) | 37 MB | Windows (64-bit installer)
+[renamifier-0.1.1.zip](https://github.com/bmjcode/renamifier/archive/refs/tags/v0.1.1.zip) | | source code (zip)
+[renamifier-0.1.1.tar.gz](https://github.com/bmjcode/renamifier/archive/refs/tags/v0.1.1.tar.gz) | | source code (tar.gz)
 
 
 ## How to Use Renamifier

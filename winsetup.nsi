@@ -13,7 +13,7 @@
 
 ; Sync this with renamifier.h
 !ifndef VERSION
-  !define VERSION "0.1.0"
+  !define VERSION "0.1.1"
 !endif
 
 ; This can be "win32" or "win64"
