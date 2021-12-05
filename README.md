@@ -2,7 +2,7 @@
 
 ![Screenshot of Renamifier displaying part of its own source code](docs/screenshot.png)
 
-Renamifier lets you rename files while you're viewing them, making it easier to give them meaningful names. It is especially useful for organizing files with automatically-generated names, like scanned documents or digital camera photos.
+Renamifier lets you rename files while you're viewing them, making it easier to give them meaningful names. It's great for organizing files with automatically-generated names, like scanned documents or digital camera photos.
 
 
 ## Downloads
