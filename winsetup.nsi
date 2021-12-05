@@ -165,9 +165,6 @@ Section "Uninstall"
     SetRegView 32
   !endif
 
-  ;; Uninstall our local copy of Ghostscript
-  ;ExecWait '"$INSTDIR\Ghostscript\uninstgs.exe" /S _?=$INSTDIR\Ghostscript'
-
   ; Delete registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Renamifier"
   DeleteRegKey HKLM "Software\Benjamin Johnson\Renamifier"
@@ -190,5 +187,3 @@ Section "Uninstall"
   ; Remove the application directory if it's empty
   RMDir "$INSTDIR"
 SectionEnd
-
-; vim: set sts=2 sw=2 et nowrap :
