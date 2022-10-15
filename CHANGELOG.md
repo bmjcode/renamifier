@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2022-10-15
+### Changed
+* Prompt to exit the application after rename-and-moving the last file.
+* Update the bundled dependencies on Windows.
+### Fixed
+* Recognize `application/xps` as an alternate MIME type for XPS documents.
+
 ## [0.1.1] - 2021-12-05
 ### Changed
 * Prompt to exit the application after renaming the last file.
@@ -18,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * Initial public release.
 
-[Unreleased]: https://github.com/bmjcode/renamifier/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/bmjcode/renamifier/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/bmjcode/renamifier/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/bmjcode/renamifier/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/bmjcode/renamifier/releases/tag/v0.1.0

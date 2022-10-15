@@ -79,6 +79,7 @@ protected:
     void createActions();
     void createMenus();
     void createToolBar();
+    void displayNextOrPromptToExit();
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
     // The rename methods are protected because they should only be triggered

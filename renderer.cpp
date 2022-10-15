@@ -65,7 +65,8 @@ void Renderer::render()
 {
     // Specific MIME types
     // List alphabetically by name
-    if (mimeType.inherits("application/oxps"))
+    if (mimeType.inherits("application/oxps")
+        || mimeType.inherits("application/xps"))
         renderXPS();
     else if (mimeType.inherits("application/pdf"))
         renderPDF();

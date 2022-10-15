@@ -324,6 +324,23 @@ void MainWindow::createToolBar()
         ->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 }
 
+void MainWindow::displayNextOrPromptToExit()
+{
+    if (currentFileIndex + 1 == fileNames.size()) {
+        QMessageBox::StandardButton response = QMessageBox::question(
+            this,
+            "Done Renaming Files",
+            "All files have been renamed. Exit Renamifier?",
+            QMessageBox::Yes | QMessageBox::No
+        );
+        if (response == QMessageBox::Yes)
+            QTimer::singleShot(0, this, &QApplication::quit);
+        else
+            displayNext();
+    } else
+        displayNext();
+}
+
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasUrls()) {
@@ -607,26 +624,14 @@ void MainWindow::triggerRenameAndDisplayNext(bool checked)
 {
     (void)checked;
     if (processRename())
-        if (currentFileIndex + 1 == fileNames.size()) {
-            QMessageBox::StandardButton response = QMessageBox::question(
-                this,
-                "Done Renaming Files",
-                "All files have been renamed. Exit now?",
-                QMessageBox::Yes | QMessageBox::No
-            );
-            if (response == QMessageBox::Yes)
-                QTimer::singleShot(0, this, &QApplication::quit);
-            else
-                displayNext();
-        } else
-            displayNext();
+        displayNextOrPromptToExit();
 }
 
 void MainWindow::triggerRenameAndMove(bool checked)
 {
     (void)checked;
     if (processRenameAndMove())
-        displayNext();
+        displayNextOrPromptToExit();
 }
 
 void MainWindow::triggerShowAbout(bool checked)
