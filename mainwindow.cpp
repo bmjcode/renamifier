@@ -449,6 +449,9 @@ bool MainWindow::processRenameAndMove()
     if (dstPath.isEmpty())
         return false;
     else {
+        // Always preserve the original file extension
+        if (QFileInfo(dstPath).suffix() != suffix)
+            dstPath += "." + suffix;
         if (rename_(srcPath, dstPath)) {
             // Open the next dialog in the directory where we moved this file
             lastMoveDir = QFileInfo(dstPath).path();
