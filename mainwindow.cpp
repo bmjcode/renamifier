@@ -86,7 +86,7 @@ void MainWindow::browseForDir()
 
 #undef BROWSE_FOR_DIR_LABEL
 
-void MainWindow::browseForFiles(bool quitIfCanceled)
+void MainWindow::browseForFiles()
 {
     QStringList pathList = QFileDialog::getOpenFileNames(
         this,
@@ -94,10 +94,7 @@ void MainWindow::browseForFiles(bool quitIfCanceled)
         lastBrowseDir
     );
 
-    if (pathList.isEmpty()) {
-        if (quitIfCanceled)
-            QTimer::singleShot(0, this, &QApplication::quit);
-    } else {
+    if (!pathList.isEmpty()) {
         closeAll();
         for (int i = 0; i < pathList.size(); ++i)
             addFile(pathList[i]);

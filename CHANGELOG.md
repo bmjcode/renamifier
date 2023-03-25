@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 * Open the rename and move dialog in the file's original location the first time it is used.
+* Don't quit the program if the initial browse dialog is canceled. (A user might want to open files another way like dragging and dropping.)
 ### Fixed
 * Don't process Unix-style hidden files whose names start with a `.` character.
 * Always preserve the original file extension when rename-and-moving.

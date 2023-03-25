@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
     QStringList positionalArguments = parser.positionalArguments();
     if (positionalArguments.isEmpty())
-        window.browseForFiles(true);
+        window.browseForFiles();
     else {
         QStringListIterator pathIterator(positionalArguments);
         while (pathIterator.hasNext())

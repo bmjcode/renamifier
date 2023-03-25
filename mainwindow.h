@@ -46,7 +46,7 @@ public:
 
     void addPath(const QString &path, bool recurseIntoSubdirs = false);
     void browseForDir();
-    void browseForFiles(bool quitIfCanceled = false);
+    void browseForFiles();
     void closeAll();
     void closeCurrent();
     void displayFile(int index = 0);
