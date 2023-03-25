@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags f)
 
     currentFileIndex = -1;
     lastBrowseDir = QDir::homePath();
-    lastMoveDir = QDir::homePath();
+    // processRenameAndMove() sets the initial value of lastMoveDir
 
     updateWindowTitle();
     nameEntry->setFocus();
@@ -431,6 +431,8 @@ bool MainWindow::processRenameAndMove()
         return false;
 
     QString srcPath = fileNames[currentFileIndex];
+    if (lastMoveDir.isEmpty())
+        lastMoveDir = QFileInfo(srcPath).path();
 
     // Open the dialog in the last directory we moved a file to,
     // and suggest whatever name is currently in nameEntry
