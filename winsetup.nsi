@@ -60,8 +60,20 @@ UninstPage instfiles
 Section "Renamifier"
   SectionIn RO
 
-  ; Include the application files
   SetOutPath $INSTDIR
+
+  ; Remove older versions of GhostXPS
+  RMDir /r "$INSTDIR\ghostxps-9.53.3-win32"
+  RMDir /r "$INSTDIR\ghostxps-9.53.3-win64"
+
+  ; Remove older versions of dependencies
+  Delete "$INSTDIR\libicudt68.dll"
+  Delete "$INSTDIR\libicuin68.dll"
+  Delete "$INSTDIR\libicuuc68.dll"
+  Delete "$INSTDIR\libpcre-1.dll"
+  Delete "$INSTDIR\libpoppler-105.dll"
+
+  ; Include the application files
   File renamifier.exe
 
   ; Include Qt dependencies
