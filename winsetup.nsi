@@ -69,6 +69,8 @@ Section "Renamifier"
   RMDir /r "$INSTDIR\ghostxps-10.0.0-win64"
 
   ; Remove older versions of dependencies
+  Delete "$INSTDIR\libcrypto-1_1.dll"
+  Delete "$INSTDIR\libcrypto-1_1-x64.dll"
   Delete "$INSTDIR\libicudt68.dll"
   Delete "$INSTDIR\libicuin68.dll"
   Delete "$INSTDIR\libicuuc68.dll"
@@ -78,6 +80,10 @@ Section "Renamifier"
   Delete "$INSTDIR\libpcre-1.dll"
   Delete "$INSTDIR\libpoppler-105.dll"
   Delete "$INSTDIR\libpoppler-122.dll"
+  Delete "$INSTDIR\libssl-1_1.dll"
+  Delete "$INSTDIR\libssl-1_1-x64.dll"
+  Delete "$INSTDIR\libtiff-5.dll"
+  Delete "$INSTDIR\libunistring-2.dll"
 
   ; Include the application files
   File renamifier.exe
@@ -99,9 +105,9 @@ Section "Renamifier"
   File "${MINGW_DIR}\bin\libbrotlidec.dll"
   File "${MINGW_DIR}\bin\libbz2-1.dll"
   !if ${PLATFORM} == "win64"
-    File "${MINGW_DIR}\bin\libcrypto-1_1-x64.dll"
+    File "${MINGW_DIR}\bin\libcrypto-3-x64.dll"
   !else
-    File "${MINGW_DIR}\bin\libcrypto-1_1.dll"
+    File "${MINGW_DIR}\bin\libcrypto-3.dll"
   !endif
   File "${MINGW_DIR}\bin\libcurl-4.dll"
   File "${MINGW_DIR}\bin\libdeflate.dll"
@@ -134,12 +140,12 @@ Section "Renamifier"
   File "${MINGW_DIR}\bin\libpsl-5.dll"
   File "${MINGW_DIR}\bin\libssh2-1.dll"
   !if ${PLATFORM} == "win64"
-    File "${MINGW_DIR}\bin\libssl-1_1-x64.dll"
+    File "${MINGW_DIR}\bin\libssl-3-x64.dll"
   !else
-    File "${MINGW_DIR}\bin\libssl-1_1.dll"
+    File "${MINGW_DIR}\bin\libssl-3.dll"
   !endif
-  File "${MINGW_DIR}\bin\libtiff-5.dll"
-  File "${MINGW_DIR}\bin\libunistring-2.dll"
+  File "${MINGW_DIR}\bin\libtiff-6.dll"
+  File "${MINGW_DIR}\bin\libunistring-5.dll"
   File "${MINGW_DIR}\bin\libwebp-7.dll"
   File "${MINGW_DIR}\bin\libzstd.dll"
   File "${MINGW_DIR}\bin\nss3.dll"
