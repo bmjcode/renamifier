@@ -144,6 +144,7 @@ Section "Renamifier"
   !else
     File "${MINGW_DIR}\bin\libssl-3.dll"
   !endif
+  File "${MINGW_DIR}\bin\libsharpyuv-0.dll"
   File "${MINGW_DIR}\bin\libtiff-6.dll"
   File "${MINGW_DIR}\bin\libunistring-5.dll"
   File "${MINGW_DIR}\bin\libwebp-7.dll"
