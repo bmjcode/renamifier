@@ -185,7 +185,12 @@ void MainWindow::addDir(const QString &path, bool recurseIntoSubdirs)
 
 void MainWindow::addFile(const QString &path)
 {
-    fileNames.append(path);
+    // Skip Unix-style hidden files whose names start with a "." character.
+    // The current renaming logic doesn't handle those well, and since those
+    // are usually configuration files and other things that shouldn't be
+    // renamed anyway, I don't see any real need to fix it.
+    if (!QFileInfo(path).baseName().isEmpty())
+        fileNames.append(path);
 }
 
 void MainWindow::createActions()

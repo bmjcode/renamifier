@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 * Open the rename and move dialog in the file's original location the first time it is used.
 ### Fixed
+* Don't process Unix-style hidden files whose names start with a `.` character.
 * Always preserve the original file extension when rename-and-moving.
 * Remove obsolete dependencies when upgrading the Windows version.
 
