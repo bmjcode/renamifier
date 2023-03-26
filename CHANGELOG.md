@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.3] - 2022-03-25
 ### Changed
 * Open the rename and move dialog in the file's original location the first time it is used.
 * Don't quit the program if the initial browse dialog is canceled. (A user might want to open files another way like dragging and dropping.)
@@ -34,7 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * Initial public release.
 
-[Unreleased]: https://github.com/bmjcode/renamifier/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/bmjcode/renamifier/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/bmjcode/renamifier/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/bmjcode/renamifier/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/bmjcode/renamifier/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/bmjcode/renamifier/releases/tag/v0.1.0
