@@ -84,6 +84,11 @@ Section "Renamifier"
   Delete "$INSTDIR\libssl-1_1-x64.dll"
   Delete "$INSTDIR\libtiff-5.dll"
   Delete "$INSTDIR\libunistring-2.dll"
+  RMDir /r "$INSTDIR\iconengines"
+  RMDir /r "$INSTDIR\imageformats"
+  RMDir /r "$INSTDIR\platforms"
+  RMDir /r "$INSTDIR\styles"
+  RMDir /r "$INSTDIR\translations"
 
   ; Include the application files
   File renamifier.exe
