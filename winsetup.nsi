@@ -67,6 +67,8 @@ Section "Renamifier"
   RMDir /r "$INSTDIR\ghostxps-9.53.3-win64"
   RMDir /r "$INSTDIR\ghostxps-10.0.0-win32"
   RMDir /r "$INSTDIR\ghostxps-10.0.0-win64"
+  RMDir /r "$INSTDIR\ghostxps-10.01.0-win32"
+  RMDir /r "$INSTDIR\ghostxps-10.01.0-win64"
 
   ; Remove older versions of dependencies
   Delete "$INSTDIR\libcrypto-1_1.dll"

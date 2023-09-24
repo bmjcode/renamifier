@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 ### Fixed
 * Clean up Qt support files when upgrading the Windows version.
+* Clean up the existing GhostXPS installation when upgrading the Windows version.
 
 ## [0.1.3] - 2022-03-25
 ### Changed
