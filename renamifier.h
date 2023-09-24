@@ -20,7 +20,7 @@
 #ifndef RENAMIFIER_H
 #define RENAMIFIER_H
 
-#define VERSION "0.1.3"
+#define VERSION "0.1.4"
 
 #define COPYRIGHT_HTML \
 "<p>Copyright &copy; 2021, 2022, 2023 Benjamin Johnson</p>"
