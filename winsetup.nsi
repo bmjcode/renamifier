@@ -1,8 +1,8 @@
 ; This script builds the Windows installer for Renamifier.
 ;
 ; Extract the GhostXPS distribution file to the build directory:
-; ghostxps-10.01.0-win64.zip                (for the 64-bit version)
-; ghostxps-10.01.0-win32.zip                (for the 32-bit version)
+; ghostxps-10.02.0-win64.zip                (for the 64-bit version)
+; ghostxps-10.02.0-win32.zip                (for the 32-bit version)
 ;
 ; Usage:
 ; makensis winsetup.nsi                     (for the 64-bit version)
@@ -23,12 +23,12 @@
 
 !if ${PLATFORM} == "win64"
   !define MINGW_DIR "C:\msys64\mingw64"
-  !define GXPS_DIR "ghostxps-10.01.0-win64"
+  !define GXPS_DIR "ghostxps-10.02.0-win64"
   InstallDir "$PROGRAMFILES64\Renamifier"
 
 !else if ${PLATFORM} == "win32"
   !define MINGW_DIR "C:\msys64\mingw32"
-  !define GXPS_DIR "ghostxps-10.01.0-win32"
+  !define GXPS_DIR "ghostxps-10.02.0-win32"
   InstallDir "$PROGRAMFILES32\Renamifier"
 
 !else
@@ -69,6 +69,8 @@ Section "Renamifier"
   RMDir /r "$INSTDIR\ghostxps-10.0.0-win64"
   RMDir /r "$INSTDIR\ghostxps-10.01.0-win32"
   RMDir /r "$INSTDIR\ghostxps-10.01.0-win64"
+  RMDir /r "$INSTDIR\ghostxps-10.02.0-win32"
+  RMDir /r "$INSTDIR\ghostxps-10.02.0-win64"
 
   ; Remove older versions of dependencies
   Delete "$INSTDIR\libcrypto-1_1.dll"
@@ -79,9 +81,13 @@ Section "Renamifier"
   Delete "$INSTDIR\libicudt71.dll"
   Delete "$INSTDIR\libicuin71.dll"
   Delete "$INSTDIR\libicuuc71.dll"
+  Delete "$INSTDIR\libicudt72.dll"
+  Delete "$INSTDIR\libicuin72.dll"
+  Delete "$INSTDIR\libicuuc72.dll"
   Delete "$INSTDIR\libpcre-1.dll"
   Delete "$INSTDIR\libpoppler-105.dll"
   Delete "$INSTDIR\libpoppler-122.dll"
+  Delete "$INSTDIR\libpoppler-126.dll"
   Delete "$INSTDIR\libssl-1_1.dll"
   Delete "$INSTDIR\libssl-1_1-x64.dll"
   Delete "$INSTDIR\libtiff-5.dll"
@@ -124,9 +130,9 @@ Section "Renamifier"
   File "${MINGW_DIR}\bin\libgraphite2.dll"
   File "${MINGW_DIR}\bin\libharfbuzz-0.dll"
   File "${MINGW_DIR}\bin\libiconv-2.dll"
-  File "${MINGW_DIR}\bin\libicudt72.dll"
-  File "${MINGW_DIR}\bin\libicuin72.dll"
-  File "${MINGW_DIR}\bin\libicuuc72.dll"
+  File "${MINGW_DIR}\bin\libicudt73.dll"
+  File "${MINGW_DIR}\bin\libicuin73.dll"
+  File "${MINGW_DIR}\bin\libicuuc73.dll"
   File "${MINGW_DIR}\bin\libidn2-0.dll"
   File "${MINGW_DIR}\bin\libintl-8.dll"
   File "${MINGW_DIR}\bin\libjbig-0.dll"
@@ -142,7 +148,7 @@ Section "Renamifier"
   File "${MINGW_DIR}\bin\libplc4.dll"
   File "${MINGW_DIR}\bin\libplds4.dll"
   File "${MINGW_DIR}\bin\libpng16-16.dll"
-  File "${MINGW_DIR}\bin\libpoppler-126.dll"
+  File "${MINGW_DIR}\bin\libpoppler-130.dll"
   File "${MINGW_DIR}\bin\libpoppler-qt5-1.dll"
   File "${MINGW_DIR}\bin\libpsl-5.dll"
   File "${MINGW_DIR}\bin\libssh2-1.dll"
