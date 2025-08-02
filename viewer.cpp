@@ -60,7 +60,7 @@ void Viewer::display(const QString &path)
     clear();
     renderThread = new QThread;
     // Always use logical DPI for correctly-scaled output on high-DPI screens
-    renderer = new Renderer(path, logicalDpiX(), logicalDpiY());
+    renderer = Renderer::create(path, logicalDpiX(), logicalDpiY());
     renderer->moveToThread(renderThread);
 
     // QThread signals

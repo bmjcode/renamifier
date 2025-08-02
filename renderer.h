@@ -1,6 +1,6 @@
 /*
- * Support for reading various file formats.
- * Copyright (c) 2021 Benjamin Johnson
+ * Interface for file format renderers.
+ * Copyright (c) 2021, 2025 Benjamin Johnson
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,26 +26,34 @@
 #include <QMimeType>
 
 /*
- * The Renderer processes files into a format the Viewer can display.
+ * A Renderer processes files into a format the Viewer can display.
  *
  * It is intended to run in its own QThread, to prevent long render operations
  * from locking up the user interface.
  *
- * If you're adding support for a new file format, this is the place to start.
+ * This class defines the basic renderer API but does not itself implement
+ * any rendering logic. See render_formats.h and render_formats.cpp for that.
+ *
+ * Use Renderer::create() to create a renderer for a given file. This will
+ * automatically select the correct subclass to use based on the file type.
  */
 class Renderer : public QObject
 {
     Q_OBJECT
 
 public:
-    Renderer(const QString &path, int dpiX, int dpiY);
-
+    static Renderer *create(const QString &path, int dpiX, int dpiY);
     static void init();
+
+    inline void setDPI(int x, int y) { dpiX = x; dpiY = y; }
+
+    inline QMimeType mimeType() { return mimeType_; }
+    inline void setMimeType(const QMimeType &type) { mimeType_ = type; }
 
     enum RenderMode { TextContent, PagedContent };
 
 public slots:
-    void render();
+    virtual void render() = 0;
 
 signals:
     void renderMode(int mode);  // should be a value from RenderMode
@@ -57,19 +65,14 @@ signals:
     // Use for plain text
     void renderedText(const QString &text);
 
-private:
+protected:
     QString path;
-    QMimeType mimeType;
+    QMimeType mimeType_;
     int dpiX, dpiY;
 
+    Renderer(const QString &path);
+
     void renderError(const QString &details = QString());
-    void renderImage();
-    void renderPDF(QByteArray data = nullptr);
-    void renderPS();
-    void renderXPS();
-    void renderText();
-    void renderTIFF();
-    void renderUnidentified();
 };
 
 #endif /* RENDERER_H */

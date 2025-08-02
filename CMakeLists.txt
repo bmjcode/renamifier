@@ -19,6 +19,7 @@ enable_testing(true)
 
 qt_add_library(renamifier-ui
                mainwindow.cpp
+               render_formats.cpp
                renderer.cpp
                viewer.cpp)
 target_include_directories(renamifier-ui
