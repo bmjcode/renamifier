@@ -21,6 +21,7 @@
 #define RENDERER_H
 
 #include <QObject>  // inherited by basically everything else
+#include <QByteArray>
 #include <QString>
 #include <QMimeType>
 
@@ -63,7 +64,7 @@ private:
 
     void renderError(const QString &details = QString());
     void renderImage();
-    void renderPDF(void *document = nullptr);
+    void renderPDF(QByteArray data = nullptr);
     void renderPS();
     void renderXPS();
     void renderText();

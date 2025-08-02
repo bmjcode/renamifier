@@ -52,7 +52,7 @@ XPS | `.xps` | [GhostXPS](https://www.ghostscript.com/download/gxpsdnld.html) (i
 
 To build Renamifier from source, you will need:
 
-* [Qt 5](https://www.qt.io/)
+* [Qt 6](https://www.qt.io/)
 * [Poppler](https://poppler.freedesktop.org/)
 * [CMake](https://cmake.org/)
 

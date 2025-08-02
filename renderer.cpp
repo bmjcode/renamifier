@@ -19,11 +19,12 @@
 
 #include <cctype>
 #include <cstdlib>
+#include <memory>
 
 #include <QtCore>
 #include <QApplication>
 #include <QImage>
-#include <poppler-qt5.h>
+#include <poppler-qt6.h>
 
 #include "renderer.h"
 
@@ -97,13 +98,13 @@ void Renderer::renderError(const QString &details)
 
     // Tell the user what happened
     textStream << "An error occurred while attempting to display this file:"
-               << endl
+               << Qt::endl
                << path;
 
     // Append details if we have them
     if (!details.isEmpty())
-        textStream << endl
-                   << endl
+        textStream << Qt::endl
+                   << Qt::endl
                    << details;
 
     emit renderMode(TextContent);
@@ -130,26 +131,18 @@ void Renderer::renderImage()
  *
  * You can render formats Poppler doesn't natively support by converting
  * them internally to PDF (perhaps with some external program), then passing
- * your own document object created with Poppler::Document::loadFromData().
- * This function takes ownership of the passed document.
+ * the raw PDF data as the 'data' parameter.
  *
- * If you don't provide your own document object, this function behaves like
- * the other rendering functions and uses the document specified by this->path.
- *
- * The document argument is a void* so we don't have to include Poppler's
- * headers and all their clutter in renderer.h.
+ * If you don't provide a 'data' parameter, this function behaves like the
+ * other rendering functions and uses the document specified by this->path.
  */
-void Renderer::renderPDF(void *document_)
+void Renderer::renderPDF(QByteArray data)
 {
-    Poppler::Document *document;
-    Poppler::Page *page;
-    QImage image;
-
-    // Check whether an existing document was passed
-    if (document_ == nullptr)
+    std::unique_ptr<Poppler::Document> document;
+    if (data == nullptr)
         document = Poppler::Document::load(path);
     else
-        document = (Poppler::Document*)document_;
+        document = Poppler::Document::loadFromData(data);
 
     // Check whether an error occurred while rendering this document
     if (document == nullptr) {
@@ -169,8 +162,8 @@ void Renderer::renderPDF(void *document_)
         if (QThread::currentThread()->isInterruptionRequested())
             break;
 
-        page = document->page(i);
-        image = page->renderToImage(dpiX, dpiY);
+        std::unique_ptr<Poppler::Page> page = document->page(i);
+        QImage image = page->renderToImage(dpiX, dpiY);
 
         if (image.isNull()) {
             QString message;
@@ -178,10 +171,8 @@ void Renderer::renderPDF(void *document_)
             emit renderedText(message);
         } else
             emit renderedPage(image);
-        delete page;
         emit renderProgress(i + 1, numPages);
     }
-    delete document;
 }
 
 /*
@@ -210,11 +201,9 @@ void Renderer::renderPS()
 
     QProcess gs;
     gs.start(program, arguments);
-    if (gs.waitForFinished() && gs.exitCode() == 0) {
-        Poppler::Document *document =
-            Poppler::Document::loadFromData(gs.readAllStandardOutput());
-        renderPDF((void*)document);
-    } else {
+    if (gs.waitForFinished() && gs.exitCode() == 0)
+        renderPDF(gs.readAllStandardOutput());
+    else {
         QString message;
         QTextStream(&message) << gs.readAll();
         renderError(message);
@@ -244,11 +233,9 @@ void Renderer::renderXPS()
 
     QProcess gxps;
     gxps.start(program, arguments);
-    if (gxps.waitForFinished() && gxps.exitCode() == 0) {
-        Poppler::Document *document =
-            Poppler::Document::loadFromData(gxps.readAllStandardOutput());
-        renderPDF((void*)document);
-    } else {
+    if (gxps.waitForFinished() && gxps.exitCode() == 0)
+        renderPDF(gxps.readAllStandardOutput());
+    else {
         QString message;
         QTextStream(&message) << gxps.readAll();
         renderError(message);
@@ -291,10 +278,10 @@ void Renderer::renderTIFF()
     QString warning;
     QTextStream(&warning)
         << "Displaying page 1 of file:"
-        << endl
+        << Qt::endl
         << path
-        << endl
-        << endl
+        << Qt::endl
+        << Qt::endl
         << "Please note that support for multi-page TIFF documents "
            "is not yet implemented.";
 
@@ -317,16 +304,16 @@ void Renderer::renderUnidentified()
         QString message;
         QTextStream(&message)
             << "Unable to find a suitable renderer for this file:"
-            << endl
+            << Qt::endl
             << path
-            << endl
-            << endl
+            << Qt::endl
+            << Qt::endl
             << "Its detected MIME type is " << mimeType.name() << "."
-            << endl
+            << Qt::endl
             << "Please include this information if you submit a "
                "feature request or bug report."
-            << endl
-            << endl
+            << Qt::endl
+            << Qt::endl
             << output;
         emit renderMode(TextContent);
         emit renderedText(message);
@@ -342,7 +329,7 @@ static const QString hexDump(QIODevice &device)
     QTextStream outputStream(&output);
     outputStream.setPadChar('0');
 
-    outputStream << hex;
+    outputStream << Qt::hex;
     if (device.open(QIODevice::ReadOnly)) {
         char c[16];
         int bytesRead, position;
@@ -380,7 +367,7 @@ static const QString hexDump(QIODevice &device)
             // characters in this line
             for (int i = 0; i < std::min(bytesRead, 16); ++i)
                 outputStream << (std::isprint(c[i]) ? c[i] : '.');
-            outputStream << endl;
+            outputStream << Qt::endl;
         }
         device.close();
     } else
