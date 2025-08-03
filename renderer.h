@@ -70,6 +70,8 @@ protected:
     Renderer();
 
     void renderError(const QString &details = QString());
+    QByteArray runHelper(const QString &program,
+                         const QStringList &arguments);
 };
 
 #endif /* RENDERER_H */

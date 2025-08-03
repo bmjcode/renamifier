@@ -79,17 +79,27 @@ void PDFRenderer::init()
 void PDFRenderer::render()
 {
     std::unique_ptr<Poppler::Document> document;
-    if (mimeType_.inherits("application/oxps")
-        || mimeType_.inherits("application/xps"))
-        document = Poppler::Document::loadFromData(convertFromXPS());
+
+    if (mimeType_.inherits("application/pdf"))
+        document = Poppler::Document::load(path_);
     else if (mimeType_.inherits("application/postscript"))
         document = Poppler::Document::loadFromData(convertFromPostscript());
-    else
-        document = Poppler::Document::load(path_);
+    else if (mimeType_.inherits("application/oxps")
+        || mimeType_.inherits("application/xps"))
+        document = Poppler::Document::loadFromData(convertFromXPS());
 
     // Check whether an error occurred while rendering this document
     if (document == nullptr) {
-        renderError(popplerError);
+        if (popplerError.isEmpty()) {
+            // Renderer::create() should prevent this from ever happening,
+            // but we should handle it just in case...
+            QString message;
+            QTextStream(&message)
+                << "Invalid MIME type for PDFRenderer: "
+                << mimeType_.name();
+            renderError(message);
+        } else
+            renderError(popplerError);
         return;
     }
 
@@ -136,16 +146,7 @@ QByteArray PDFRenderer::convertFromPostscript()
               << "-sOutputFile=-"
               << path_;
 
-    QProcess gs;
-    gs.start(program, arguments);
-    if (gs.waitForFinished() && gs.exitCode() == 0)
-        return gs.readAllStandardOutput();
-    else {
-        QString message;
-        QTextStream(&message) << gs.readAll();
-        renderError(message);
-    }
-    return nullptr;
+    return runHelper(program, arguments);
 }
 
 QByteArray PDFRenderer::convertFromXPS()
@@ -163,16 +164,7 @@ QByteArray PDFRenderer::convertFromXPS()
               << "-sOutputFile=-"
               << path_;
 
-    QProcess gxps;
-    gxps.start(program, arguments);
-    if (gxps.waitForFinished() && gxps.exitCode() == 0)
-        return gxps.readAllStandardOutput();
-    else {
-        QString message;
-        QTextStream(&message) << gxps.readAll();
-        renderError(message);
-    }
-    return nullptr;
+    return runHelper(program, arguments);
 }
 
 TextRenderer::TextRenderer()

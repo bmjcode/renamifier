@@ -95,3 +95,23 @@ void Renderer::renderError(const QString &details)
     emit renderMode(TextContent);
     emit renderedText(message);
 }
+
+/*
+ * Run an external program to convert a file into something we can display.
+ *
+ * Returns the raw data as a QByteArray.
+ */
+QByteArray Renderer::runHelper(const QString &program,
+                               const QStringList &arguments)
+{
+    QProcess helper;
+    helper.start(program, arguments);
+    if (helper.waitForFinished() && helper.exitCode() == 0)
+        return helper.readAllStandardOutput();
+    else {
+        QString message;
+        QTextStream(&message) << helper.readAll();
+        renderError(message);
+    }
+    return nullptr;
+}
