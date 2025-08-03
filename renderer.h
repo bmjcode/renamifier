@@ -45,7 +45,9 @@ public:
     static Renderer *create(const QString &path, int dpiX, int dpiY);
     static void init();
 
-    inline QMimeType mimeType() { return mimeType_; }
+    inline QString path() const { return path_; }
+    inline QMimeType mimeType() const { return mimeType_; }
+    inline int numPages() const { return numPages_; }
 
     enum RenderMode { TextContent, PagedContent };
 
@@ -65,7 +67,7 @@ signals:
 protected:
     QString path_;
     QMimeType mimeType_;
-    int dpiX_, dpiY_;
+    int dpiX_, dpiY_, numPages_;
 
     Renderer();
 

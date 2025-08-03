@@ -107,11 +107,11 @@ void PDFRenderer::render()
     document->setRenderHint(Poppler::Document::Antialiasing);
     document->setRenderHint(Poppler::Document::TextAntialiasing);
 
-    int numPages = document->numPages();
+    numPages_ = document->numPages();
     emit renderMode(PagedContent);
-    emit renderProgress(0, numPages);
+    emit renderProgress(0, numPages_);
 
-    for (int i = 0; i < numPages; ++i) {
+    for (int i = 0; i < numPages_; ++i) {
         if (QThread::currentThread()->isInterruptionRequested())
             break;
 
@@ -124,7 +124,7 @@ void PDFRenderer::render()
             emit renderedText(message);
         } else
             emit renderedPage(image);
-        emit renderProgress(i + 1, numPages);
+        emit renderProgress(i + 1, numPages_);
     }
 }
 
