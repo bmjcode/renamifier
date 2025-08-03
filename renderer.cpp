@@ -35,21 +35,23 @@ Renderer *Renderer::create(const QString &path, int dpiX, int dpiY)
         || mimeType.inherits("application/pdf")
         || mimeType.inherits("application/postscript")
         || mimeType.inherits("application/xps"))
-        renderer = new PDFRenderer(path);
+        renderer = new PDFRenderer();
 
     // More generic MIME types
     // These come last since more specific types may inherit from them
     else if (mimeType.name().startsWith("image/"))
-        renderer = new ImageRenderer(path);
+        renderer = new ImageRenderer();
     else if (mimeType.inherits("text/plain"))
-        renderer = new TextRenderer(path);
+        renderer = new TextRenderer();
 
     // Fallback if we can't identify this file
     else
-        renderer = new UnknownFormatRenderer(path);
+        renderer = new UnknownFormatRenderer();
 
-    renderer->setDPI(dpiX, dpiY);
-    renderer->setMimeType(mimeType);
+    renderer->path_ = path;
+    renderer->mimeType_ = mimeType;
+    renderer->dpiX_ = dpiX;
+    renderer->dpiY_ = dpiY;
     return renderer;
 }
 
@@ -64,11 +66,11 @@ void Renderer::init()
 /*
  * Construct a new Renderer.
  */
-Renderer::Renderer(const QString &path_)
+Renderer::Renderer()
 {
-    path = path_;
-    dpiX = 0;
-    dpiY = 0;
+    // DPI of a standard PC screen
+    dpiX_ = 96;
+    dpiY_ = 96;
 }
 
 /*
@@ -82,7 +84,7 @@ void Renderer::renderError(const QString &details)
     // Tell the user what happened
     textStream << "An error occurred while attempting to display this file:"
                << Qt::endl
-               << path;
+               << path_;
 
     // Append details if we have them
     if (!details.isEmpty())

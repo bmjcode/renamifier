@@ -36,14 +36,14 @@ static const QString findInSystemPath(const QString &fileName);
 static const QString hexDump(QIODevice &device);
 static void storePopplerError(const QString &message, const QVariant &closure);
 
-ImageRenderer::ImageRenderer(const QString &path)
-    : Renderer(path)
+ImageRenderer::ImageRenderer()
+    : Renderer()
 {
 }
 
 void ImageRenderer::render()
 {
-    QImage image(path);
+    QImage image(path_);
     if (image.isNull()) {
         renderError();
         return;
@@ -55,7 +55,7 @@ void ImageRenderer::render()
         QTextStream(&warning)
             << "Displaying page 1 of file:"
             << Qt::endl
-            << path
+            << path_
             << Qt::endl
             << Qt::endl
             << "Please note that support for multi-page TIFF documents "
@@ -65,8 +65,8 @@ void ImageRenderer::render()
     emit renderedImage(image);
 }
 
-PDFRenderer::PDFRenderer(const QString &path)
-    : Renderer(path)
+PDFRenderer::PDFRenderer()
+    : Renderer()
 {
     popplerError.clear();
 }
@@ -85,7 +85,7 @@ void PDFRenderer::render()
     else if (mimeType_.inherits("application/postscript"))
         document = Poppler::Document::loadFromData(convertFromPostscript());
     else
-        document = Poppler::Document::load(path);
+        document = Poppler::Document::load(path_);
 
     // Check whether an error occurred while rendering this document
     if (document == nullptr) {
@@ -106,7 +106,7 @@ void PDFRenderer::render()
             break;
 
         std::unique_ptr<Poppler::Page> page = document->page(i);
-        QImage image = page->renderToImage(dpiX, dpiY);
+        QImage image = page->renderToImage(dpiX_, dpiY_);
 
         if (image.isNull()) {
             QString message;
@@ -134,7 +134,7 @@ QByteArray PDFRenderer::convertFromPostscript()
               << "-dSAFER"
               << "-sDEVICE=pdfwrite"
               << "-sOutputFile=-"
-              << path;
+              << path_;
 
     QProcess gs;
     gs.start(program, arguments);
@@ -161,7 +161,7 @@ QByteArray PDFRenderer::convertFromXPS()
     arguments << "-dNOPAUSE"
               << "-sDEVICE=pdfwrite"
               << "-sOutputFile=-"
-              << path;
+              << path_;
 
     QProcess gxps;
     gxps.start(program, arguments);
@@ -175,14 +175,14 @@ QByteArray PDFRenderer::convertFromXPS()
     return nullptr;
 }
 
-TextRenderer::TextRenderer(const QString &path)
-    : Renderer(path)
+TextRenderer::TextRenderer()
+    : Renderer()
 {
 }
 
 void TextRenderer::render()
 {
-    QFile file(path);
+    QFile file(path_);
     QString contents;
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -194,14 +194,14 @@ void TextRenderer::render()
         renderError(file.errorString());
 }
 
-UnknownFormatRenderer::UnknownFormatRenderer(const QString &path)
-    : Renderer(path)
+UnknownFormatRenderer::UnknownFormatRenderer()
+    : Renderer()
 {
 }
 
 void UnknownFormatRenderer::render()
 {
-    QFile file(path);
+    QFile file(path_);
     QString output = hexDump(file);
     if (output.isEmpty()) {
         renderError(file.errorString());
@@ -211,7 +211,7 @@ void UnknownFormatRenderer::render()
         QTextStream(&message)
             << "Unable to find a suitable renderer for this file:"
             << Qt::endl
-            << path
+            << path_
             << Qt::endl
             << Qt::endl
             << "Its detected MIME type is " << mimeType_.name() << "."

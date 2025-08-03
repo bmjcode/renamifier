@@ -45,10 +45,7 @@ public:
     static Renderer *create(const QString &path, int dpiX, int dpiY);
     static void init();
 
-    inline void setDPI(int x, int y) { dpiX = x; dpiY = y; }
-
     inline QMimeType mimeType() { return mimeType_; }
-    inline void setMimeType(const QMimeType &type) { mimeType_ = type; }
 
     enum RenderMode { TextContent, PagedContent };
 
@@ -66,11 +63,11 @@ signals:
     void renderedText(const QString &text);
 
 protected:
-    QString path;
+    QString path_;
     QMimeType mimeType_;
-    int dpiX, dpiY;
+    int dpiX_, dpiY_;
 
-    Renderer(const QString &path);
+    Renderer();
 
     void renderError(const QString &details = QString());
 };

@@ -31,7 +31,7 @@ class ImageRenderer : public Renderer {
     Q_OBJECT
 
 public:
-    ImageRenderer(const QString &path);
+    ImageRenderer();
 
     void render();
 };
@@ -49,7 +49,7 @@ class PDFRenderer : public Renderer {
     Q_OBJECT
 
 public:
-    PDFRenderer(const QString &path);
+    PDFRenderer();
 
     static void init();
 
@@ -67,7 +67,7 @@ class TextRenderer : public Renderer {
     Q_OBJECT
 
 public:
-    TextRenderer(const QString &path);
+    TextRenderer();
 
     void render();
 };
@@ -79,7 +79,7 @@ class UnknownFormatRenderer : public Renderer {
     Q_OBJECT
 
 public:
-    UnknownFormatRenderer(const QString &path);
+    UnknownFormatRenderer();
 
     void render();
 };
