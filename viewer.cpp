@@ -239,9 +239,10 @@ PagedContent::~PagedContent()
 
 void PagedContent::clear()
 {
+    for (int i = 0; i < pages.count(); i++)
+        delete pages[i];
     pages.clear();
-    setMinimumSize(0, 0);
-    resize(0, 0);
+    setContentSize(0, 0);
     update();
 }
 
