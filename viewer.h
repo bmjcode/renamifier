@@ -37,6 +37,7 @@
 // For internal use
 class TextContentViewer;
 class PagedContentViewer;
+class PagedContent;
 
 /*
  * File preview widget.
@@ -71,6 +72,7 @@ protected:
     // of these to display its content
     TextContentViewer *textContentViewer;
     PagedContentViewer *pagedContentViewer;
+    PagedContent *pagedContent;
 
 protected slots:
     void addImage(const QImage &image);
@@ -105,30 +107,33 @@ class PagedContentViewer : public QScrollArea
 
 public:
     PagedContentViewer(QWidget *parent);
-    ~PagedContentViewer();
 
+    QSize sizeHint() const;
+
+private:
+    void resizeEvent(QResizeEvent *event);
+};
+
+class PagedContent : public QFrame
+{
+    Q_OBJECT
+
+public:
+    PagedContent(QWidget *parent);
+    ~PagedContent();
+
+    void clear();
     void reservePages(int numPages);
+    void setContentSize(int w, int h);
     void setPageDimensions(int num, int w, int h);
 
     void addImage(const QImage &image);
     void addPage(int num, const QImage &image, bool drawBorder = true);
-    void addText(const QString &text);
-    void clear();
-
-    QSize sizeHint() const;
-    void setContentSize(int w, int h);
 
 private:
-    QFrame *frame;
     QVBoxLayout *layout;
     QList<QLabel*> pageWidgets;
-    QList<QLabel*> textWidgets;
     QSize contentSize_;
-
-    void resizeEvent(QResizeEvent *event);
-
-private slots:
-    void resizeFrame();
 };
 
 #endif /* VIEWER_H */
