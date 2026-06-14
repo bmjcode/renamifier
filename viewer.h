@@ -31,6 +31,7 @@
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QVBoxLayout>
+#include <QPaintEvent>
 
 #include "renderer.h"
 
@@ -38,6 +39,7 @@
 class TextContentViewer;
 class PagedContentViewer;
 class PagedContent;
+struct Page;
 
 /*
  * File preview widget.
@@ -128,11 +130,12 @@ public:
     void setPageDimensions(int num, int w, int h);
 
     void addImage(const QImage &image);
-    void addPage(int num, const QImage &image, bool drawBorder = true);
+    void addPage(int num, const QImage &image);
 
 private:
-    QVBoxLayout *layout;
-    QList<QLabel*> pageWidgets;
+    void paintEvent(QPaintEvent *event);
+
+    QList<Page*> pages;
     QSize contentSize_;
 };
 

@@ -41,6 +41,21 @@
 
 /* ------------------------------------------------------------------------ */
 
+struct Page {
+    Page();
+
+    QImage image;
+    int width;
+    int height;
+};
+
+Page::Page()
+{
+    width = height = 0;
+}
+
+/* ------------------------------------------------------------------------ */
+
 Viewer::Viewer(QWidget *parent)
     : QStackedWidget(parent)
 {
@@ -223,7 +238,6 @@ void PagedContentViewer::resizeEvent(QResizeEvent *event)
 PagedContent::PagedContent(QWidget *parent)
     : QFrame(parent)
 {
-    layout = new QVBoxLayout(this);
 }
 
 PagedContent::~PagedContent()
@@ -233,26 +247,18 @@ PagedContent::~PagedContent()
 
 void PagedContent::clear()
 {
-    for (int i = 0; i < pageWidgets.size(); ++i) {
-        layout->removeWidget(pageWidgets[i]);
-        delete pageWidgets[i];
-    }
-    pageWidgets.clear();
-
+    pages.clear();
     setMinimumSize(0, 0);
     resize(0, 0);
+    update();
 }
 
 void PagedContent::reservePages(int numPages)
 {
     clear();
-    pageWidgets.reserve(numPages);
-    for (int i = 0; i < numPages; i++) {
-        QLabel *pageWidget = new QLabel(this);
-        pageWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        layout->addWidget(pageWidget);
-        pageWidgets.append(pageWidget);
-    }
+    pages.reserve(numPages);
+    for (int i = 0; i < numPages; i++)
+        pages.append(new Page);
 }
 
 void PagedContent::setContentSize(int w, int h)
@@ -264,9 +270,10 @@ void PagedContent::setContentSize(int w, int h)
 
 void PagedContent::setPageDimensions(int num, int w, int h)
 {
-    if (num < pageWidgets.size()) {
-        QLabel *pageWidget = pageWidgets[num];
-        pageWidget->setMinimumSize(w, h);
+    if (num < pages.size()) {
+        Page *page = pages[num];
+        page->width = w;
+        page->height = h;
     }
 }
 
@@ -275,23 +282,35 @@ void PagedContent::setPageDimensions(int num, int w, int h)
  */
 void PagedContent::addImage(const QImage &image)
 {
-    addPage(0, image, false);
+    addPage(0, image);
 }
 
 /*
  * Add a page from a multi-page document.
  */
-void PagedContent::addPage(int num, const QImage &image, bool drawBorder)
+void PagedContent::addPage(int num, const QImage &image)
 {
-    if (num < pageWidgets.size()) {
-        QLabel *widget = pageWidgets[num];
-        if (drawBorder) {
-            widget->setBackgroundRole(QPalette::Base);
-            widget->setAutoFillBackground(true);
-            widget->setFrameStyle(QFrame::Box | QFrame::Plain);
-            widget->setLineWidth(1);
-            widget->setMargin(PAGE_MARGIN);
+    if (num < pages.size()) {
+        Page *page = pages[num];
+        page->image = image;
+    }
+    update();
+}
+
+void PagedContent::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    int x, y = 0;
+
+    painter.setClipRegion(event->region());
+    for (int i = 0; i < pages.count(); i++) {
+        Page *page = pages[i];
+        QRegion pageRegion = QRegion(0, y, page->width, page->height);
+        if (event->region().intersects(pageRegion)) {
+            // Center the image
+            x = (event->rect().width() - page->width) / 2;
+            painter.drawImage(x, y, page->image);
         }
-        widget->setPixmap(QPixmap::fromImage(image));
+        y += page->height + 2 * PAGE_MARGIN;
     }
 }
