@@ -69,8 +69,8 @@ public slots:
     void stopRender();
 
 protected:
-    Renderer *renderer;
     QThread *renderThread;
+    Renderer *renderer;
     // The Viewer widget automatically selects the most appropriate
     // of these to display its content
     TextContentViewer *textContentViewer;

@@ -70,14 +70,18 @@ Viewer::Viewer(QWidget *parent)
     pagedContent = new PagedContent(pagedContentViewer);
     pagedContentViewer->setWidget(pagedContent);
 
-    // QThread is responsible for this while it exists
     renderer = nullptr;
-    renderThread = nullptr;
+    renderThread = new QThread(this);
+    renderThread->start();
 }
 
 Viewer::~Viewer()
 {
     clear();
+    if (renderThread != nullptr) {
+        renderThread->quit();
+        renderThread->wait();
+    }
 }
 
 void Viewer::display(const QString &path)
@@ -85,7 +89,6 @@ void Viewer::display(const QString &path)
     int w, h, pageCount;
 
     clear();
-    renderThread = new QThread;
     // Always use logical DPI for correctly-scaled output on high-DPI screens
     renderer = Renderer::create(path, logicalDpiX(), logicalDpiY());
     renderer->moveToThread(renderThread);
@@ -105,14 +108,6 @@ void Viewer::display(const QString &path)
     }
     pagedContent->setContentSize(w, h);
 
-    // QThread signals
-    connect(renderThread, &QThread::started,
-            renderer, &Renderer::render);
-    connect(renderThread, &QThread::finished,
-            renderer, &QObject::deleteLater);
-    connect(renderThread, &QThread::finished,
-            renderThread, &QObject::deleteLater);
-
     // Renderer signals
     connect(renderer, &Renderer::renderedPage,
             this, &Viewer::addPage);
@@ -125,7 +120,7 @@ void Viewer::display(const QString &path)
     connect(pagedContent, &PagedContent::pageRequested,
             renderer, &Renderer::renderPage);
 
-    renderThread->start();
+    QTimer::singleShot(0, renderer, &Renderer::render);
 }
 
 void Viewer::setFocusPolicy(Qt::FocusPolicy policy)
@@ -145,19 +140,11 @@ void Viewer::clear()
 
 void Viewer::stopRender()
 {
-    // renderer and renderThread are cleaned up by QObject::deleteLater()
     if (renderer != nullptr) {
         // Don't respond to any more signals from this Renderer
         disconnect(renderer, nullptr, nullptr, nullptr);
+        delete renderer;
         renderer = nullptr;
-    }
-    if (renderThread != nullptr) {
-        if (renderThread->isRunning())
-            renderThread->requestInterruption();
-        // Trust, but verify
-        renderThread->quit();
-        renderThread->wait();
-        renderThread = nullptr;
     }
 }
 
