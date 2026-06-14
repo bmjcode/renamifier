@@ -47,11 +47,13 @@ struct Page {
     QImage image;
     int width;
     int height;
+    bool isRendering;
 };
 
 Page::Page()
 {
     width = height = 0;
+    isRendering = false;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -285,6 +287,7 @@ void PagedContent::addPage(int num, const QImage &image)
     if (num < pages.size()) {
         Page *page = pages[num];
         page->image = image;
+        page->isRendering = false;
     }
     update();
 }
@@ -302,7 +305,10 @@ void PagedContent::paintEvent(QPaintEvent *event)
             if (page->image.isNull()) {
                 // We don't have an image for this page, so tell the renderer
                 // to produce one and addPage() will repaint when it's ready
-                emit pageRequested(i);
+                if (!page->isRendering) {
+                    page->isRendering = true;
+                    emit pageRequested(i);
+                }
                 break;
             }
             // Center the image
