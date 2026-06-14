@@ -217,8 +217,9 @@ QSize PagedContentViewer::sizeHint() const
  */
 void PagedContentViewer::resizeEvent(QResizeEvent *event)
 {
-    widget()->resize(std::max(viewport()->width(), widget()->width()),
-                     std::max(viewport()->height(), widget()->height()));
+    widget()->resize(
+        std::max(viewport()->width(), widget()->minimumWidth()),
+        std::max(viewport()->height(), widget()->minimumHeight()));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -282,13 +283,18 @@ void PagedContent::addPage(int num, const QImage &image)
 void PagedContent::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    int x, y = 0, paintedPages = 0;
+    int x, y, paintedPages = 0;
+    Page *page;
+    QRect pageRect;
 
     painter.setClipRegion(event->region());
-    for (int i = 0; i < pages.count(); i++) {
-        Page *page = pages[i];
-        QRegion pageRegion = QRegion(0, y, page->width, page->height);
-        if (event->region().intersects(pageRegion)) {
+    for (int i = 0, y = 0; i < pages.count(); i++) {
+        page = pages[i];
+        // Center the image
+        x = std::max(0, (event->rect().width() - page->width) / 2);
+
+        pageRect = QRect(x, y, page->width, page->height);
+        if (event->region().intersects(pageRect)) {
             if (page->image.isNull()) {
                 // We don't have an image for this page, so tell the renderer
                 // to produce one and addPage() will repaint when it's ready
@@ -298,12 +304,11 @@ void PagedContent::paintEvent(QPaintEvent *event)
                 }
                 break;
             }
-            // Center the image
-            x = (event->rect().width() - page->width) / 2;
             painter.drawImage(x, y, page->image);
             paintedPages++;
         } else if (paintedPages > 0)
             break;  // we're done painting
+
         y += page->height + 2 * PAGE_MARGIN;
     }
 }
