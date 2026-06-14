@@ -145,7 +145,6 @@ void MainWindow::displayFile(int index)
         nameEntry->setFocus();
         nameEntry->selectAll();
     }
-    statusBar()->clearMessage();
 }
 
 void MainWindow::displayNext()
