@@ -20,7 +20,11 @@
 #ifndef RENDER_FORMATS_H
 #define RENDER_FORMATS_H
 
+#include <memory>
+
 #include <QtCore>
+#include <QImage>
+#include <poppler-qt6.h>
 
 #include "renderer.h"
 
@@ -33,7 +37,14 @@ class ImageRenderer : public Renderer {
 public:
     ImageRenderer();
 
+    inline int numPages() const { return 1; }
+    inline QSize pageSize(int num) const { return image.size(); }
+
+    void load();
     void render();
+
+private:
+    QImage image;
 };
 
 /*
@@ -53,11 +64,18 @@ public:
 
     static void init();
 
+    inline int numPages() const
+        { return (document == nullptr) ? 0 : document->numPages(); }
+    QSize pageSize(int num) const;
+
+    void load();
     void render();
 
 private:
     QByteArray convertFromPostscript();
     QByteArray convertFromXPS();
+
+    std::unique_ptr<Poppler::Document> document;
 };
 
 /*
@@ -69,6 +87,10 @@ class TextRenderer : public Renderer {
 public:
     TextRenderer();
 
+    inline int numPages() const { return 1; }
+    inline QSize pageSize(int num) const { return QSize(0, 0); }
+
+    void load() { }
     void render();
 };
 
@@ -81,6 +103,10 @@ class UnknownFormatRenderer : public Renderer {
 public:
     UnknownFormatRenderer();
 
+    inline int numPages() const { return 1; }
+    inline QSize pageSize(int num) const { return QSize(0, 0); }
+
+    void load() { }
     void render();
 };
 

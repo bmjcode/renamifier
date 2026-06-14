@@ -19,12 +19,9 @@
 
 #include <cctype>
 #include <cstdlib>
-#include <memory>
 
 #include <QtCore>
 #include <QApplication>
-#include <QImage>
-#include <poppler-qt6.h>
 
 #include "render_formats.h"
 
@@ -41,9 +38,13 @@ ImageRenderer::ImageRenderer()
 {
 }
 
+void ImageRenderer::load()
+{
+    image = QImage(path_);
+}
+
 void ImageRenderer::render()
 {
-    QImage image(path_);
     if (image.isNull()) {
         renderError();
         return;
@@ -68,18 +69,12 @@ void ImageRenderer::render()
 PDFRenderer::PDFRenderer()
     : Renderer()
 {
+    document = nullptr;
     popplerError.clear();
 }
 
-void PDFRenderer::init()
+void PDFRenderer::load()
 {
-    Poppler::setDebugErrorFunction(&storePopplerError, QVariant());
-}
-
-void PDFRenderer::render()
-{
-    std::unique_ptr<Poppler::Document> document;
-
     if (mimeType_.inherits("application/pdf"))
         document = Poppler::Document::load(path_);
     else if (mimeType_.inherits("application/postscript"))
@@ -87,6 +82,30 @@ void PDFRenderer::render()
     else if (mimeType_.inherits("application/oxps")
         || mimeType_.inherits("application/xps"))
         document = Poppler::Document::loadFromData(convertFromXPS());
+}
+
+void PDFRenderer::init()
+{
+    Poppler::setDebugErrorFunction(&storePopplerError, QVariant());
+}
+
+QSize PDFRenderer::pageSize(int num) const
+{
+    if (document != nullptr) {
+        std::unique_ptr<Poppler::Page> page = document->page(num);
+        if (page != nullptr) {
+            QSize pointSize = page->pageSize();
+            // Convert points to pixels at our current DPI
+            return QSize(pointSize.width() * dpiX_ / 72,
+                         pointSize.height() * dpiY_ / 72);
+        }
+    }
+    return QSize(0, 0);
+}
+
+void PDFRenderer::render()
+{
+    int numPages_;
 
     // Check whether an error occurred while rendering this document
     if (document == nullptr) {
@@ -107,7 +126,7 @@ void PDFRenderer::render()
     document->setRenderHint(Poppler::Document::Antialiasing);
     document->setRenderHint(Poppler::Document::TextAntialiasing);
 
-    numPages_ = document->numPages();
+    numPages_ = numPages();
     emit renderMode(PagedContent);
     emit renderProgress(0, numPages_);
 
@@ -123,7 +142,7 @@ void PDFRenderer::render()
             QTextStream(&message) << "Failed to render page " << i + 1 << ".";
             emit renderedText(message);
         } else
-            emit renderedPage(image);
+            emit renderedPage(i, image);
         emit renderProgress(i + 1, numPages_);
     }
 }

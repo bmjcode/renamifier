@@ -22,7 +22,8 @@
 
 #include <QObject>  // inherited by basically everything else
 #include <QThread>
-#include <QVector>
+#include <QList>
+#include <QSize>
 
 #include <QFrame>
 #include <QLabel>
@@ -73,7 +74,7 @@ protected:
 
 protected slots:
     void addImage(const QImage &image);
-    void addPage(const QImage &image);
+    void addPage(int num, const QImage &image);
     void addText(const QString &text);
     void setRenderMode(int mode);
 
@@ -106,22 +107,24 @@ public:
     PagedContentViewer(QWidget *parent);
     ~PagedContentViewer();
 
+    void reservePages(int numPages);
+    void setPageDimensions(int num, int w, int h);
+
     void addImage(const QImage &image);
-    void addPage(const QImage &image);
+    void addPage(int num, const QImage &image, bool drawBorder = true);
     void addText(const QString &text);
     void clear();
 
     QSize sizeHint() const;
+    void setContentSize(int w, int h);
 
 private:
     QFrame *frame;
     QVBoxLayout *layout;
-    QVector<QLabel*> pageWidgets;
-    QVector<QLabel*> textWidgets;
-    int totalPageWidth, totalPageHeight;
+    QList<QLabel*> pageWidgets;
+    QList<QLabel*> textWidgets;
+    QSize contentSize_;
 
-    QLabel *createContentWidget(bool drawBorder = true);
-    void addPage_(const QImage &image, bool drawBorder = true);
     void resizeEvent(QResizeEvent *event);
 
 private slots:

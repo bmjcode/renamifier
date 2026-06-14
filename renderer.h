@@ -22,6 +22,7 @@
 
 #include <QObject>  // inherited by basically everything else
 #include <QByteArray>
+#include <QSize>
 #include <QString>
 #include <QMimeType>
 
@@ -47,7 +48,9 @@ public:
 
     inline QString path() const { return path_; }
     inline QMimeType mimeType() const { return mimeType_; }
-    inline int numPages() const { return numPages_; }
+
+    virtual int numPages() const = 0;
+    virtual QSize pageSize(int num) const = 0;  // in pixels
 
     enum RenderMode { TextContent, PagedContent };
 
@@ -60,7 +63,7 @@ signals:
     // Use for standard image files
     void renderedImage(const QImage &image);
     // Use for pages from a multi-page document like a PDF file
-    void renderedPage(const QImage &image);
+    void renderedPage(int num, const QImage &image);
     // Use for plain text
     void renderedText(const QString &text);
 
@@ -70,6 +73,7 @@ protected:
     int dpiX_, dpiY_, numPages_;
 
     Renderer();
+    virtual void load() = 0;
 
     void renderError(const QString &details = QString());
     QByteArray runHelper(const QString &program,

@@ -57,11 +57,29 @@ Viewer::Viewer(QWidget *parent)
 
 void Viewer::display(const QString &path)
 {
+    int w, h, pageCount;
+
     clear();
     renderThread = new QThread;
     // Always use logical DPI for correctly-scaled output on high-DPI screens
     renderer = Renderer::create(path, logicalDpiX(), logicalDpiY());
     renderer->moveToThread(renderThread);
+
+    pageCount = renderer->numPages();
+    pagedContentViewer->reservePages(pageCount);
+
+    // Calculate the content area
+    w = 0;
+    h = 2 * (pageCount - 1) * PAGE_MARGIN;
+    for (int i = 0; i < pageCount; i++) {
+        QSize pageSize = renderer->pageSize(i);
+        pagedContentViewer->
+            setPageDimensions(i, pageSize.width(), pageSize.height());
+        // The total width is that of the widest page
+        w = std::max(w, pageSize.width());
+        h += pageSize.height();
+    }
+    pagedContentViewer->setContentSize(w, h);
 
     // QThread signals
     connect(renderThread, &QThread::started,
@@ -124,9 +142,9 @@ void Viewer::addImage(const QImage &image)
     pagedContentViewer->addImage(image);
 }
 
-void Viewer::addPage(const QImage &image)
+void Viewer::addPage(int num, const QImage &image)
 {
-    pagedContentViewer->addPage(image);
+    pagedContentViewer->addPage(num, image);
 }
 
 void Viewer::addText(const QString &text)
@@ -174,13 +192,6 @@ PagedContentViewer::PagedContentViewer(QWidget *parent)
     layout = new QVBoxLayout(frame);
     setWidget(frame);
     setBackgroundRole(QPalette::Dark);
-
-    // Total width and height of graphical elements in pageWidgets
-    // Note: Storing these is an optimization; since they contain fixed
-    // images, their dimensions don't change. Text widgets are not included
-    // since they are resized dynamically to fit the viewport.
-    totalPageWidth = 0;
-    totalPageHeight = 0;
 }
 
 PagedContentViewer::~PagedContentViewer()
@@ -188,20 +199,51 @@ PagedContentViewer::~PagedContentViewer()
     clear();
 }
 
+void PagedContentViewer::reservePages(int numPages)
+{
+    clear();
+    pageWidgets.reserve(numPages);
+    for (int i = 0; i < numPages; i++) {
+        QLabel *pageWidget = new QLabel(frame);
+        pageWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        layout->addWidget(pageWidget);
+        pageWidgets.append(pageWidget);
+    }
+}
+
+void PagedContentViewer::setPageDimensions(int num, int w, int h)
+{
+    if (num < pageWidgets.size()) {
+        QLabel *pageWidget = pageWidgets[num];
+        pageWidget->setMinimumSize(w, h);
+    }
+}
+
 /*
  * Add an image.
  */
 void PagedContentViewer::addImage(const QImage &image)
 {
-    addPage_(image, false);
+    addPage(0, image, false);
 }
 
 /*
  * Add a page from a multi-page document.
  */
-void PagedContentViewer::addPage(const QImage &image)
+void PagedContentViewer::addPage(int num, const QImage &image,
+                                 bool drawBorder)
 {
-    addPage_(image);
+    if (num < pageWidgets.size()) {
+        QLabel *widget = pageWidgets[num];
+        if (drawBorder) {
+            widget->setBackgroundRole(QPalette::Base);
+            widget->setAutoFillBackground(true);
+            widget->setFrameStyle(QFrame::Box | QFrame::Plain);
+            widget->setLineWidth(1);
+            widget->setMargin(PAGE_MARGIN);
+        }
+        widget->setPixmap(QPixmap::fromImage(image));
+    }
 }
 
 /*
@@ -216,7 +258,7 @@ void PagedContentViewer::addPage(const QImage &image)
  */
 void PagedContentViewer::addText(const QString &text)
 {
-    QLabel *textWidget = createContentWidget();
+    QLabel *textWidget = new QLabel(frame);
     textWidget->setMargin(TEXT_MARGIN);
     textWidget->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     textWidget->setTextFormat(Qt::PlainText);
@@ -242,8 +284,6 @@ void PagedContentViewer::clear()
     pageWidgets.clear();
     textWidgets.clear();
 
-    totalPageWidth = 0;
-    totalPageHeight = 0;
     frame->setMinimumSize(0, 0);
     frame->resize(0, 0);
 }
@@ -266,45 +306,9 @@ QSize PagedContentViewer::sizeHint() const
     return QSize(initialWidth, initialHeight);
 }
 
-/*
- * Create a widget to display content.
- */
-QLabel *PagedContentViewer::createContentWidget(bool drawBorder)
+void PagedContentViewer::setContentSize(int w, int h)
 {
-    QLabel *widget = new QLabel(frame);
-    if (drawBorder) {
-        widget->setBackgroundRole(QPalette::Base);
-        widget->setAutoFillBackground(true);
-        widget->setFrameStyle(QFrame::Box | QFrame::Plain);
-        widget->setLineWidth(1);
-        widget->setMargin(PAGE_MARGIN);
-    }
-
-    return widget;
-}
-
-/*
- * Add a widget displaying graphical content.
- *
- * Used by addImage() and addPage(). The only difference between the two is
- * pages are displayed with a border around their content, and images are not.
- * This matches the format typically used by other document and image viewers,
- * respectively.
- */
-void PagedContentViewer::addPage_(const QImage &image, bool drawBorder)
-{
-    QLabel *pageWidget = createContentWidget(drawBorder);
-    pageWidget->setPixmap(QPixmap::fromImage(image));
-    pageWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
-    layout->addWidget(pageWidget);
-    pageWidgets.append(pageWidget);
-
-    // Store the width of the widest page, and the total height of all pages
-    QSize pageSize = pageWidget->minimumSizeHint();
-    totalPageWidth = std::max(totalPageWidth,
-                              pageSize.width() + 2 * PAGE_MARGIN);
-    totalPageHeight += pageSize.height() + 2 * PAGE_MARGIN;
+    contentSize_ = QSize(w, h);
     resizeFrame();
 }
 
@@ -329,11 +333,11 @@ void PagedContentViewer::resizeFrame()
 
     // The frame should be as wide as the viewport or the widest page,
     // whichever is larger. Note that text widgets are always frame width.
-    width = std::max(viewport()->width(), totalPageWidth);
+    width = std::max(viewport()->width(), contentSize_.width());
 
     // The frame should be tall enough to fit all of the displayed content.
     // Images and paged content have fixed heights.
-    height = totalPageHeight;
+    height = contentSize_.height();
     // Text widgets' height must be dynamically calculated since it may
     // change due to word wrapping.
     // Note QLabel::heightForWidth() does not account for margins.

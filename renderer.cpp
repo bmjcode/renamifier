@@ -52,6 +52,7 @@ Renderer *Renderer::create(const QString &path, int dpiX, int dpiY)
     renderer->mimeType_ = mimeType;
     renderer->dpiX_ = dpiX;
     renderer->dpiY_ = dpiY;
+    renderer->load();
     return renderer;
 }
 
