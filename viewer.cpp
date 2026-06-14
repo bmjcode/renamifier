@@ -118,8 +118,10 @@ void Viewer::display(const QString &path)
             this, &Viewer::addText);
     connect(renderer, &Renderer::renderMode,
             this, &Viewer::setRenderMode);
-    connect(renderer, &Renderer::renderProgress,
-            this, &Viewer::renderProgress);
+
+    // PagedContent signals
+    connect(pagedContent, &PagedContent::pageRequested,
+            renderer, &Renderer::renderPage);
 
     renderThread->start();
 }
@@ -290,17 +292,25 @@ void PagedContent::addPage(int num, const QImage &image)
 void PagedContent::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    int x, y = 0;
+    int x, y = 0, paintedPages = 0;
 
     painter.setClipRegion(event->region());
     for (int i = 0; i < pages.count(); i++) {
         Page *page = pages[i];
         QRegion pageRegion = QRegion(0, y, page->width, page->height);
         if (event->region().intersects(pageRegion)) {
+            if (page->image.isNull()) {
+                // We don't have an image for this page, so tell the renderer
+                // to produce one and addPage() will repaint when it's ready
+                emit pageRequested(i);
+                break;
+            }
             // Center the image
             x = (event->rect().width() - page->width) / 2;
             painter.drawImage(x, y, page->image);
-        }
+            paintedPages++;
+        } else if (paintedPages > 0)
+            break;  // we're done painting
         y += page->height + 2 * PAGE_MARGIN;
     }
 }

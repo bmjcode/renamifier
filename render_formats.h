@@ -41,7 +41,7 @@ public:
     inline QSize pageSize(int num) const { return image.size(); }
 
     void load();
-    void render();
+    void renderPage(int num);
 
 private:
     QImage image;
@@ -69,7 +69,7 @@ public:
     QSize pageSize(int num) const;
 
     void load();
-    void render();
+    void renderPage(int num);
 
 private:
     QByteArray convertFromPostscript();
@@ -91,7 +91,7 @@ public:
     inline QSize pageSize(int num) const { return QSize(0, 0); }
 
     void load() { }
-    void render();
+    void renderPage(int num);
 };
 
 /*
@@ -107,7 +107,7 @@ public:
     inline QSize pageSize(int num) const { return QSize(0, 0); }
 
     void load() { }
-    void render();
+    void renderPage(int num);
 };
 
 #endif /* RENDER_FORMATS_H */

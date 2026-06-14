@@ -30,9 +30,6 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags f)
     viewer = new Viewer(this);
     setCentralWidget(viewer);
 
-    connect(viewer, &Viewer::renderProgress,
-            this, &MainWindow::displayRenderProgress);
-
     createMenus();
     createToolBar();
     createActions();  // some actions are attached to nameEntry in the toolbar
@@ -198,12 +195,6 @@ void MainWindow::createActions()
     connect(actionFocusNameEntry, &QAction::triggered,
             this, &MainWindow::triggerFocusNameEntry);
     addAction(actionFocusNameEntry);
-
-    actionStopRender = new QAction(this);
-    actionStopRender->setShortcut(QKeySequence("Escape"));
-    connect(actionStopRender, &QAction::triggered,
-            this, &MainWindow::triggerStopRender);
-    addAction(actionStopRender);
 
     // Name entry actions
     actionDisplayNext = new QAction(nameEntry);
@@ -546,23 +537,6 @@ void MainWindow::updateWindowTitle()
     setWindowTitle(title);
 }
 
-void MainWindow::displayRenderProgress(int pagesDone, int pagesTotal)
-{
-    QString message;
-    if (pagesDone == pagesTotal)
-        statusBar()->clearMessage();
-    else {
-        if (pagesDone == 0)
-            QTextStream(&message) << "Rendering started.";
-        else
-            QTextStream(&message) << "Rendered " << pagesDone
-                                  << " of " << pagesTotal
-                                  << " page" << ((pagesTotal == 1) ? "" : "s")
-                                  << " (press Esc to interrupt).";
-        statusBar()->showMessage(message);
-    }
-}
-
 void MainWindow::triggerBrowseForDir(bool checked)
 {
     (void)checked;
@@ -650,11 +624,4 @@ void MainWindow::triggerShowAbout(bool checked)
         << COPYRIGHT_HTML
         << LICENSE_TEXT_HTML;
     QMessageBox::about(this, "About Renamifier", details);
-}
-
-void MainWindow::triggerStopRender(bool checked)
-{
-    (void)checked;
-    viewer->stopRender();
-    statusBar()->showMessage("Rendering interrupted.");
 }

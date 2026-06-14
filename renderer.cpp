@@ -74,6 +74,11 @@ Renderer::Renderer()
     dpiY_ = 96;
 }
 
+void Renderer::render()
+{
+    renderPage(0);
+}
+
 /*
  * Display an error if we were unable to render a file.
  */

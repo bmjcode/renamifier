@@ -43,7 +43,7 @@ void ImageRenderer::load()
     image = QImage(path_);
 }
 
-void ImageRenderer::render()
+void ImageRenderer::renderPage(int num)
 {
     if (image.isNull()) {
         renderError();
@@ -51,7 +51,7 @@ void ImageRenderer::render()
     }
 
     emit renderMode(PagedContent);
-    emit renderedPage(0, image);
+    emit renderedPage(num, image);
 }
 
 PDFRenderer::PDFRenderer()
@@ -91,10 +91,8 @@ QSize PDFRenderer::pageSize(int num) const
     return QSize(0, 0);
 }
 
-void PDFRenderer::render()
+void PDFRenderer::renderPage(int num)
 {
-    int numPages_;
-
     // Check whether an error occurred while rendering this document
     if (document == nullptr) {
         if (popplerError.isEmpty()) {
@@ -114,20 +112,8 @@ void PDFRenderer::render()
     document->setRenderHint(Poppler::Document::Antialiasing);
     document->setRenderHint(Poppler::Document::TextAntialiasing);
 
-    numPages_ = numPages();
     emit renderMode(PagedContent);
-    emit renderProgress(0, numPages_);
-
-    for (int i = 0; i < numPages_; ++i) {
-        if (QThread::currentThread()->isInterruptionRequested())
-            break;
-
-        std::unique_ptr<Poppler::Page> page = document->page(i);
-        QImage image = page->renderToImage(dpiX_, dpiY_);
-
-        emit renderedPage(i, image);
-        emit renderProgress(i + 1, numPages_);
-    }
+    emit renderedPage(num, document->page(num)->renderToImage(dpiX_, dpiY_));
 }
 
 QByteArray PDFRenderer::convertFromPostscript()
@@ -174,7 +160,7 @@ TextRenderer::TextRenderer()
 {
 }
 
-void TextRenderer::render()
+void TextRenderer::renderPage(int num)
 {
     QFile file(path_);
     QString contents;
@@ -193,7 +179,7 @@ UnknownFormatRenderer::UnknownFormatRenderer()
 {
 }
 
-void UnknownFormatRenderer::render()
+void UnknownFormatRenderer::renderPage(int num)
 {
     QFile file(path_);
     QString output = hexDump(file);

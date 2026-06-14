@@ -28,7 +28,6 @@
 #include <QLineEdit>
 #include <QMainWindow>
 #include <QMenu>
-#include <QProgressBar>
 #include <QToolBar>
 
 #include "viewer.h"
@@ -67,7 +66,6 @@ protected:
     QAction *actionRenameAndDisplayNext;
     QAction *actionKpRenameOnly;
     QAction *actionKpRenameAndDisplayNext;
-    QAction *actionStopRender;
 
     int currentFileIndex;
     QStringList fileNames;
@@ -92,7 +90,6 @@ protected:
     void updateWindowTitle();
 
 protected slots:
-    void displayRenderProgress(int pagesDone, int pagesTotal);
     void triggerBrowseForDir(bool checked);
     void triggerBrowseForFiles(bool checked);
     void triggerCloseCurrent(bool checked);
@@ -105,7 +102,6 @@ protected slots:
     void triggerRenameAndDisplayNext(bool checked);
     void triggerRenameAndMove(bool checked);
     void triggerShowAbout(bool checked);
-    void triggerStopRender(bool checked);
 
 private:
     friend class RenamifierTest;

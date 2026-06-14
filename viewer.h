@@ -81,9 +81,6 @@ protected slots:
     void addPage(int num, const QImage &image);
     void addText(const QString &text);
     void setRenderMode(int mode);
-
-signals:
-    void renderProgress(int pagesDone, int pagesTotal);
 };
 
 /*
@@ -136,6 +133,9 @@ private:
 
     QList<Page*> pages;
     QSize contentSize_;
+
+signals:
+    void pageRequested(int num);
 };
 
 #endif /* VIEWER_H */

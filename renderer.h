@@ -55,11 +55,11 @@ public:
     enum RenderMode { TextContent, PagedContent };
 
 public slots:
-    virtual void render() = 0;
+    void render();
+    virtual void renderPage(int num) = 0;
 
 signals:
     void renderMode(int mode);  // should be a value from RenderMode
-    void renderProgress(int pagesDone, int pagesTotal);
     void renderedPage(int num, const QImage &image);
     void renderedText(const QString &text);
 
