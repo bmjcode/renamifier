@@ -73,6 +73,11 @@ Viewer::Viewer(QWidget *parent)
     renderThread = nullptr;
 }
 
+Viewer::~Viewer()
+{
+    clear();
+}
+
 void Viewer::display(const QString &path)
 {
     int w, h, pageCount;

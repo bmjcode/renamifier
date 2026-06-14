@@ -57,6 +57,7 @@ class Viewer : public QStackedWidget
 
 public:
     Viewer(QWidget *parent);
+    ~Viewer();
 
     void display(const QString &path);
     void setFocusPolicy(Qt::FocusPolicy policy);
