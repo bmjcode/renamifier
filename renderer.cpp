@@ -72,8 +72,6 @@ Renderer::Renderer()
     // DPI of a standard PC screen
     dpiX_ = 96;
     dpiY_ = 96;
-
-    numPages_ = 1;
 }
 
 /*

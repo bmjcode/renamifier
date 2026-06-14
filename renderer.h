@@ -60,17 +60,13 @@ public slots:
 signals:
     void renderMode(int mode);  // should be a value from RenderMode
     void renderProgress(int pagesDone, int pagesTotal);
-    // Use for standard image files
-    void renderedImage(const QImage &image);
-    // Use for pages from a multi-page document like a PDF file
     void renderedPage(int num, const QImage &image);
-    // Use for plain text
     void renderedText(const QString &text);
 
 protected:
     QString path_;
     QMimeType mimeType_;
-    int dpiX_, dpiY_, numPages_;
+    int dpiX_, dpiY_;
 
     Renderer();
     virtual void load() = 0;

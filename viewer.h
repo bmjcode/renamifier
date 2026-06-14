@@ -77,7 +77,6 @@ protected:
     PagedContent *pagedContent;
 
 protected slots:
-    void addImage(const QImage &image);
     void addPage(int num, const QImage &image);
     void addText(const QString &text);
     void setRenderMode(int mode);
@@ -127,9 +126,8 @@ public:
     void clear();
     void reservePages(int numPages);
     void setContentSize(int w, int h);
-    void setPageDimensions(int num, int w, int h);
+    void setPageSize(int num, int w, int h);
 
-    void addImage(const QImage &image);
     void addPage(int num, const QImage &image);
 
 private:

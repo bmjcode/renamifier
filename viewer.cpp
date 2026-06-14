@@ -91,8 +91,7 @@ void Viewer::display(const QString &path)
     h = 2 * (pageCount - 1) * PAGE_MARGIN;
     for (int i = 0; i < pageCount; i++) {
         QSize pageSize = renderer->pageSize(i);
-        pagedContent->
-            setPageDimensions(i, pageSize.width(), pageSize.height());
+        pagedContent->setPageSize(i, pageSize.width(), pageSize.height());
         // The total width is that of the widest page
         w = std::max(w, pageSize.width());
         h += pageSize.height();
@@ -108,8 +107,6 @@ void Viewer::display(const QString &path)
             renderThread, &QObject::deleteLater);
 
     // Renderer signals
-    connect(renderer, &Renderer::renderedImage,
-            this, &Viewer::addImage);
     connect(renderer, &Renderer::renderedPage,
             this, &Viewer::addPage);
     connect(renderer, &Renderer::renderedText,
@@ -153,11 +150,6 @@ void Viewer::stopRender()
         renderThread->wait();
         renderThread = nullptr;
     }
-}
-
-void Viewer::addImage(const QImage &image)
-{
-    pagedContent->addImage(image);
 }
 
 void Viewer::addPage(int num, const QImage &image)
@@ -268,21 +260,13 @@ void PagedContent::setContentSize(int w, int h)
     resize(contentSize_);
 }
 
-void PagedContent::setPageDimensions(int num, int w, int h)
+void PagedContent::setPageSize(int num, int w, int h)
 {
     if (num < pages.size()) {
         Page *page = pages[num];
         page->width = w;
         page->height = h;
     }
-}
-
-/*
- * Add an image.
- */
-void PagedContent::addImage(const QImage &image)
-{
-    addPage(0, image);
 }
 
 /*

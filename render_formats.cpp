@@ -51,19 +51,7 @@ void ImageRenderer::render()
     }
 
     emit renderMode(PagedContent);
-    if (mimeType_.inherits("image/tiff")) {
-        QString warning;
-        QTextStream(&warning)
-            << "Displaying page 1 of file:"
-            << Qt::endl
-            << path_
-            << Qt::endl
-            << Qt::endl
-            << "Please note that support for multi-page TIFF documents "
-               "is not yet implemented.";
-        emit renderedText(warning);
-    }
-    emit renderedImage(image);
+    emit renderedPage(0, image);
 }
 
 PDFRenderer::PDFRenderer()
@@ -80,7 +68,7 @@ void PDFRenderer::load()
     else if (mimeType_.inherits("application/postscript"))
         document = Poppler::Document::loadFromData(convertFromPostscript());
     else if (mimeType_.inherits("application/oxps")
-        || mimeType_.inherits("application/xps"))
+             || mimeType_.inherits("application/xps"))
         document = Poppler::Document::loadFromData(convertFromXPS());
 }
 
@@ -137,12 +125,7 @@ void PDFRenderer::render()
         std::unique_ptr<Poppler::Page> page = document->page(i);
         QImage image = page->renderToImage(dpiX_, dpiY_);
 
-        if (image.isNull()) {
-            QString message;
-            QTextStream(&message) << "Failed to render page " << i + 1 << ".";
-            emit renderedText(message);
-        } else
-            emit renderedPage(i, image);
+        emit renderedPage(i, image);
         emit renderProgress(i + 1, numPages_);
     }
 }
