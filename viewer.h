@@ -25,6 +25,7 @@
 #include <QList>
 #include <QSize>
 
+#include <QColor>
 #include <QFrame>
 #include <QLabel>
 #include <QPlainTextEdit>

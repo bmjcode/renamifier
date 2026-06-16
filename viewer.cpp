@@ -293,6 +293,8 @@ void PagedContent::paintEvent(QPaintEvent *event)
         x = std::max(0, (event->rect().width() - page->width) / 2);
         pageRect = QRect(x, y, page->width, page->height);
         if (event->region().intersects(pageRect)) {
+            // always paint the background even if we don't have an image yet
+            painter.fillRect(pageRect, Qt::white);
             if (page->image.isNull()) {
                 // no image for this page; request one from the renderer
                 if (!page->isRendering) {
