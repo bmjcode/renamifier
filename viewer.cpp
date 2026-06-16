@@ -34,10 +34,7 @@
 #define INITIAL_FACTOR 10
 
 // Margin in pixels for graphical content
-#define PAGE_MARGIN 1
-
-// Margin in pixels for plain-text content
-#define TEXT_MARGIN 8
+#define PAGE_MARGIN 2
 
 /* ------------------------------------------------------------------------ */
 
@@ -86,7 +83,7 @@ Viewer::~Viewer()
 
 void Viewer::display(const QString &path)
 {
-    int w, h, pageCount;
+    int pageCount;
 
     clear();
     // Always use logical DPI for correctly-scaled output on high-DPI screens
@@ -97,16 +94,9 @@ void Viewer::display(const QString &path)
     pagedContent->reservePages(pageCount);
 
     // Calculate the content area
-    w = 0;
-    h = 2 * (pageCount - 1) * PAGE_MARGIN;
-    for (int i = 0; i < pageCount; i++) {
-        QSize pageSize = renderer->pageSize(i);
-        pagedContent->setPageSize(i, pageSize.width(), pageSize.height());
-        // The total width is that of the widest page
-        w = std::max(w, pageSize.width());
-        h += pageSize.height();
-    }
-    pagedContent->setContentSize(w, h);
+    for (int i = 0; i < pageCount; i++)
+        pagedContent->setPageSize(i, renderer->pageSize(i));
+    pagedContent->recalculateArea();
 
     // Renderer signals
     connect(renderer, &Renderer::renderedPage,
@@ -240,8 +230,25 @@ void PagedContent::clear()
     for (int i = 0; i < pages.count(); i++)
         delete pages[i];
     pages.clear();
-    setContentSize(0, 0);
+    recalculateArea();
     update();
+}
+
+void PagedContent::recalculateArea()
+{
+    int w = 0, h = 0, pageCount = pages.count();
+
+    if (pageCount) {
+        h = (pageCount - 1) * PAGE_MARGIN;
+        for (int i = 0; i < pageCount; i++) {
+            Page *page = pages[i];
+            w = std::max(w, page->width);
+            h += page->height;
+        }
+    }
+
+    setMinimumSize(w, h);
+    resize(w, h);
 }
 
 void PagedContent::reservePages(int numPages)
@@ -250,13 +257,6 @@ void PagedContent::reservePages(int numPages)
     pages.reserve(numPages);
     for (int i = 0; i < numPages; i++)
         pages.append(new Page);
-}
-
-void PagedContent::setContentSize(int w, int h)
-{
-    contentSize_ = QSize(w, h);
-    setMinimumSize(contentSize_);
-    resize(contentSize_);
 }
 
 void PagedContent::setPageImage(int num, const QImage &image)
@@ -268,12 +268,12 @@ void PagedContent::setPageImage(int num, const QImage &image)
     }
 }
 
-void PagedContent::setPageSize(int num, int w, int h)
+void PagedContent::setPageSize(int num, const QSize &size)
 {
     if (0 <= num && num < pages.count()) {
         Page *page = pages[num];
-        page->width = w;
-        page->height = h;
+        page->width = size.width();
+        page->height = size.height();
     }
 }
 
@@ -306,6 +306,6 @@ void PagedContent::paintEvent(QPaintEvent *event)
         } else if (paintedPages > 0)
             break;  // we're done painting
 
-        y += page->height + 2 * PAGE_MARGIN;
+        y += page->height + PAGE_MARGIN;
     }
 }

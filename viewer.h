@@ -122,16 +122,15 @@ public:
     ~PagedContent();
 
     void clear();
+    void recalculateArea();
     void reservePages(int numPages);
-    void setContentSize(int w, int h);
     void setPageImage(int num, const QImage &image);
-    void setPageSize(int num, int w, int h);
+    void setPageSize(int num, const QSize &size);
 
 private:
     void paintEvent(QPaintEvent *event);
 
     QList<Page*> pages;
-    QSize contentSize_;
 
 signals:
     void pageRequested(int num);
