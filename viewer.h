@@ -124,9 +124,8 @@ public:
     void clear();
     void reservePages(int numPages);
     void setContentSize(int w, int h);
+    void setPageImage(int num, const QImage &image);
     void setPageSize(int num, int w, int h);
-
-    void addPage(int num, const QImage &image);
 
 private:
     void paintEvent(QPaintEvent *event);

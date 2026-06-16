@@ -150,7 +150,8 @@ void Viewer::stopRender()
 
 void Viewer::addPage(int num, const QImage &image)
 {
-    pagedContent->addPage(num, image);
+    pagedContent->setPageImage(num, image);
+    pagedContent->update();
 }
 
 void Viewer::addText(const QString &text)
@@ -258,6 +259,15 @@ void PagedContent::setContentSize(int w, int h)
     resize(contentSize_);
 }
 
+void PagedContent::setPageImage(int num, const QImage &image)
+{
+    if (num < pages.count()) {
+        Page *page = pages[num];
+        page->image = image;
+        page->isRendering = false;
+    }
+}
+
 void PagedContent::setPageSize(int num, int w, int h)
 {
     if (num < pages.count()) {
@@ -265,19 +275,6 @@ void PagedContent::setPageSize(int num, int w, int h)
         page->width = w;
         page->height = h;
     }
-}
-
-/*
- * Add a page from a multi-page document.
- */
-void PagedContent::addPage(int num, const QImage &image)
-{
-    if (num < pages.count()) {
-        Page *page = pages[num];
-        page->image = image;
-        page->isRendering = false;
-    }
-    update();
 }
 
 void PagedContent::paintEvent(QPaintEvent *event)
@@ -297,7 +294,7 @@ void PagedContent::paintEvent(QPaintEvent *event)
         if (event->region().intersects(pageRect)) {
             if (page->image.isNull()) {
                 // We don't have an image for this page, so tell the renderer
-                // to produce one and addPage() will repaint when it's ready
+                // to produce one and we will restart painting when it's ready
                 if (!page->isRendering) {
                     page->isRendering = true;
                     emit pageRequested(i);
