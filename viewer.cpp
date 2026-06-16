@@ -18,6 +18,7 @@
  */
 
 #include <algorithm>
+#include <utility>
 
 #include <QtCore>
 #include <QtWidgets>
@@ -280,32 +281,32 @@ void PagedContent::setPageSize(int num, const QSize &size)
 void PagedContent::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    int x, y, paintedPages = 0;
+    int x, y;
     Page *page;
     QRect pageRect;
+    QList<std::pair<QRect, Page*> > pagesToPaint;
 
-    painter.setClipRegion(event->region());
+    pagesToPaint.reserve(pages.count());
     for (int i = 0, y = 0; i < pages.count(); i++) {
         page = pages[i];
-        // Center the image
+        // center the page if the widget is wider
         x = std::max(0, (event->rect().width() - page->width) / 2);
-
         pageRect = QRect(x, y, page->width, page->height);
         if (event->region().intersects(pageRect)) {
             if (page->image.isNull()) {
-                // We don't have an image for this page, so tell the renderer
-                // to produce one and we will restart painting when it's ready
+                // no image for this page; request one from the renderer
                 if (!page->isRendering) {
                     page->isRendering = true;
                     emit pageRequested(i);
                 }
-                break;
-            }
-            painter.drawImage(x, y, page->image);
-            paintedPages++;
-        } else if (paintedPages > 0)
-            break;  // we're done painting
-
+            } else
+                pagesToPaint.append(std::pair<QRect, Page*>(pageRect, page));
+        } else if (y > event->rect().bottom())
+            break;  // the remaining pages are outside the visible area
         y += page->height + PAGE_MARGIN;
     }
+
+    for (int i = 0; i < pagesToPaint.count(); i++)
+        painter.drawImage(pagesToPaint[i].first,
+                          pagesToPaint[i].second->image);
 }
