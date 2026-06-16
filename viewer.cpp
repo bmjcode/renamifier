@@ -261,7 +261,7 @@ void PagedContent::setContentSize(int w, int h)
 
 void PagedContent::setPageImage(int num, const QImage &image)
 {
-    if (num < pages.count()) {
+    if (0 <= num && num < pages.count()) {
         Page *page = pages[num];
         page->image = image;
         page->isRendering = false;
@@ -270,7 +270,7 @@ void PagedContent::setPageImage(int num, const QImage &image)
 
 void PagedContent::setPageSize(int num, int w, int h)
 {
-    if (num < pages.count()) {
+    if (0 <= num && num < pages.count()) {
         Page *page = pages[num];
         page->width = w;
         page->height = h;
