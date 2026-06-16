@@ -284,7 +284,7 @@ void PagedContent::paintEvent(QPaintEvent *event)
     int x, y;
     Page *page;
     QRect pageRect;
-    QList<std::pair<QRect, Page*> > pagesToPaint;
+    QList<std::pair<QRect, QImage> > pagesToPaint;
 
     pagesToPaint.reserve(pages.count());
     for (int i = 0, y = 0; i < pages.count(); i++) {
@@ -300,13 +300,13 @@ void PagedContent::paintEvent(QPaintEvent *event)
                     emit pageRequested(i);
                 }
             } else
-                pagesToPaint.append(std::pair<QRect, Page*>(pageRect, page));
+                pagesToPaint.append(
+                    std::pair<QRect, QImage>(pageRect, page->image));
         } else if (y > event->rect().bottom())
             break;  // the remaining pages are outside the visible area
         y += page->height + PAGE_MARGIN;
     }
 
     for (int i = 0; i < pagesToPaint.count(); i++)
-        painter.drawImage(pagesToPaint[i].first,
-                          pagesToPaint[i].second->image);
+        painter.drawImage(pagesToPaint[i].first, pagesToPaint[i].second);
 }
