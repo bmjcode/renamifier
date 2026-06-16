@@ -89,7 +89,6 @@ void Viewer::display(const QString &path)
     clear();
     // Always use logical DPI for correctly-scaled output on high-DPI screens
     renderer = Renderer::create(path, logicalDpiX(), logicalDpiY());
-    renderer->moveToThread(renderThread);
 
     pageCount = renderer->numPages();
     pagedContent->reservePages(pageCount);
@@ -111,6 +110,7 @@ void Viewer::display(const QString &path)
     connect(pagedContent, &PagedContent::pageRequested,
             renderer, &Renderer::renderPage);
 
+    renderer->moveToThread(renderThread);
     QTimer::singleShot(0, renderer, &Renderer::render);
 }
 
