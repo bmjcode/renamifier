@@ -18,7 +18,6 @@
  */
 
 #include <algorithm>
-#include <utility>
 
 #include <QtCore>
 #include <QtWidgets>
@@ -240,6 +239,7 @@ void PagedContent::clear()
     for (int i = 0; i < pages.count(); i++)
         delete pages[i];
     pages.clear();
+    visiblePages.clear();
     recalculateArea();
     update();
 }
@@ -296,18 +296,17 @@ void PagedContent::moveEvent(QMoveEvent *event)
 void PagedContent::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    int visibleBottom = event->rect().bottom();
 
-    for (int i = 0; i < pages.count(); i++) {
-        Page *page = pages[i];
+    for (int i = 0; i < visiblePages.count(); i++) {
+        Page *page = visiblePages[i];
         QRect pageRect = page->rect();
 
+        // the area to paint may be smaller than the total visible area
         if (pageRect.intersects(event->rect())) {
             // always paint the background even if we don't have an image yet
             painter.fillRect(pageRect, Qt::white);
             painter.drawImage(pageRect, page->image);
-        } else if (page->y > visibleBottom)
-            break;  // the remaining pages are outside the visible area
+        }
     }
 }
 
@@ -326,6 +325,11 @@ void PagedContent::prepare()
     // visible area of this widget
     QRect visibleArea = viewport->rect().translated(-pos());
 
+    // we use a list rather than a queue because Qt may generate more than
+    // one paint event for any given update()
+    visiblePages.clear();
+    visiblePages.reserve(2);
+
     // recalculate page positions
     for (int i = 0, y = 0; i < pages.count(); i++) {
         Page *page = pages[i];
@@ -336,6 +340,7 @@ void PagedContent::prepare()
 
         // render visible pages as needed, and unload invisible ones
         if (page->rect().intersects(visibleArea)) {
+            visiblePages.append(page);
             if (page->image.isNull() && !page->isRendering) {
                 // no image for this page; request one from the renderer
                 page->isRendering = true;

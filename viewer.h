@@ -138,6 +138,7 @@ private:
 
     QWidget *viewport;
     QList<Page*> pages;
+    QList<Page*> visiblePages;
     QTimer *moveTimer;
 
 private slots:
