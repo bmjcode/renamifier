@@ -174,12 +174,12 @@ void TextRenderer::renderPage(int num)
         renderError(file.errorString());
 }
 
-UnknownFormatRenderer::UnknownFormatRenderer()
-    : Renderer()
+HexDumpRenderer::HexDumpRenderer()
+    : TextRenderer()
 {
 }
 
-void UnknownFormatRenderer::renderPage(int num)
+void HexDumpRenderer::renderPage(int num)
 {
     QFile file(path_);
     QString output = hexDump(file);
@@ -187,22 +187,8 @@ void UnknownFormatRenderer::renderPage(int num)
         renderError(file.errorString());
         return;
     } else {
-        QString message;
-        QTextStream(&message)
-            << "Unable to find a suitable renderer for this file:"
-            << Qt::endl
-            << path_
-            << Qt::endl
-            << Qt::endl
-            << "Its detected MIME type is " << mimeType_.name() << "."
-            << Qt::endl
-            << "Please include this information if you submit a "
-               "feature request or bug report."
-            << Qt::endl
-            << Qt::endl
-            << output;
         emit renderMode(TextContent);
-        emit renderedText(message);
+        emit renderedText(output);
     }
 }
 

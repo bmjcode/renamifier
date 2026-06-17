@@ -46,7 +46,7 @@ Renderer *Renderer::create(const QString &path, int dpiX, int dpiY)
 
     // Fallback if we can't identify this file
     else
-        renderer = new UnknownFormatRenderer();
+        renderer = new HexDumpRenderer();
 
     renderer->path_ = path;
     renderer->mimeType_ = mimeType;

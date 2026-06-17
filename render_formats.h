@@ -95,18 +95,14 @@ public:
 };
 
 /*
- * Fallback renderer for unknown file formats.
+ * Hex dump renderer, used as a fallback for unknown file formats.
  */
-class UnknownFormatRenderer : public Renderer {
+class HexDumpRenderer : public TextRenderer {
     Q_OBJECT
 
 public:
-    UnknownFormatRenderer();
+    HexDumpRenderer();
 
-    inline int numPages() const { return 1; }
-    inline QSize pageSize(int num) const { return QSize(0, 0); }
-
-    void load() { }
     void renderPage(int num);
 };
 
