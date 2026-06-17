@@ -140,9 +140,11 @@ private:
     QList<Page*> pages;
     QList<Page*> visiblePages;
     QTimer *moveTimer;
+    bool isMoving;
 
 private slots:
     void prepare();
+    void stoppedMoving();
 
 signals:
     void pageRequested(int num);

@@ -224,9 +224,10 @@ PagedContent::PagedContent(PagedContentViewer *parent)
 {
     viewport = parent->viewport();
 
+    isMoving = false;
     moveTimer = new QTimer(this);
     moveTimer->setSingleShot(true);
-    connect(moveTimer, &QTimer::timeout, this, &PagedContent::prepare);
+    connect(moveTimer, &QTimer::timeout, this, &PagedContent::stoppedMoving);
 }
 
 PagedContent::~PagedContent()
@@ -289,8 +290,15 @@ void PagedContent::setPageSize(int num, const QSize &size)
 
 void PagedContent::moveEvent(QMoveEvent *event)
 {
-    // this avoids triggering excessive renders while we are still moving
-    moveTimer->start(25);
+    // Do one render immediately when we start moving to limit flicker,
+    // but delay further renders until we've stopped moving for some time.
+    // This avoids rendering pages that aren't visible for any meaningful
+    // amount of time when rapidly scrolling.
+    if (!isMoving) {
+        isMoving = true;
+        prepare();
+        moveTimer->start(100);
+    }
 }
 
 void PagedContent::paintEvent(QPaintEvent *event)
@@ -303,9 +311,10 @@ void PagedContent::paintEvent(QPaintEvent *event)
 
         // the area to paint may be smaller than the total visible area
         if (pageRect.intersects(event->rect())) {
-            // always paint the background even if we don't have an image yet
-            painter.fillRect(pageRect, Qt::white);
-            painter.drawImage(pageRect, page->image);
+            if (page->image.isNull())
+                painter.fillRect(pageRect, Qt::white);
+            else
+                painter.drawImage(pageRect, page->image);
         }
     }
 }
@@ -349,4 +358,10 @@ void PagedContent::prepare()
         } else
             page->image = QImage(); // tantamount to deletion
     }
+}
+
+void PagedContent::stoppedMoving()
+{
+    isMoving = false;
+    prepare();
 }
