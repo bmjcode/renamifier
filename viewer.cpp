@@ -41,8 +41,11 @@
 
 struct Page {
     Page();
+    inline QRect rect() const { return QRect(x, y, width, height); }
 
     QImage image;
+    int x;
+    int y;
     int width;
     int height;
     bool isRendering;
@@ -50,6 +53,7 @@ struct Page {
 
 Page::Page()
 {
+    x = y = -1;
     width = height = 0;
     isRendering = false;
 }
@@ -216,9 +220,10 @@ void PagedContentViewer::resizeEvent(QResizeEvent *event)
 
 /* ------------------------------------------------------------------------ */
 
-PagedContent::PagedContent(QWidget *parent)
+PagedContent::PagedContent(PagedContentViewer *parent)
     : QFrame(parent)
 {
+    viewport = parent->viewport();
 }
 
 PagedContent::~PagedContent()
@@ -278,37 +283,60 @@ void PagedContent::setPageSize(int num, const QSize &size)
     }
 }
 
+void PagedContent::moveEvent(QMoveEvent *event)
+{
+    prepare();
+}
+
 void PagedContent::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    int x, y;
-    Page *page;
-    QRect pageRect;
-    QList<std::pair<QRect, QImage> > pagesToPaint;
+    int visibleBottom = event->rect().bottom();
 
-    pagesToPaint.reserve(pages.count());
-    for (int i = 0, y = 0; i < pages.count(); i++) {
-        page = pages[i];
-        // center the page if the widget is wider
-        x = std::max(0, (event->rect().width() - page->width) / 2);
-        pageRect = QRect(x, y, page->width, page->height);
-        if (event->region().intersects(pageRect)) {
+    for (int i = 0; i < pages.count(); i++) {
+        Page *page = pages[i];
+        QRect pageRect = page->rect();
+
+        if (pageRect.intersects(event->rect())) {
             // always paint the background even if we don't have an image yet
             painter.fillRect(pageRect, Qt::white);
-            if (page->image.isNull()) {
-                // no image for this page; request one from the renderer
-                if (!page->isRendering) {
-                    page->isRendering = true;
-                    emit pageRequested(i);
-                }
-            } else
-                pagesToPaint.append(
-                    std::pair<QRect, QImage>(pageRect, page->image));
-        } else if (y > event->rect().bottom())
+            painter.drawImage(pageRect, page->image);
+        } else if (page->y > visibleBottom)
             break;  // the remaining pages are outside the visible area
-        y += page->height + PAGE_MARGIN;
     }
+}
 
-    for (int i = 0; i < pagesToPaint.count(); i++)
-        painter.drawImage(pagesToPaint[i].first, pagesToPaint[i].second);
+void PagedContent::resizeEvent(QResizeEvent *event)
+{
+    prepare();
+}
+
+/*
+ * Prepare the pages for painting.
+ * This does most of the heavy lifting: recalculating page positions,
+ * rendering visible pages, and unloading invisible pages from memory.
+ */
+void PagedContent::prepare()
+{
+    // visible area of this widget
+    QRect visibleArea = viewport->rect().translated(-pos());
+
+    // recalculate page positions
+    for (int i = 0, y = 0; i < pages.count(); i++) {
+        Page *page = pages[i];
+        // center the page if the visible area is wider
+        page->x = std::max(0, (visibleArea.width() - page->width) / 2);
+        page->y = y;
+        y += page->height + PAGE_MARGIN;
+
+        // render visible pages as needed, and unload invisible ones
+        if (page->rect().intersects(visibleArea)) {
+            if (page->image.isNull() && !page->isRendering) {
+                // no image for this page; request one from the renderer
+                page->isRendering = true;
+                emit pageRequested(i);
+            }
+        } else
+            page->image = QImage(); // tantamount to deletion
+    }
 }

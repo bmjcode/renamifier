@@ -32,7 +32,9 @@
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QVBoxLayout>
+#include <QMoveEvent>
 #include <QPaintEvent>
+#include <QResizeEvent>
 
 #include "renderer.h"
 
@@ -119,7 +121,7 @@ class PagedContent : public QFrame
     Q_OBJECT
 
 public:
-    PagedContent(QWidget *parent);
+    PagedContent(PagedContentViewer *parent);
     ~PagedContent();
 
     void clear();
@@ -129,9 +131,15 @@ public:
     void setPageSize(int num, const QSize &size);
 
 private:
+    void moveEvent(QMoveEvent *event);
     void paintEvent(QPaintEvent *event);
+    void resizeEvent(QResizeEvent *event);
 
+    QWidget *viewport;
     QList<Page*> pages;
+
+private slots:
+    void prepare();
 
 signals:
     void pageRequested(int num);
