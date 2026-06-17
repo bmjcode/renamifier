@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Changed
+* Ported to Qt 6.
+* Filenames passed on the command line can now include wildcard characters.
+### Fixed
+* Aggressively optimized internals to reduce memory usage.
+
 ## [0.1.4] - 2023-09-24
 ### Changed
 * Update the bundled dependencies on Windows.
