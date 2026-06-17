@@ -24,6 +24,7 @@
 #include <QThread>
 #include <QList>
 #include <QSize>
+#include <QTimer>
 
 #include <QColor>
 #include <QFrame>
@@ -137,6 +138,7 @@ private:
 
     QWidget *viewport;
     QList<Page*> pages;
+    QTimer *moveTimer;
 
 private slots:
     void prepare();

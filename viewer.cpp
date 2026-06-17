@@ -224,6 +224,10 @@ PagedContent::PagedContent(PagedContentViewer *parent)
     : QFrame(parent)
 {
     viewport = parent->viewport();
+
+    moveTimer = new QTimer(this);
+    moveTimer->setSingleShot(true);
+    connect(moveTimer, &QTimer::timeout, this, &PagedContent::prepare);
 }
 
 PagedContent::~PagedContent()
@@ -285,7 +289,8 @@ void PagedContent::setPageSize(int num, const QSize &size)
 
 void PagedContent::moveEvent(QMoveEvent *event)
 {
-    prepare();
+    // this avoids triggering excessive renders while we are still moving
+    moveTimer->start(25);
 }
 
 void PagedContent::paintEvent(QPaintEvent *event)
