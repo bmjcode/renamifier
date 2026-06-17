@@ -23,7 +23,7 @@
 #define VERSION "0.1.4"
 
 #define COPYRIGHT_HTML \
-"<p>Copyright &copy; 2021, 2022, 2023 Benjamin Johnson</p>"
+"<p>Copyright &copy; 2021 &ndash; 2026 Benjamin Johnson</p>"
 
 #define LICENSE_TEXT_HTML \
 "<p>This program is free software; you can redistribute it and/or modify " \
