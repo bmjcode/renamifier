@@ -21,6 +21,9 @@
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 
+#include <QDir>
+#include <QFileInfo>
+
 #include "mainwindow.h"
 
 int main(int argc, char **argv)
@@ -42,8 +45,19 @@ int main(int argc, char **argv)
         window.browseForFiles();
     else {
         QStringListIterator pathIterator(positionalArguments);
-        while (pathIterator.hasNext())
-            window.addPath(pathIterator.next());
+        while (pathIterator.hasNext()) {
+            QFileInfo fileInfo(pathIterator.next());
+            QDir dir = fileInfo.dir();
+            QStringList nameFilters;
+
+            // treat each positional argument as a glob() pattern
+            nameFilters << fileInfo.fileName();
+            QStringList matches = dir.entryList(nameFilters);
+
+            QStringListIterator matchIterator(matches);
+            while (matchIterator.hasNext())
+                window.addPath(dir.filePath(matchIterator.next()));
+        }
         window.displayFile();
     }
     return app.exec();
