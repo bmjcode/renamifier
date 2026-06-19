@@ -38,6 +38,10 @@ void ImageRenderer::renderPage(int num)
         return;
     }
 
+    if (zoomFactor() != 100)
+        image = image.scaledToWidth(zoomScaled(image.width()),
+                                    Qt::SmoothTransformation);
+
     emit renderMode(PagedContent);
     emit renderedPage(num, image);
 }

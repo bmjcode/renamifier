@@ -61,8 +61,8 @@ QSize PDFRenderer::pageSize(int num) const
         if (page != nullptr) {
             QSize pointSize = page->pageSize();
             // Convert points to pixels at our current DPI
-            return QSize(pointSize.width() * dpiX_ / 72,
-                         pointSize.height() * dpiY_ / 72);
+            return zoomScaled(QSize(pointSize.width() * dpiX_ / 72,
+                                    pointSize.height() * dpiY_ / 72));
         }
     }
     return QSize(0, 0);
@@ -70,6 +70,8 @@ QSize PDFRenderer::pageSize(int num) const
 
 void PDFRenderer::renderPage(int num)
 {
+    int xRes = zoomScaled(dpiX_), yRes = zoomScaled(dpiY_);
+
     // Check whether an error occurred while rendering this document
     if (document == nullptr) {
         if (popplerError.isEmpty()) {
@@ -90,7 +92,7 @@ void PDFRenderer::renderPage(int num)
     document->setRenderHint(Poppler::Document::TextAntialiasing);
 
     emit renderMode(PagedContent);
-    emit renderedPage(num, document->page(num)->renderToImage(dpiX_, dpiY_));
+    emit renderedPage(num, document->page(num)->renderToImage(xRes, yRes));
 }
 
 QByteArray PDFRenderer::convertFromPostscript()

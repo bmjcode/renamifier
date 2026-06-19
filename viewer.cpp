@@ -55,8 +55,9 @@ void Viewer::display(const QString &path)
     int pageCount;
 
     clear();
+    renderer = Renderer::create(path);
     // Always use logical DPI for correctly-scaled output on high-DPI screens
-    renderer = Renderer::create(path, logicalDpiX(), logicalDpiY());
+    renderer->setPixelDensity(logicalDpiX(), logicalDpiY());
 
     pageCount = renderer->numPages();
     pagedContent->reservePages(pageCount);

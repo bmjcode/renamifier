@@ -26,9 +26,9 @@
  */
 Renderer::Renderer()
 {
-    // DPI of a standard PC screen
-    dpiX_ = 96;
-    dpiY_ = 96;
+    // Default to the DPI of a standard PC screen
+    dpiX_ = dpiY_ = 96;
+    zoomFactor_ = 100;
 }
 
 void Renderer::render()

@@ -32,7 +32,7 @@
 /*
  * Return an appropriate renderer subclass for the specified path.
  */
-Renderer *Renderer::create(const QString &path, int dpiX, int dpiY)
+Renderer *Renderer::create(const QString &path)
 {
     Renderer *renderer;
     QMimeDatabase mimeDatabase;
@@ -59,8 +59,6 @@ Renderer *Renderer::create(const QString &path, int dpiX, int dpiY)
 
     renderer->path_ = path;
     renderer->mimeType_ = mimeType;
-    renderer->dpiX_ = dpiX;
-    renderer->dpiY_ = dpiY;
     renderer->load();
     return renderer;
 }

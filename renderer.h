@@ -43,14 +43,19 @@ class Renderer : public QObject
     Q_OBJECT
 
 public:
-    static Renderer *create(const QString &path, int dpiX, int dpiY);
+    static Renderer *create(const QString &path);
     static void init();
 
     inline QString path() const { return path_; }
     inline QMimeType mimeType() const { return mimeType_; }
+    inline int zoomFactor() const { return zoomFactor_; }
 
     virtual int numPages() const = 0;
     virtual QSize pageSize(int num) const = 0;  // in pixels
+
+    inline void setPixelDensity(int dpiX, int dpiY)
+        { dpiX_ = dpiX, dpiY_ = dpiY; }
+    inline void setZoomFactor(int percent) { zoomFactor_ = percent; }
 
     enum RenderMode { TextContent, PagedContent };
 
@@ -67,9 +72,15 @@ protected:
     QString path_;
     QMimeType mimeType_;
     int dpiX_, dpiY_;
+    int zoomFactor_;
 
     Renderer();
     virtual void load() = 0;
+
+    inline int zoomScaled(int value) const
+        { return (zoomFactor_ == 100) ? value : value * zoomFactor_ / 100; }
+    inline QSize zoomScaled(const QSize &size) const
+        { return (zoomFactor_ == 100) ? size : size * zoomFactor_ / 100; }
 
     void renderError(const QString &details = QString());
     QByteArray runHelper(const QString &program,

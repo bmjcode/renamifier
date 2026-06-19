@@ -33,7 +33,8 @@ public:
     ImageRenderer();
 
     inline int numPages() const { return 1; }
-    inline QSize pageSize(int num) const { return image.size(); }
+    inline QSize pageSize(int num) const
+        { return zoomScaled(image.size()); }
 
     void load();
     void renderPage(int num);
