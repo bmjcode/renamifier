@@ -31,13 +31,12 @@ class ImageRenderer : public Renderer {
 
 public:
     ImageRenderer();
+    void load();
+    void renderPage(int num);
 
     inline int numPages() const { return 1; }
     inline QSize pageSize(int num) const
         { return zoomScaled(image.size()); }
-
-    void load();
-    void renderPage(int num);
 
 private:
     QImage image;

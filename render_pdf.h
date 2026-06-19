@@ -34,16 +34,15 @@ class PDFRenderer : public Renderer {
     Q_OBJECT
 
 public:
-    PDFRenderer();
-
     static void init();
+
+    PDFRenderer();
+    virtual void load();
+    void renderPage(int num);
 
     inline int numPages() const
         { return (document == nullptr) ? 0 : document->numPages(); }
     QSize pageSize(int num) const;
-
-    virtual void load();
-    void renderPage(int num);
 
 protected:
     std::unique_ptr<Poppler::Document> document;

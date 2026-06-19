@@ -29,7 +29,6 @@ class HexDumpRenderer : public TextRenderer {
 
 public:
     HexDumpRenderer();
-
     void renderPage(int num);
 };
 

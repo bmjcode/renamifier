@@ -29,9 +29,7 @@ class PSRenderer : public PDFRenderer {
 
 public:
     PSRenderer();
-
     void load();
-
 };
 
 #endif /* RENDER_PS_H */

@@ -30,12 +30,11 @@ class TextRenderer : public Renderer {
 
 public:
     TextRenderer();
+    void load() { }
+    void renderPage(int num);
 
     inline int numPages() const { return 1; }
     inline QSize pageSize(int num) const { return QSize(0, 0); }
-
-    void load() { }
-    void renderPage(int num);
 };
 
 #endif /* RENDER_TEXT_H */

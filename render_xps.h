@@ -29,9 +29,7 @@ class XPSRenderer : public PDFRenderer {
 
 public:
     XPSRenderer();
-
     void load();
-
 };
 
 #endif /* RENDER_XPS_H */

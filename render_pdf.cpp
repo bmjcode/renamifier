@@ -26,6 +26,11 @@ static QString popplerError;
 
 static void storePopplerError(const QString &message, const QVariant &closure);
 
+void PDFRenderer::init()
+{
+    Poppler::setDebugErrorFunction(&storePopplerError, QVariant());
+}
+
 PDFRenderer::PDFRenderer()
     : Renderer()
 {
@@ -38,9 +43,21 @@ void PDFRenderer::load()
     document = Poppler::Document::load(path_);
 }
 
-void PDFRenderer::init()
+void PDFRenderer::renderPage(int num)
 {
-    Poppler::setDebugErrorFunction(&storePopplerError, QVariant());
+    // Check whether an error occurred while rendering this document
+    if (document == nullptr) {
+        renderError(popplerError);
+        return;
+    }
+
+    // Make the document look nice on screen
+    document->setRenderHint(Poppler::Document::Antialiasing);
+    document->setRenderHint(Poppler::Document::TextAntialiasing);
+
+    int xRes = zoomScaled(dpiX_), yRes = zoomScaled(dpiY_);
+    emit renderMode(PagedContent);
+    emit renderedPage(num, document->page(num)->renderToImage(xRes, yRes));
 }
 
 QSize PDFRenderer::pageSize(int num) const
@@ -55,24 +72,6 @@ QSize PDFRenderer::pageSize(int num) const
         }
     }
     return QSize(0, 0);
-}
-
-void PDFRenderer::renderPage(int num)
-{
-    int xRes = zoomScaled(dpiX_), yRes = zoomScaled(dpiY_);
-
-    // Check whether an error occurred while rendering this document
-    if (document == nullptr) {
-        renderError(popplerError);
-        return;
-    }
-
-    // Make the document look nice on screen
-    document->setRenderHint(Poppler::Document::Antialiasing);
-    document->setRenderHint(Poppler::Document::TextAntialiasing);
-
-    emit renderMode(PagedContent);
-    emit renderedPage(num, document->page(num)->renderToImage(xRes, yRes));
 }
 
 /*
