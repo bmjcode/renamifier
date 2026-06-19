@@ -1,6 +1,6 @@
 /*
- * Interface for file format renderers.
- * Copyright (c) 2021, 2025 Benjamin Johnson
+ * Base class for file format renderers.
+ * Copyright (c) 2021-2026 Benjamin Johnson
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
  * from locking up the user interface.
  *
  * This class defines the basic renderer API but does not itself implement
- * any rendering logic. See render_formats.h and render_formats.cpp for that.
+ * any rendering logic. See render_*.h and render_*.cpp for that.
  *
  * Use Renderer::create() to create a renderer for a given file. This will
  * automatically select the correct subclass to use based on the file type.

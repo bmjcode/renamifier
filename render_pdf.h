@@ -1,6 +1,6 @@
 /*
- * Support for reading various file formats.
- * Copyright (c) 2021, 2025 Benjamin Johnson
+ * Renderer for PDF documents.
+ * Copyright (c) 2021-2026 Benjamin Johnson
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,45 +17,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef RENDER_FORMATS_H
-#define RENDER_FORMATS_H
-
-#include <memory>
-
-#include <QtCore>
-#include <QImage>
-#include <poppler-qt6.h>
-
-#include "renderer.h"
-
 /*
- * A simple image renderer.
- */
-class ImageRenderer : public Renderer {
-    Q_OBJECT
-
-public:
-    ImageRenderer();
-
-    inline int numPages() const { return 1; }
-    inline QSize pageSize(int num) const { return image.size(); }
-
-    void load();
-    void renderPage(int num);
-
-private:
-    QImage image;
-};
-
-/*
- * Renderer for PDF documents.
- *
  * Additional formats that can be converted to PDF are supported if their
  * respective helper programs are present:
  *
  *   - Postscript (requires Ghostscript)
  *   - XPS (requires GhostXPS)
  */
+
+#ifndef RENDER_PDF_H
+#define RENDER_PDF_H
+
+#include <memory>   // for std::unique_ptr
+
+#include <QObject>
+#include <QSize>
+#include <QByteArray>
+
+#include <poppler-qt6.h>
+
+#include "renderer.h"
+
 class PDFRenderer : public Renderer {
     Q_OBJECT
 
@@ -78,32 +60,4 @@ private:
     std::unique_ptr<Poppler::Document> document;
 };
 
-/*
- * Renderer for plain text documents.
- */
-class TextRenderer : public Renderer {
-    Q_OBJECT
-
-public:
-    TextRenderer();
-
-    inline int numPages() const { return 1; }
-    inline QSize pageSize(int num) const { return QSize(0, 0); }
-
-    void load() { }
-    void renderPage(int num);
-};
-
-/*
- * Hex dump renderer, used as a fallback for unknown file formats.
- */
-class HexDumpRenderer : public TextRenderer {
-    Q_OBJECT
-
-public:
-    HexDumpRenderer();
-
-    void renderPage(int num);
-};
-
-#endif /* RENDER_FORMATS_H */
+#endif /* RENDER_PDF_H */

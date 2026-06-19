@@ -1,0 +1,245 @@
+/*
+ * Widget for viewing paged content like a PDF document.
+ * Copyright (c) 2021-2026 Benjamin Johnson
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#include <algorithm>    // for std::max()
+
+#include <QtCore>
+#include <QtWidgets>
+
+#include "viewer_paged.h"
+
+/* ------------------------------------------------------------------------ */
+
+// The initial viewer size is 8.5 x 5.5 in, or half of a US letter page.
+// This fits a reasonable amount of content without making drastic assumptions
+// about the size of the user's screen, and approximates the 16:9 or 16:10
+// aspect ratio found on most modern displays.
+#define INITIAL_WIDTH 85
+#define INITIAL_HEIGHT 55
+// Units above are multiplied by a factor of 10 to allow use of integer math.
+#define INITIAL_FACTOR 10
+
+// Margin in pixels for graphical content
+#define PAGE_MARGIN 2
+
+/* ------------------------------------------------------------------------ */
+
+struct Page {
+    Page();
+    inline QRect rect() const { return QRect(x, y, width, height); }
+
+    QImage image;
+    int x;
+    int y;
+    int width;
+    int height;
+    bool isRendering;
+};
+
+Page::Page()
+{
+    x = y = -1;
+    width = height = 0;
+    isRendering = false;
+}
+
+/* ------------------------------------------------------------------------ */
+
+PagedContentViewer::PagedContentViewer(QWidget *parent)
+    : QScrollArea(parent)
+{
+    setBackgroundRole(QPalette::Dark);
+}
+
+/*
+ * Default to a size large enough to show a reasonable amount of content on
+ * most screens. The exact size is specified by INITIAL_{HEIGHT,WIDTH} above.
+ */
+QSize PagedContentViewer::sizeHint() const
+{
+    int initialWidth, initialHeight;
+    initialWidth = INITIAL_WIDTH * logicalDpiX() / INITIAL_FACTOR;
+    initialHeight = INITIAL_HEIGHT * logicalDpiY();
+
+    // Compensate for the viewport margins and vertical scroll bar
+    QMargins margins = viewportMargins();
+    initialWidth += margins.left() + margins.right();
+    initialWidth += verticalScrollBar()->width();
+
+    return QSize(initialWidth, initialHeight);
+}
+
+/*
+ * Resize the inner frame when the widget's size changes.
+ */
+void PagedContentViewer::resizeEvent(QResizeEvent *event)
+{
+    widget()->resize(
+        std::max(viewport()->width(), widget()->minimumWidth()),
+        std::max(viewport()->height(), widget()->minimumHeight()));
+}
+
+/* ------------------------------------------------------------------------ */
+
+PagedContent::PagedContent(PagedContentViewer *parent)
+    : QFrame(parent)
+{
+    viewport = parent->viewport();
+
+    isMoving = false;
+    moveTimer = new QTimer(this);
+    moveTimer->setSingleShot(true);
+    connect(moveTimer, &QTimer::timeout, this, &PagedContent::stoppedMoving);
+}
+
+PagedContent::~PagedContent()
+{
+    clear();
+}
+
+void PagedContent::clear()
+{
+    for (int i = 0; i < pages.count(); i++)
+        delete pages[i];
+    pages.clear();
+    visiblePages.clear();
+    recalculateArea();
+    update();
+}
+
+void PagedContent::recalculateArea()
+{
+    int w = 0, h = 0, pageCount = pages.count();
+
+    if (pageCount) {
+        h = (pageCount - 1) * PAGE_MARGIN;
+        for (int i = 0; i < pageCount; i++) {
+            Page *page = pages[i];
+            w = std::max(w, page->width);
+            h += page->height;
+        }
+    }
+
+    setMinimumSize(w, h);
+    resize(w, h);
+}
+
+void PagedContent::reservePages(int numPages)
+{
+    clear();
+    pages.reserve(numPages);
+    for (int i = 0; i < numPages; i++)
+        pages.append(new Page);
+}
+
+void PagedContent::setPageImage(int num, const QImage &image)
+{
+    if (0 <= num && num < pages.count()) {
+        Page *page = pages[num];
+        page->image = image;
+        page->isRendering = false;
+    }
+}
+
+void PagedContent::setPageSize(int num, const QSize &size)
+{
+    if (0 <= num && num < pages.count()) {
+        Page *page = pages[num];
+        page->width = size.width();
+        page->height = size.height();
+    }
+}
+
+void PagedContent::moveEvent(QMoveEvent *event)
+{
+    // Do one render immediately when we start moving to limit flicker,
+    // but delay further renders until we've stopped moving for some time.
+    // This avoids rendering pages that aren't visible for any meaningful
+    // amount of time when rapidly scrolling.
+    if (!isMoving) {
+        isMoving = true;
+        prepare();
+        moveTimer->start(100);
+    }
+}
+
+void PagedContent::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+
+    for (int i = 0; i < visiblePages.count(); i++) {
+        Page *page = visiblePages[i];
+        QRect pageRect = page->rect();
+
+        // the area to paint may be smaller than the total visible area
+        if (pageRect.intersects(event->rect())) {
+            if (page->image.isNull())
+                painter.fillRect(pageRect, Qt::white);
+            else
+                painter.drawImage(pageRect, page->image);
+        }
+    }
+}
+
+void PagedContent::resizeEvent(QResizeEvent *event)
+{
+    prepare();
+}
+
+/*
+ * Prepare the pages for painting.
+ * This does most of the heavy lifting: recalculating page positions,
+ * rendering visible pages, and unloading invisible pages from memory.
+ */
+void PagedContent::prepare()
+{
+    // visible area of this widget
+    QRect visibleArea = viewport->rect().translated(-pos());
+
+    // we use a list rather than a queue because Qt may generate more than
+    // one paint event for any given update()
+    visiblePages.clear();
+    visiblePages.reserve(2);
+
+    // recalculate page positions
+    for (int i = 0, y = 0; i < pages.count(); i++) {
+        Page *page = pages[i];
+        // center the page if the visible area is wider
+        page->x = std::max(0, (visibleArea.width() - page->width) / 2);
+        page->y = y;
+        y += page->height + PAGE_MARGIN;
+
+        // render visible pages as needed, and unload invisible ones
+        if (page->rect().intersects(visibleArea)) {
+            visiblePages.append(page);
+            if (page->image.isNull() && !page->isRendering) {
+                // no image for this page; request one from the renderer
+                page->isRendering = true;
+                emit pageRequested(i);
+            }
+        } else
+            page->image = QImage(); // tantamount to deletion
+    }
+}
+
+void PagedContent::stoppedMoving()
+{
+    isMoving = false;
+    prepare();
+}

@@ -20,30 +20,20 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
-#include <QObject>  // inherited by basically everything else
-#include <QThread>
+#include <QObject>
 #include <QList>
 #include <QSize>
-#include <QTimer>
+#include <QThread>
 
-#include <QColor>
-#include <QFrame>
-#include <QLabel>
-#include <QPlainTextEdit>
-#include <QScrollArea>
 #include <QStackedWidget>
-#include <QVBoxLayout>
-#include <QMoveEvent>
-#include <QPaintEvent>
-#include <QResizeEvent>
 
 #include "renderer.h"
 
-// For internal use
+// We include the actual headers in viewer.cpp to limit the number of files
+// that need recompiling when their internals change
 class TextContentViewer;
 class PagedContentViewer;
 class PagedContent;
-struct Page;
 
 /*
  * File preview widget.
@@ -85,69 +75,6 @@ protected slots:
     void addPage(int num, const QImage &image);
     void addText(const QString &text);
     void setRenderMode(int mode);
-};
-
-/*
- * Widget for viewing plain text content.
- */
-class TextContentViewer : public QPlainTextEdit
-{
-    Q_OBJECT
-
-public:
-    TextContentViewer(QWidget *parent);
-};
-
-/*
- * Widget for viewing paged content like a PDF document.
- *
- * This can also display plain text content, but TextContentViewer
- * provides more features and is vastly more efficient.
- */
-class PagedContentViewer : public QScrollArea
-{
-    Q_OBJECT
-
-public:
-    PagedContentViewer(QWidget *parent);
-
-    QSize sizeHint() const;
-
-private:
-    void resizeEvent(QResizeEvent *event);
-};
-
-class PagedContent : public QFrame
-{
-    Q_OBJECT
-
-public:
-    PagedContent(PagedContentViewer *parent);
-    ~PagedContent();
-
-    void clear();
-    void recalculateArea();
-    void reservePages(int numPages);
-    void setPageImage(int num, const QImage &image);
-    void setPageSize(int num, const QSize &size);
-
-private:
-    void moveEvent(QMoveEvent *event);
-    void paintEvent(QPaintEvent *event);
-    void resizeEvent(QResizeEvent *event);
-
-    QWidget *viewport;
-    QList<Page*> pages;
-    QList<Page*> visiblePages;
-    QTimer *moveTimer;
-    bool isMoving;
-
-private slots:
-    void prepare();
-    void stoppedMoving();
-
-signals:
-    void pageRequested(int num);
 };
 
 #endif /* VIEWER_H */

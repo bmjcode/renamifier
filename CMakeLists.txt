@@ -19,9 +19,15 @@ enable_testing(true)
 
 qt_add_library(renamifier-ui
                mainwindow.cpp
-               render_formats.cpp
+               render_hexdump.cpp
+               render_image.cpp
+               render_pdf.cpp
+               render_text.cpp
                renderer.cpp
-               viewer.cpp)
+               renderer_create.cpp
+               viewer.cpp
+               viewer_paged.cpp
+               viewer_text.cpp)
 target_include_directories(renamifier-ui
                            SYSTEM PUBLIC ${POPPLER_INCLUDE_DIRS})
 target_link_libraries(renamifier-ui
