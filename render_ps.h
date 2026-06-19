@@ -1,5 +1,5 @@
 /*
- * Renderer for PDF documents.
+ * Renderer for Postscript documents.
  * Copyright (c) 2021-2026 Benjamin Johnson
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -17,36 +17,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef RENDER_PDF_H
-#define RENDER_PDF_H
-
-#include <memory>   // for std::unique_ptr
+#ifndef RENDER_PS_H
+#define RENDER_PS_H
 
 #include <QObject>
-#include <QSize>
-#include <QByteArray>
 
-#include <poppler-qt6.h>
+#include "render_pdf.h"
 
-#include "renderer.h"
-
-class PDFRenderer : public Renderer {
+class PSRenderer : public PDFRenderer {
     Q_OBJECT
 
 public:
-    PDFRenderer();
+    PSRenderer();
 
-    static void init();
+    void load();
 
-    inline int numPages() const
-        { return (document == nullptr) ? 0 : document->numPages(); }
-    QSize pageSize(int num) const;
-
-    virtual void load();
-    void renderPage(int num);
-
-protected:
-    std::unique_ptr<Poppler::Document> document;
 };
 
-#endif /* RENDER_PDF_H */
+#endif /* RENDER_PS_H */

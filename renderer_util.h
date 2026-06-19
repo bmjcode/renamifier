@@ -1,5 +1,5 @@
 /*
- * Renderer for PDF documents.
+ * Renderer utility functions.
  * Copyright (c) 2021-2026 Benjamin Johnson
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -17,36 +17,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef RENDER_PDF_H
-#define RENDER_PDF_H
+#ifndef RENDERER_UTIL_H
+#define RENDERER_UTIL_H
 
-#include <memory>   // for std::unique_ptr
+#include <QString>
 
-#include <QObject>
-#include <QSize>
-#include <QByteArray>
+const QString findInSystemPath(const QString &fileName);
 
-#include <poppler-qt6.h>
-
-#include "renderer.h"
-
-class PDFRenderer : public Renderer {
-    Q_OBJECT
-
-public:
-    PDFRenderer();
-
-    static void init();
-
-    inline int numPages() const
-        { return (document == nullptr) ? 0 : document->numPages(); }
-    QSize pageSize(int num) const;
-
-    virtual void load();
-    void renderPage(int num);
-
-protected:
-    std::unique_ptr<Poppler::Document> document;
-};
-
-#endif /* RENDER_PDF_H */
+#endif /* RENDERER_UTIL_H */

@@ -24,7 +24,7 @@
 #include <QByteArray>
 #include <QSize>
 #include <QString>
-#include <QMimeType>
+#include <QImage>
 
 /*
  * A Renderer processes files into a format the Viewer can display.
@@ -47,7 +47,6 @@ public:
     static void init();
 
     inline QString path() const { return path_; }
-    inline QMimeType mimeType() const { return mimeType_; }
     inline int zoomFactor() const { return zoomFactor_; }
 
     virtual int numPages() const = 0;
@@ -70,7 +69,6 @@ signals:
 
 protected:
     QString path_;
-    QMimeType mimeType_;
     int dpiX_, dpiY_;
     int zoomFactor_;
 

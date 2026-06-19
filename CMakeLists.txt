@@ -22,9 +22,12 @@ qt_add_library(renamifier-ui
                render_hexdump.cpp
                render_image.cpp
                render_pdf.cpp
+               render_ps.cpp
                render_text.cpp
+               render_xps.cpp
                renderer.cpp
                renderer_create.cpp
+               renderer_util.cpp
                viewer.cpp
                viewer_paged.cpp
                viewer_text.cpp)

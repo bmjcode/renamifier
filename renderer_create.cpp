@@ -27,7 +27,9 @@
 #include "render_hexdump.h"
 #include "render_image.h"
 #include "render_pdf.h"
+#include "render_ps.h"
 #include "render_text.h"
+#include "render_xps.h"
 
 /*
  * Return an appropriate renderer subclass for the specified path.
@@ -41,10 +43,14 @@ Renderer *Renderer::create(const QString &path)
     // Specific MIME types
     // List alphabetically by name
     if (mimeType.inherits("application/oxps")
-        || mimeType.inherits("application/pdf")
-        || mimeType.inherits("application/postscript")
         || mimeType.inherits("application/xps"))
+        renderer = new XPSRenderer;
+
+    else if (mimeType.inherits("application/pdf"))
         renderer = new PDFRenderer;
+
+    else if (mimeType.inherits("application/postscript"))
+        renderer = new PSRenderer;
 
     // More generic MIME types
     // These come last since more specific types may inherit from them
@@ -58,7 +64,6 @@ Renderer *Renderer::create(const QString &path)
         renderer = new HexDumpRenderer;
 
     renderer->path_ = path;
-    renderer->mimeType_ = mimeType;
     renderer->load();
     return renderer;
 }

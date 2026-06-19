@@ -1,5 +1,5 @@
 /*
- * Renderer for PDF documents.
+ * Renderer utility functions.
  * Copyright (c) 2021-2026 Benjamin Johnson
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -17,36 +17,29 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef RENDER_PDF_H
-#define RENDER_PDF_H
+#include <cstdlib>
 
-#include <memory>   // for std::unique_ptr
+#include <QtCore>
 
-#include <QObject>
-#include <QSize>
-#include <QByteArray>
+#include "renderer_util.h"
 
-#include <poppler-qt6.h>
+/*
+ * Helper function to locate a program in the system's $PATH.
+ *
+ * Returns the full path to the program executable if found, or an empty
+ * string otherwise.
+ */
+const QString findInSystemPath(const QString &fileName)
+{
+    QString program, candidate;
+    QStringList paths = QString(std::getenv("PATH")).split(":");
 
-#include "renderer.h"
-
-class PDFRenderer : public Renderer {
-    Q_OBJECT
-
-public:
-    PDFRenderer();
-
-    static void init();
-
-    inline int numPages() const
-        { return (document == nullptr) ? 0 : document->numPages(); }
-    QSize pageSize(int num) const;
-
-    virtual void load();
-    void renderPage(int num);
-
-protected:
-    std::unique_ptr<Poppler::Document> document;
-};
-
-#endif /* RENDER_PDF_H */
+    for (int i = 0; i < paths.size(); ++i) {
+        candidate = QDir(paths[i]).filePath(fileName);
+        if (QFileInfo(candidate).isExecutable()) {
+            program = candidate;
+            break;
+        }
+    }
+    return program;
+}
