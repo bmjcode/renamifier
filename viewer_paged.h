@@ -47,6 +47,9 @@ public:
 
 private:
     void resizeEvent(QResizeEvent *event);
+
+signals:
+    void zoomChanged(int percent);
 };
 
 class PagedContent : public QFrame

@@ -55,6 +55,7 @@ public:
 protected:
     Viewer *viewer;
     QMenu *fileMenu;
+    QMenu *viewMenu;
     QMenu *goMenu;
     QMenu *helpMenu;
     QToolBar *toolBar;
@@ -102,6 +103,10 @@ protected slots:
     void triggerRenameAndDisplayNext(bool checked);
     void triggerRenameAndMove(bool checked);
     void triggerShowAbout(bool checked);
+
+    inline void zoomActualSize() { viewer->zoomActualSize(); }
+    inline void zoomIn()         { viewer->zoomIn(); }
+    inline void zoomOut()        { viewer->zoomOut(); }
 
 private:
     friend class RenamifierTest;

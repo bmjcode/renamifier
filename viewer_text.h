@@ -31,6 +31,15 @@ class TextContentViewer : public QPlainTextEdit
 
 public:
     TextContentViewer(QWidget *parent);
+
+public slots:
+    void setZoomFactor(int percent);
+
+protected:
+    int initialFontSize;
+
+signals:
+    void zoomChanged(int percent);
 };
 
 #endif /* VIEWER_TEXT_H */

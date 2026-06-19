@@ -29,4 +29,13 @@ TextContentViewer::TextContentViewer(QWidget *parent)
     setReadOnly(true);
     setTabChangesFocus(true);
     setWordWrapMode(QTextOption::WordWrap);
+
+    initialFontSize = font().pointSize();
+}
+
+void TextContentViewer::setZoomFactor(int percent)
+{
+    QFont newFont = font();
+    newFont.setPointSize(initialFontSize * percent / 100);
+    setFont(newFont);
 }

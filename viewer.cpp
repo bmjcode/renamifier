@@ -39,10 +39,17 @@ Viewer::Viewer(QWidget *parent)
     renderer = nullptr;
     renderThread = new QThread(this);
     renderThread->start();
+
+    zoomFactor = 100;
+    connect(textContentViewer, &TextContentViewer::zoomChanged,
+            this, &Viewer::setZoom);
+    connect(pagedContentViewer, &PagedContentViewer::zoomChanged,
+            this, &Viewer::setZoom);
 }
 
 Viewer::~Viewer()
 {
+    deleteRenderer();
     clear();
     if (renderThread != nullptr) {
         renderThread->quit();
@@ -52,35 +59,10 @@ Viewer::~Viewer()
 
 void Viewer::display(const QString &path)
 {
-    int pageCount;
-
-    clear();
+    deleteRenderer();
     renderer = Renderer::create(path);
-    // Always use logical DPI for correctly-scaled output on high-DPI screens
-    renderer->setPixelDensity(logicalDpiX(), logicalDpiY());
-
-    pageCount = renderer->numPages();
-    pagedContent->reservePages(pageCount);
-
-    // Calculate the content area
-    for (int i = 0; i < pageCount; i++)
-        pagedContent->setPageSize(i, renderer->pageSize(i));
-    pagedContent->recalculateArea();
-
-    // Renderer signals
-    connect(renderer, &Renderer::renderedPage,
-            this, &Viewer::addPage);
-    connect(renderer, &Renderer::renderedText,
-            this, &Viewer::addText);
-    connect(renderer, &Renderer::renderMode,
-            this, &Viewer::setRenderMode);
-
-    // PagedContent signals
-    connect(pagedContent, &PagedContent::pageRequested,
-            renderer, &Renderer::renderPage);
-
     renderer->moveToThread(renderThread);
-    QTimer::singleShot(0, renderer, &Renderer::render);
+    redisplay();
 }
 
 void Viewer::setFocusPolicy(Qt::FocusPolicy policy)
@@ -91,21 +73,23 @@ void Viewer::setFocusPolicy(Qt::FocusPolicy policy)
 
 void Viewer::clear()
 {
-    // Cancel any active rendering operation
+    // Do NOT delete the renderer here; we may want to reuse it
     stopRender();
-
     textContentViewer->clear();
     pagedContent->clear();
 }
 
 void Viewer::stopRender()
 {
-    if (renderer != nullptr) {
-        // Don't respond to any more signals from this Renderer
-        disconnect(renderer, nullptr, nullptr, nullptr);
-        delete renderer;
-        renderer = nullptr;
-    }
+    // This currently does nothing, but is kept just in case we need it again
+}
+
+void Viewer::setZoom(int percent)
+{
+    zoomFactor = percent;
+    textContentViewer->setZoomFactor(zoomFactor);
+    if (currentWidget() == pagedContentViewer)
+        redisplay();
 }
 
 void Viewer::addPage(int num, const QImage &image)
@@ -134,4 +118,47 @@ void Viewer::setRenderMode(int mode)
 QSize Viewer::sizeHint() const
 {
     return pagedContentViewer->sizeHint();
+}
+
+void Viewer::deleteRenderer()
+{
+    stopRender();
+    if (renderer != nullptr) {
+        // Don't respond to any more signals from this Renderer
+        disconnect(renderer, nullptr, nullptr, nullptr);
+        delete renderer;
+        renderer = nullptr;
+    }
+}
+
+void Viewer::redisplay()
+{
+    int pageCount;
+
+    clear();
+    renderer->setZoomFactor(zoomFactor);
+    // Always use logical DPI for correctly-scaled output on high-DPI screens
+    renderer->setPixelDensity(logicalDpiX(), logicalDpiY());
+
+    pageCount = renderer->numPages();
+    pagedContent->reservePages(pageCount);
+
+    // Calculate the content area
+    for (int i = 0; i < pageCount; i++)
+        pagedContent->setPageSize(i, renderer->pageSize(i));
+    pagedContent->recalculateArea();
+
+    // Renderer signals
+    connect(renderer, &Renderer::renderedPage,
+            this, &Viewer::addPage);
+    connect(renderer, &Renderer::renderedText,
+            this, &Viewer::addText);
+    connect(renderer, &Renderer::renderMode,
+            this, &Viewer::setRenderMode);
+
+    // PagedContent signals
+    connect(pagedContent, &PagedContent::pageRequested,
+            renderer, &Renderer::renderPage);
+
+    QTimer::singleShot(0, renderer, &Renderer::render);
 }

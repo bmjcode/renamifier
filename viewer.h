@@ -62,6 +62,11 @@ public slots:
     void clear();
     void stopRender();
 
+    void setZoom(int percent);
+    inline void zoomActualSize()     { setZoom(100); }
+    inline void zoomIn(int range=1)  { setZoom(zoomFactor + 10 * range); }
+    inline void zoomOut(int range=1) { setZoom(zoomFactor - 10 * range); }
+
 protected:
     QThread *renderThread;
     Renderer *renderer;
@@ -70,11 +75,19 @@ protected:
     TextContentViewer *textContentViewer;
     PagedContentViewer *pagedContentViewer;
     PagedContent *pagedContent;
+    int zoomFactor;
 
 protected slots:
     void addPage(int num, const QImage &image);
     void addText(const QString &text);
     void setRenderMode(int mode);
+
+private:
+    void deleteRenderer();
+    void redisplay();
+
+signals:
+    void zoomChanged(int percent);
 };
 
 #endif /* VIEWER_H */

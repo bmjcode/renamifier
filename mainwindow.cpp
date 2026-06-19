@@ -266,6 +266,20 @@ void MainWindow::createMenus()
                         &MainWindow::triggerQuit,
                         QKeySequence("Ctrl+Q"));
 
+    viewMenu = menuBar()->addMenu("&View");
+    viewMenu->addAction("Zoom &In",
+                        this,
+                        &MainWindow::zoomIn,
+                        QKeySequence("Ctrl+="));
+    viewMenu->addAction("Zoom &Out",
+                        this,
+                        &MainWindow::zoomOut,
+                        QKeySequence("Ctrl+-"));
+    viewMenu->addAction("Zoom &100%",
+                        this,
+                        &MainWindow::zoomActualSize,
+                        QKeySequence("Ctrl+0"));
+
     // Note this is populated by updateGoMenu()
     goMenu = menuBar()->addMenu("&Go");
     connect(goMenu, &QMenu::triggered, this, &MainWindow::triggerDisplayFile);
