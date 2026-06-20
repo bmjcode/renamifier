@@ -28,6 +28,8 @@ class XPSRenderer : public PDFRenderer {
     Q_OBJECT
 
 public:
+    static void init();
+
     XPSRenderer();
     void load();
 };

@@ -69,9 +69,11 @@ Renderer *Renderer::create(const QString &path)
 }
 
 /*
- * Initialize the renderer.
+ * Initialize renderers that need additional configuration.
  */
 void Renderer::init()
 {
     PDFRenderer::init();
+    PSRenderer::init();
+    XPSRenderer::init();
 }

@@ -28,6 +28,8 @@ class PSRenderer : public PDFRenderer {
     Q_OBJECT
 
 public:
+    static void init();
+
     PSRenderer();
     void load();
 };
