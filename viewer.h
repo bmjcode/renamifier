@@ -78,13 +78,13 @@ protected:
     int zoomFactor;
 
 protected slots:
-    void addPage(int num, const QImage &image);
-    void addText(const QString &text);
     void setRenderMode(int mode);
+    void setPageImage(int num, const QImage &image);
+    void setText(const QString &text);
 
 private:
     void deleteRenderer();
-    void redisplay();
+    void updatePageSizes();
 
 signals:
     void zoomChanged(int percent);

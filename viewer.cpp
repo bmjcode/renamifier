@@ -49,8 +49,8 @@ Viewer::Viewer(QWidget *parent)
 
 Viewer::~Viewer()
 {
-    deleteRenderer();
     clear();
+    deleteRenderer();
     if (renderThread != nullptr) {
         renderThread->quit();
         renderThread->wait();
@@ -59,10 +59,26 @@ Viewer::~Viewer()
 
 void Viewer::display(const QString &path)
 {
+    clear();
     deleteRenderer();
+
     renderer = Renderer::create(path);
     renderer->moveToThread(renderThread);
-    redisplay();
+
+    // Renderer signals
+    connect(renderer, &Renderer::renderedPage,
+            this, &Viewer::setPageImage);
+    connect(renderer, &Renderer::renderedText,
+            this, &Viewer::setText);
+    connect(renderer, &Renderer::renderMode,
+            this, &Viewer::setRenderMode);
+
+    // PagedContent signals
+    connect(pagedContent, &PagedContent::pageRequested,
+            renderer, &Renderer::renderPage);
+
+    updatePageSizes();
+    QTimer::singleShot(0, renderer, &Renderer::render);
 }
 
 void Viewer::setFocusPolicy(Qt::FocusPolicy policy)
@@ -99,7 +115,9 @@ void Viewer::setZoom(int percent)
         if (vScrollBar != nullptr)
             yPos = vScrollBar->sliderPosition();
 
-        redisplay();
+        clear();
+        updatePageSizes();
+        pagedContentViewer->update();
 
         if (hScrollBar != nullptr)
             hScrollBar->setSliderPosition(xPos);
@@ -108,24 +126,23 @@ void Viewer::setZoom(int percent)
     }
 }
 
-void Viewer::addPage(int num, const QImage &image)
-{
-    pagedContent->setPageImage(num, image);
-    pagedContent->update();
-}
-
-void Viewer::addText(const QString &text)
-{
-    // FIXME: This clobbers any existing content.
-    textContentViewer->setPlainText(text);
-}
-
 void Viewer::setRenderMode(int mode)
 {
     if (mode == Renderer::TextContent)
         setCurrentWidget(textContentViewer);
     else if (mode == Renderer::PagedContent)
         setCurrentWidget(pagedContentViewer);
+}
+
+void Viewer::setPageImage(int num, const QImage &image)
+{
+    pagedContent->setPageImage(num, image);
+    pagedContent->update();
+}
+
+void Viewer::setText(const QString &text)
+{
+    textContentViewer->setPlainText(text);
 }
 
 /*
@@ -147,11 +164,13 @@ void Viewer::deleteRenderer()
     }
 }
 
-void Viewer::redisplay()
+void Viewer::updatePageSizes()
 {
     int pageCount;
 
-    clear();
+    if (renderer == nullptr)
+        return; // this should never happen, but...
+
     renderer->setZoomFactor(zoomFactor);
     // Always use logical DPI for correctly-scaled output on high-DPI screens
     renderer->setPixelDensity(logicalDpiX(), logicalDpiY());
@@ -159,22 +178,7 @@ void Viewer::redisplay()
     pageCount = renderer->numPages();
     pagedContent->reservePages(pageCount);
 
-    // Calculate the content area
     for (int i = 0; i < pageCount; i++)
         pagedContent->setPageSize(i, renderer->pageSize(i));
     pagedContent->recalculateArea();
-
-    // Renderer signals
-    connect(renderer, &Renderer::renderedPage,
-            this, &Viewer::addPage);
-    connect(renderer, &Renderer::renderedText,
-            this, &Viewer::addText);
-    connect(renderer, &Renderer::renderMode,
-            this, &Viewer::setRenderMode);
-
-    // PagedContent signals
-    connect(pagedContent, &PagedContent::pageRequested,
-            renderer, &Renderer::renderPage);
-
-    QTimer::singleShot(0, renderer, &Renderer::render);
 }
