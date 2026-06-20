@@ -17,10 +17,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <memory>   // for std::unique_ptr
+
 #include <QtCore>
+
+#include <poppler-qt6.h>
 
 #include "render_pdf.h"
 #include "renderer_util.h"
+
+struct PDFRendererData {
+    std::unique_ptr<Poppler::Document> document;
+};
 
 static QString popplerError;
 
@@ -34,36 +42,48 @@ void PDFRenderer::init()
 PDFRenderer::PDFRenderer()
     : Renderer()
 {
-    document = nullptr;
+    data = new PDFRendererData;
+    data->document = nullptr;
     popplerError.clear();
+}
+
+PDFRenderer::~PDFRenderer()
+{
+    delete data;
 }
 
 void PDFRenderer::load()
 {
-    document = Poppler::Document::load(path_);
+    data->document = Poppler::Document::load(path_);
 }
 
 void PDFRenderer::renderPage(int num)
 {
     // Check whether an error occurred while rendering this document
-    if (document == nullptr) {
+    if (data->document == nullptr) {
         renderError(popplerError);
         return;
     }
 
     // Make the document look nice on screen
-    document->setRenderHint(Poppler::Document::Antialiasing);
-    document->setRenderHint(Poppler::Document::TextAntialiasing);
+    data->document->setRenderHint(Poppler::Document::Antialiasing);
+    data->document->setRenderHint(Poppler::Document::TextAntialiasing);
 
     int xRes = zoomScaled(dpiX_), yRes = zoomScaled(dpiY_);
     emit renderMode(PagedContent);
-    emit renderedPage(num, document->page(num)->renderToImage(xRes, yRes));
+    emit renderedPage(num,
+                      data->document->page(num)->renderToImage(xRes, yRes));
+}
+
+int PDFRenderer::numPages() const
+{
+    return (data->document == nullptr) ? 0 : data->document->numPages();
 }
 
 QSize PDFRenderer::pageSize(int num) const
 {
-    if (document != nullptr) {
-        std::unique_ptr<Poppler::Page> page = document->page(num);
+    if (data->document != nullptr) {
+        std::unique_ptr<Poppler::Page> page = data->document->page(num);
         if (page != nullptr) {
             QSize pointSize = page->pageSize();
             // Convert points to pixels at our current DPI
@@ -72,6 +92,11 @@ QSize PDFRenderer::pageSize(int num) const
         }
     }
     return QSize(0, 0);
+}
+
+void PDFRenderer::loadFromData(const QByteArray &bytes)
+{
+    data->document = Poppler::Document::loadFromData(bytes);
 }
 
 /*

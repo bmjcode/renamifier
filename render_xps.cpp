@@ -45,8 +45,7 @@ void XPSRenderer::load()
               << "-sOutputFile=-"
               << path_;
 
-    QByteArray data = runHelper(program, arguments);
-    document = Poppler::Document::loadFromData(data);
+    loadFromData(runHelper(program, arguments));
 }
 
 /*

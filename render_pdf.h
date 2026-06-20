@@ -20,15 +20,14 @@
 #ifndef RENDER_PDF_H
 #define RENDER_PDF_H
 
-#include <memory>   // for std::unique_ptr
-
 #include <QObject>
 #include <QSize>
 #include <QByteArray>
 
-#include <poppler-qt6.h>
-
 #include "renderer.h"
+
+// Hide backend implementation details
+struct PDFRendererData;
 
 class PDFRenderer : public Renderer {
     Q_OBJECT
@@ -37,15 +36,19 @@ public:
     static void init();
 
     PDFRenderer();
+    ~PDFRenderer();
     virtual void load();
     void renderPage(int num);
 
-    inline int numPages() const
-        { return (document == nullptr) ? 0 : document->numPages(); }
+    int numPages() const;
     QSize pageSize(int num) const;
 
 protected:
-    std::unique_ptr<Poppler::Document> document;
+    // For derived classes like PSRenderer that convert to PDF internally
+    void loadFromData(const QByteArray &bytes);
+
+private:
+    PDFRendererData *data;
 };
 
 #endif /* RENDER_PDF_H */
