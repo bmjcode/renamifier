@@ -63,7 +63,8 @@ void Viewer::display(const QString &path)
     deleteRenderer();
 
     renderer = Renderer::create(path);
-    renderer->moveToThread(renderThread);
+    if (renderer == nullptr)
+        return; // this should never fail, but...
 
     Renderer::Mode mode = renderer->mode();
     setMode(mode);
@@ -85,6 +86,7 @@ void Viewer::display(const QString &path)
     connect(renderer, &Renderer::errorEncountered,
             this, &Viewer::displayError);
 
+    renderer->moveToThread(renderThread);
     startRender();
 }
 
