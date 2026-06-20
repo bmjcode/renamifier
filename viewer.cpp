@@ -88,8 +88,24 @@ void Viewer::setZoom(int percent)
 {
     zoomFactor = percent;
     textContentViewer->setZoomFactor(zoomFactor);
-    if (currentWidget() == pagedContentViewer)
+    if (currentWidget() == pagedContentViewer) {
+        // Preserve the current scrollbar position
+        QScrollBar *hScrollBar = pagedContentViewer->horizontalScrollBar(),
+            *vScrollBar = pagedContentViewer->verticalScrollBar();
+        int xPos, yPos;
+
+        if (hScrollBar != nullptr)
+            xPos = hScrollBar->sliderPosition();
+        if (vScrollBar != nullptr)
+            yPos = vScrollBar->sliderPosition();
+
         redisplay();
+
+        if (hScrollBar != nullptr)
+            hScrollBar->setSliderPosition(xPos);
+        if (vScrollBar != nullptr)
+            vScrollBar->setSliderPosition(yPos);
+    }
 }
 
 void Viewer::addPage(int num, const QImage &image)
