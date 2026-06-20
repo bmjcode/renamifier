@@ -30,7 +30,7 @@ HexDumpRenderer::HexDumpRenderer()
 {
 }
 
-void HexDumpRenderer::renderPage(int num)
+void HexDumpRenderer::render()
 {
     QFile file(path_);
     QString output = hexDump(file);

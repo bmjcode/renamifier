@@ -27,9 +27,10 @@
 #include <QImage>
 
 /*
- * A Renderer processes files into a format the Viewer can display.
+ * Base class for all Renderers.
  *
- * It is intended to run in its own QThread, to prevent long render operations
+ * A Renderer processes files into a format the Viewer can display. It is
+ * intended to run in a separate QThread to prevent long render operations
  * from locking up the user interface.
  *
  * This class defines the basic renderer API but does not itself implement
@@ -37,6 +38,10 @@
  *
  * Use Renderer::create() to create a renderer for a given file. This will
  * automatically select the correct subclass to use based on the file type.
+ *
+ * Renderer implementations should inherit one of the specific subtypes
+ * TextContentRenderer or PagedContentRenderer, which provide additional
+ * common methods, signals, and slots specific to their rendering needs.
  */
 class Renderer : public QObject
 {
@@ -47,43 +52,73 @@ public:
     static void init();
 
     inline QString path() const { return path_; }
-    inline int zoomFactor() const { return zoomFactor_; }
-
-    virtual int numPages() const = 0;
-    virtual QSize pageSize(int num) const = 0;  // in pixels
-
-    inline void setPixelDensity(int dpiX, int dpiY)
-        { dpiX_ = dpiX, dpiY_ = dpiY; }
-    inline void setZoomFactor(int percent) { zoomFactor_ = percent; }
 
     enum Mode { TextContent, PagedContent };
     virtual Renderer::Mode mode() const = 0;
 
 public slots:
-    void render();
-    virtual void renderPage(int num) = 0;
+    virtual void render() = 0;
 
 signals:
     void modeChanged(Renderer::Mode mode);  // mainly for renderError()
-    void renderedPage(int num, const QImage &image);
     void renderedText(const QString &text);
 
 protected:
     QString path_;
-    int dpiX_, dpiY_;
-    int zoomFactor_;
 
     Renderer();
     virtual void load() = 0;
+
+    void renderError(const QString &details = QString());
+    QByteArray runHelper(const QString &program,
+                         const QStringList &arguments);
+};
+
+/*
+ * Base class for text content renderers.
+ */
+class TextContentRenderer : public Renderer {
+    Q_OBJECT
+
+protected:
+    TextContentRenderer();
+    inline Renderer::Mode mode() const { return TextContent; }
+};
+
+/*
+ * Base class for paged content renderers.
+ */
+class PagedContentRenderer : public Renderer {
+    Q_OBJECT
+
+public:
+    virtual int numPages() const = 0;
+    virtual QSize pageSize(int num) const = 0;  // in pixels
+
+    inline int zoomFactor() const { return zoomFactor_; }
+
+    inline void setPixelDensity(int dpiX, int dpiY)
+        { dpiX_ = dpiX, dpiY_ = dpiY; }
+    inline void setZoomFactor(int percent) { zoomFactor_ = percent; }
+
+public slots:
+    void render() { renderPage(0); }
+    virtual void renderPage(int num) = 0;
+
+signals:
+    void renderedPage(int num, const QImage &image);
+
+protected:
+    PagedContentRenderer();
+    inline Renderer::Mode mode() const { return PagedContent; }
 
     inline int zoomScaled(int value) const
         { return (zoomFactor_ == 100) ? value : value * zoomFactor_ / 100; }
     inline QSize zoomScaled(const QSize &size) const
         { return (zoomFactor_ == 100) ? size : size * zoomFactor_ / 100; }
 
-    void renderError(const QString &details = QString());
-    QByteArray runHelper(const QString &program,
-                         const QStringList &arguments);
+    int dpiX_, dpiY_;
+    int zoomFactor_;
 };
 
 #endif /* RENDERER_H */

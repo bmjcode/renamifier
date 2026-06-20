@@ -26,14 +26,6 @@
  */
 Renderer::Renderer()
 {
-    // Default to the DPI of a standard PC screen
-    dpiX_ = dpiY_ = 96;
-    zoomFactor_ = 100;
-}
-
-void Renderer::render()
-{
-    renderPage(0);
 }
 
 /*
@@ -78,4 +70,17 @@ QByteArray Renderer::runHelper(const QString &program,
         renderError(message);
     }
     return nullptr;
+}
+
+TextContentRenderer::TextContentRenderer()
+    : Renderer()
+{
+}
+
+PagedContentRenderer::PagedContentRenderer()
+    : Renderer()
+{
+    // Default to the DPI of a standard PC screen
+    dpiX_ = dpiY_ = 96;
+    zoomFactor_ = 100;
 }

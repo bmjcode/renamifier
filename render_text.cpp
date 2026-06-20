@@ -22,11 +22,15 @@
 #include "render_text.h"
 
 TextRenderer::TextRenderer()
-    : Renderer()
+    : TextContentRenderer()
 {
 }
 
-void TextRenderer::renderPage(int num)
+void TextRenderer::load()
+{
+}
+
+void TextRenderer::render()
 {
     QFile file(path_);
     QString contents;

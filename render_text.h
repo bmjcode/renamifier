@@ -25,17 +25,13 @@
 
 #include "renderer.h"
 
-class TextRenderer : public Renderer {
+class TextRenderer : public TextContentRenderer {
     Q_OBJECT
 
 public:
     TextRenderer();
-    void load() { }
-    void renderPage(int num);
-
-    inline Renderer::Mode mode() const { return Renderer::TextContent; }
-    inline int numPages() const { return 1; }
-    inline QSize pageSize(int num) const { return QSize(0, 0); }
+    void load();
+    void render();
 };
 
 #endif /* RENDER_TEXT_H */

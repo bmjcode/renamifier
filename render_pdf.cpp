@@ -40,7 +40,7 @@ void PDFRenderer::init()
 }
 
 PDFRenderer::PDFRenderer()
-    : Renderer()
+    : PagedContentRenderer()
 {
     data = new PDFRendererData;
     data->document = nullptr;

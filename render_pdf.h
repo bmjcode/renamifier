@@ -29,7 +29,7 @@
 // Hide backend implementation details
 struct PDFRendererData;
 
-class PDFRenderer : public Renderer {
+class PDFRenderer : public PagedContentRenderer {
     Q_OBJECT
 
 public:
@@ -40,7 +40,6 @@ public:
     virtual void load();
     void renderPage(int num);
 
-    inline Renderer::Mode mode() const { return Renderer::PagedContent; }
     int numPages() const;
     QSize pageSize(int num) const;
 

@@ -65,17 +65,19 @@ void Viewer::display(const QString &path)
     renderer = Renderer::create(path);
     renderer->moveToThread(renderThread);
 
-    // Renderer signals
-    connect(renderer, &Renderer::renderedPage,
-            this, &Viewer::setPageImage);
-    connect(renderer, &Renderer::renderedText,
-            this, &Viewer::setText);
-    connect(renderer, &Renderer::modeChanged,
-            this, &Viewer::setMode);
+    // Signals common to all Renderers
+    connect(renderer, &Renderer::renderedText, this, &Viewer::setText);
+    connect(renderer, &Renderer::modeChanged, this, &Viewer::setMode);
 
-    // PagedContent signals
-    connect(pagedContent, &PagedContent::pageRequested,
-            renderer, &Renderer::renderPage);
+    // Signals specific to PagedContentRenderer
+    if (renderer->mode() == Renderer::PagedContent) {
+        PagedContentRenderer *pcRenderer = (PagedContentRenderer*)renderer;
+
+        connect(pcRenderer, &PagedContentRenderer::renderedPage,
+                this, &Viewer::setPageImage);
+        connect(pagedContent, &PagedContent::pageRequested,
+                pcRenderer, &PagedContentRenderer::renderPage);
+    }
 
     setMode(renderer->mode());
     updatePageSizes();
@@ -173,14 +175,16 @@ void Viewer::updatePageSizes()
         || renderer->mode() != Renderer::PagedContent)
         return;
 
-    renderer->setZoomFactor(zoomFactor);
-    // Always use logical DPI for correctly-scaled output on high-DPI screens
-    renderer->setPixelDensity(logicalDpiX(), logicalDpiY());
+    PagedContentRenderer *pcRenderer = (PagedContentRenderer*)renderer;
 
-    pageCount = renderer->numPages();
+    pcRenderer->setZoomFactor(zoomFactor);
+    // Always use logical DPI for correctly-scaled output on high-DPI screens
+    pcRenderer->setPixelDensity(logicalDpiX(), logicalDpiY());
+
+    pageCount = pcRenderer->numPages();
     pagedContent->reservePages(pageCount);
 
     for (int i = 0; i < pageCount; i++)
-        pagedContent->setPageSize(i, renderer->pageSize(i));
+        pagedContent->setPageSize(i, pcRenderer->pageSize(i));
     pagedContent->recalculateArea();
 }

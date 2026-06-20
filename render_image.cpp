@@ -22,7 +22,7 @@
 #include "render_image.h"
 
 ImageRenderer::ImageRenderer()
-    : Renderer()
+    : PagedContentRenderer()
 {
 }
 
