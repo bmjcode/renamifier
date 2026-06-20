@@ -56,9 +56,6 @@ public:
     enum Mode { TextContent, PagedContent };
     virtual Renderer::Mode mode() const = 0;
 
-signals:
-    void errorEncountered(const QString &details);
-
 protected:
     QString path_;
 
@@ -68,6 +65,9 @@ protected:
     void renderError(const QString &details = QString());
     QByteArray runHelper(const QString &program,
                          const QStringList &arguments);
+
+signals:
+    void errorEncountered(const QString &details);
 };
 
 /*
@@ -79,12 +79,12 @@ class TextContentRenderer : public Renderer {
 public slots:
     virtual void render() = 0;
 
-signals:
-    void renderedText(const QString &text);
-
 protected:
     TextContentRenderer();
     inline Renderer::Mode mode() const { return TextContent; }
+
+signals:
+    void renderedText(const QString &text);
 };
 
 /*
@@ -106,9 +106,6 @@ public:
 public slots:
     virtual void renderPage(int num) = 0;
 
-signals:
-    void renderedPage(int num, const QImage &image);
-
 protected:
     PagedContentRenderer();
     inline Renderer::Mode mode() const { return PagedContent; }
@@ -120,6 +117,9 @@ protected:
 
     int dpiX_, dpiY_;
     int zoomFactor_;
+
+signals:
+    void renderedPage(int num, const QImage &image);
 };
 
 #endif /* RENDERER_H */
