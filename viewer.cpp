@@ -65,30 +65,26 @@ void Viewer::display(const QString &path)
     renderer = Renderer::create(path);
     renderer->moveToThread(renderThread);
 
+    Renderer::Mode mode = renderer->mode();
+    setMode(mode);
+
+    if (mode == Renderer::TextContent) {
+        TextContentRenderer *tcRenderer = (TextContentRenderer*)renderer;
+
+        connect(tcRenderer, &TextContentRenderer::renderedText,
+                this, &Viewer::setText);
+    } else if (mode == Renderer::PagedContent) {
+        PagedContentRenderer *pcRenderer = (PagedContentRenderer*)renderer;
+
+        connect(pagedContent, &PagedContent::pageRequested,
+                pcRenderer, &PagedContentRenderer::renderPage);
+        connect(pcRenderer, &PagedContentRenderer::renderedPage,
+                this, &Viewer::setPageImage);
+    }
+
     connect(renderer, &Renderer::errorEncountered,
             this, &Viewer::displayError);
 
-    switch (renderer->mode()) {
-    case Renderer::TextContent:
-        {
-            TextContentRenderer *tcRenderer = (TextContentRenderer*)renderer;
-            connect(tcRenderer, &TextContentRenderer::renderedText,
-                    this, &Viewer::setText);
-        }
-        break;
-
-    case Renderer::PagedContent:
-        {
-            PagedContentRenderer *pcRenderer = (PagedContentRenderer*)renderer;
-            connect(pagedContent, &PagedContent::pageRequested,
-                    pcRenderer, &PagedContentRenderer::renderPage);
-            connect(pcRenderer, &PagedContentRenderer::renderedPage,
-                    this, &Viewer::setPageImage);
-        }
-        break;
-    }
-
-    setMode(renderer->mode());
     startRender();
 }
 
