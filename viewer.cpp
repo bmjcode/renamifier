@@ -131,10 +131,15 @@ void Viewer::setZoom(int percent)
 
 void Viewer::setMode(Renderer::Mode mode)
 {
-    if (mode == Renderer::TextContent)
+    switch (mode) {
+    case Renderer::TextContent:
         setCurrentWidget(textContentViewer);
-    else if (mode == Renderer::PagedContent)
+        break;
+
+    case Renderer::PagedContent:
         setCurrentWidget(pagedContentViewer);
+        break;
+    }
 }
 
 void Viewer::setPageImage(int num, const QImage &image)
