@@ -56,9 +56,6 @@ public:
     enum Mode { TextContent, PagedContent };
     virtual Renderer::Mode mode() const = 0;
 
-public slots:
-    virtual void render() = 0;
-
 signals:
     void modeChanged(Renderer::Mode mode);  // mainly for renderError()
     void renderedText(const QString &text);
@@ -79,6 +76,9 @@ protected:
  */
 class TextContentRenderer : public Renderer {
     Q_OBJECT
+
+public slots:
+    virtual void render() = 0;
 
 protected:
     TextContentRenderer();
@@ -102,7 +102,6 @@ public:
     inline void setZoomFactor(int percent) { zoomFactor_ = percent; }
 
 public slots:
-    void render() { renderPage(0); }
     virtual void renderPage(int num) = 0;
 
 signals:

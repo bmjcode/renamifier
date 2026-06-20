@@ -84,7 +84,8 @@ protected slots:
 
 private:
     void deleteRenderer();
-    void updatePageSizes();
+    void repaginate();
+    void startRender();
 
 signals:
     void zoomChanged(int percent);

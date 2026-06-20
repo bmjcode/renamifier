@@ -73,15 +73,14 @@ void Viewer::display(const QString &path)
     if (renderer->mode() == Renderer::PagedContent) {
         PagedContentRenderer *pcRenderer = (PagedContentRenderer*)renderer;
 
-        connect(pcRenderer, &PagedContentRenderer::renderedPage,
-                this, &Viewer::setPageImage);
         connect(pagedContent, &PagedContent::pageRequested,
                 pcRenderer, &PagedContentRenderer::renderPage);
+        connect(pcRenderer, &PagedContentRenderer::renderedPage,
+                this, &Viewer::setPageImage);
     }
 
     setMode(renderer->mode());
-    updatePageSizes();
-    QTimer::singleShot(0, renderer, &Renderer::render);
+    startRender();
 }
 
 void Viewer::setFocusPolicy(Qt::FocusPolicy policy)
@@ -119,8 +118,7 @@ void Viewer::setZoom(int percent)
             yPos = vScrollBar->sliderPosition();
 
         clear();
-        updatePageSizes();
-        pagedContentViewer->update();
+        repaginate();   // automatically triggers pagedContent->update()
 
         if (hScrollBar != nullptr)
             hScrollBar->setSliderPosition(xPos);
@@ -172,12 +170,11 @@ void Viewer::deleteRenderer()
     }
 }
 
-void Viewer::updatePageSizes()
+void Viewer::repaginate()
 {
     int pageCount;
 
-    if (renderer == nullptr
-        || renderer->mode() != Renderer::PagedContent)
+    if (renderer == nullptr || renderer->mode() != Renderer::PagedContent)
         return;
 
     PagedContentRenderer *pcRenderer = (PagedContentRenderer*)renderer;
@@ -192,4 +189,21 @@ void Viewer::updatePageSizes()
     for (int i = 0; i < pageCount; i++)
         pagedContent->setPageSize(i, pcRenderer->pageSize(i));
     pagedContent->recalculateArea();
+}
+
+void Viewer::startRender()
+{
+    if (renderer == nullptr)
+        return;
+
+    switch (renderer->mode()) {
+    case Renderer::TextContent:
+        QTimer::singleShot(
+            0, (TextContentRenderer*)renderer, &TextContentRenderer::render);
+        break;
+
+    case Renderer::PagedContent:
+        repaginate();
+        break;
+    }
 }
