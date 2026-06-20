@@ -57,8 +57,7 @@ public:
     virtual Renderer::Mode mode() const = 0;
 
 signals:
-    void modeChanged(Renderer::Mode mode);  // mainly for renderError()
-    void renderedText(const QString &text);
+    void errorEncountered(const QString &details);
 
 protected:
     QString path_;
@@ -79,6 +78,9 @@ class TextContentRenderer : public Renderer {
 
 public slots:
     virtual void render() = 0;
+
+signals:
+    void renderedText(const QString &text);
 
 protected:
     TextContentRenderer();

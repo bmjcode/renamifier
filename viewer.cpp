@@ -65,18 +65,27 @@ void Viewer::display(const QString &path)
     renderer = Renderer::create(path);
     renderer->moveToThread(renderThread);
 
-    // Signals common to all Renderers
-    connect(renderer, &Renderer::renderedText, this, &Viewer::setText);
-    connect(renderer, &Renderer::modeChanged, this, &Viewer::setMode);
+    connect(renderer, &Renderer::errorEncountered,
+            this, &Viewer::displayError);
 
-    // Signals specific to PagedContentRenderer
-    if (renderer->mode() == Renderer::PagedContent) {
-        PagedContentRenderer *pcRenderer = (PagedContentRenderer*)renderer;
+    switch (renderer->mode()) {
+    case Renderer::TextContent:
+        {
+            TextContentRenderer *tcRenderer = (TextContentRenderer*)renderer;
+            connect(tcRenderer, &TextContentRenderer::renderedText,
+                    this, &Viewer::setText);
+        }
+        break;
 
-        connect(pagedContent, &PagedContent::pageRequested,
-                pcRenderer, &PagedContentRenderer::renderPage);
-        connect(pcRenderer, &PagedContentRenderer::renderedPage,
-                this, &Viewer::setPageImage);
+    case Renderer::PagedContent:
+        {
+            PagedContentRenderer *pcRenderer = (PagedContentRenderer*)renderer;
+            connect(pagedContent, &PagedContent::pageRequested,
+                    pcRenderer, &PagedContentRenderer::renderPage);
+            connect(pcRenderer, &PagedContentRenderer::renderedPage,
+                    this, &Viewer::setPageImage);
+        }
+        break;
     }
 
     setMode(renderer->mode());
@@ -125,6 +134,12 @@ void Viewer::setZoom(int percent)
         if (vScrollBar != nullptr)
             vScrollBar->setSliderPosition(yPos);
     }
+}
+
+void Viewer::displayError(const QString &details)
+{
+    setMode(Renderer::TextContent);
+    setText(details);
 }
 
 void Viewer::setMode(Renderer::Mode mode)
