@@ -22,13 +22,14 @@
 
 #include <QObject>
 
-#include "render_text.h"
+#include "renderer.h"
 
-class HexDumpRenderer : public TextRenderer {
+class HexDumpRenderer : public TextContentRenderer {
     Q_OBJECT
 
 public:
     HexDumpRenderer();
+    void load();
     void render();
 };
 

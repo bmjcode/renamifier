@@ -26,7 +26,11 @@
 static const QString hexDump(QIODevice &device);
 
 HexDumpRenderer::HexDumpRenderer()
-    : TextRenderer()
+    : TextContentRenderer()
+{
+}
+
+void HexDumpRenderer::load()
 {
 }
 
