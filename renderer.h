@@ -76,12 +76,14 @@ signals:
 class TextContentRenderer : public Renderer {
     Q_OBJECT
 
+public:
+    inline Renderer::Mode mode() const { return TextContent; }
+
 public slots:
     virtual void render() = 0;
 
 protected:
     TextContentRenderer();
-    inline Renderer::Mode mode() const { return TextContent; }
 
 signals:
     void renderedText(const QString &text);
@@ -97,6 +99,7 @@ public:
     virtual int numPages() const = 0;
     virtual QSize pageSize(int num) const = 0;  // in pixels
 
+    inline Renderer::Mode mode() const { return PagedContent; }
     inline int zoomFactor() const { return zoomFactor_; }
 
     inline void setPixelDensity(int dpiX, int dpiY)
@@ -108,7 +111,6 @@ public slots:
 
 protected:
     PagedContentRenderer();
-    inline Renderer::Mode mode() const { return PagedContent; }
 
     inline int zoomScaled(int value) const
         { return (zoomFactor_ == 100) ? value : value * zoomFactor_ / 100; }
