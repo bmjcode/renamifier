@@ -60,11 +60,14 @@ public:
     PagedContent(PagedContentViewer *parent);
     ~PagedContent();
 
-    void clear();
-    void recalculateArea();
     void reservePages(int numPages);
     void setPageImage(int num, const QImage &image);
     void setPageSize(int num, const QSize &size);
+
+public slots:
+    void clear();
+    void fitToContent();
+    void repaginate();
 
 private:
     void moveEvent(QMoveEvent *event);
@@ -78,11 +81,10 @@ private:
     bool isMoving;
 
 private slots:
-    void prepare();
     void stoppedMoving();
 
 signals:
-    void pageRequested(int num);
+    void imageRequested(int num);
 };
 
 #endif /* VIEWER_PAGED_H */

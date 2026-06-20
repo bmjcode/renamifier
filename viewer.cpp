@@ -77,7 +77,7 @@ void Viewer::display(const QString &path)
     } else if (mode == Renderer::PagedContent) {
         PagedContentRenderer *pcRenderer = (PagedContentRenderer*)renderer;
 
-        connect(pagedContent, &PagedContent::pageRequested,
+        connect(pagedContent, &PagedContent::imageRequested,
                 pcRenderer, &PagedContentRenderer::renderPage);
         connect(pcRenderer, &PagedContentRenderer::renderedPage,
                 this, &Viewer::setPageImage);
@@ -202,7 +202,9 @@ void Viewer::repaginate()
 
     for (int i = 0; i < pageCount; i++)
         pagedContent->setPageSize(i, pcRenderer->pageSize(i));
-    pagedContent->recalculateArea();
+
+    pagedContent->fitToContent();
+    pagedContent->repaginate();
 }
 
 void Viewer::startRender()
