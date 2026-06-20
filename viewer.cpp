@@ -136,7 +136,8 @@ void Viewer::setZoom(int percent)
 
 void Viewer::displayError(const QString &details)
 {
-    setMode(Renderer::TextContent);
+    clear();
+    setCurrentWidget(textContentViewer);
     setText(details);
 }
 
