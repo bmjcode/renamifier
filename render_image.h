@@ -34,6 +34,7 @@ public:
     void load();
     void renderPage(int num);
 
+    inline Renderer::Mode mode() const { return Renderer::PagedContent; }
     inline int numPages() const { return 1; }
     inline QSize pageSize(int num) const
         { return zoomScaled(image.size()); }

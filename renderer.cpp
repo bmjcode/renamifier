@@ -55,7 +55,8 @@ void Renderer::renderError(const QString &details)
                    << Qt::endl
                    << details;
 
-    emit renderMode(TextContent);
+    if (mode() != TextContent)
+        emit modeChanged(TextContent);
     emit renderedText(message);
 }
 

@@ -34,7 +34,6 @@ void TextRenderer::renderPage(int num)
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream(&contents) << file.readAll();
         file.close();
-        emit renderMode(TextContent);
         emit renderedText(contents);
     } else
         renderError(file.errorString());

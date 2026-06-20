@@ -78,7 +78,7 @@ protected:
     int zoomFactor;
 
 protected slots:
-    void setRenderMode(int mode);
+    void setMode(Renderer::Mode mode);
     void setPageImage(int num, const QImage &image);
     void setText(const QString &text);
 

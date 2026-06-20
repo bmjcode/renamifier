@@ -70,7 +70,6 @@ void PDFRenderer::renderPage(int num)
     data->document->setRenderHint(Poppler::Document::TextAntialiasing);
 
     int xRes = zoomScaled(dpiX_), yRes = zoomScaled(dpiY_);
-    emit renderMode(PagedContent);
     emit renderedPage(num,
                       data->document->page(num)->renderToImage(xRes, yRes));
 }

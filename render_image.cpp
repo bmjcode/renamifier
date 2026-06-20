@@ -38,7 +38,6 @@ void ImageRenderer::renderPage(int num)
         return;
     }
 
-    emit renderMode(PagedContent);
     if (zoomFactor() == 100)
         emit renderedPage(num, image);
     else

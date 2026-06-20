@@ -56,14 +56,15 @@ public:
         { dpiX_ = dpiX, dpiY_ = dpiY; }
     inline void setZoomFactor(int percent) { zoomFactor_ = percent; }
 
-    enum RenderMode { TextContent, PagedContent };
+    enum Mode { TextContent, PagedContent };
+    virtual Renderer::Mode mode() const = 0;
 
 public slots:
     void render();
     virtual void renderPage(int num) = 0;
 
 signals:
-    void renderMode(int mode);  // should be a value from RenderMode
+    void modeChanged(Renderer::Mode mode);  // mainly for renderError()
     void renderedPage(int num, const QImage &image);
     void renderedText(const QString &text);
 

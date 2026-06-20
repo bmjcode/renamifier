@@ -70,13 +70,14 @@ void Viewer::display(const QString &path)
             this, &Viewer::setPageImage);
     connect(renderer, &Renderer::renderedText,
             this, &Viewer::setText);
-    connect(renderer, &Renderer::renderMode,
-            this, &Viewer::setRenderMode);
+    connect(renderer, &Renderer::modeChanged,
+            this, &Viewer::setMode);
 
     // PagedContent signals
     connect(pagedContent, &PagedContent::pageRequested,
             renderer, &Renderer::renderPage);
 
+    setMode(renderer->mode());
     updatePageSizes();
     QTimer::singleShot(0, renderer, &Renderer::render);
 }
@@ -126,7 +127,7 @@ void Viewer::setZoom(int percent)
     }
 }
 
-void Viewer::setRenderMode(int mode)
+void Viewer::setMode(Renderer::Mode mode)
 {
     if (mode == Renderer::TextContent)
         setCurrentWidget(textContentViewer);
@@ -168,8 +169,9 @@ void Viewer::updatePageSizes()
 {
     int pageCount;
 
-    if (renderer == nullptr)
-        return; // this should never happen, but...
+    if (renderer == nullptr
+        || renderer->mode() != Renderer::PagedContent)
+        return;
 
     renderer->setZoomFactor(zoomFactor);
     // Always use logical DPI for correctly-scaled output on high-DPI screens

@@ -37,10 +37,8 @@ void HexDumpRenderer::renderPage(int num)
     if (output.isEmpty()) {
         renderError(file.errorString());
         return;
-    } else {
-        emit renderMode(TextContent);
+    } else
         emit renderedText(output);
-    }
 }
 
 /*

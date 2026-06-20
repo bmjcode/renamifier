@@ -40,6 +40,7 @@ public:
     virtual void load();
     void renderPage(int num);
 
+    inline Renderer::Mode mode() const { return Renderer::PagedContent; }
     int numPages() const;
     QSize pageSize(int num) const;
 
