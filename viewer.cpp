@@ -57,7 +57,6 @@ Viewer::Viewer(QWidget *parent)
 
 Viewer::~Viewer()
 {
-    clear();
     deleteRenderer();
     if (renderThread != nullptr) {
         renderThread->quit();
