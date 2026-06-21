@@ -88,7 +88,7 @@ private:
     QWidget *viewport;
     QList<Page*> pages;
     // We use a list rather than a queue for this because Qt may generate
-    // more than one paint event for any given update()
+    // multiple paint events between refresh()es
     QList<Page*> visiblePages;
     QTimer *moveTimer;
     int zoomFactor;

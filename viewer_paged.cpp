@@ -183,6 +183,9 @@ void PagedContent::display()
     refresh();
 }
 
+/*
+ * Render and paint visible pages.
+ */
 void PagedContent::refresh()
 {
     qDebug() << "refresh()";
@@ -325,7 +328,7 @@ void PagedContent::setPageImage(int num, const QImage &image)
         Page *page = pages[num];
         page->image = image;
         page->isRendering = false;
-        // Paint just this page
+        // We only need to repaint this page; the others are fine
         update(page->rect());
     }
 }
