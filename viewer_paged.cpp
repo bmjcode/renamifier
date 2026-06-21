@@ -198,12 +198,13 @@ void PagedContent::refresh()
 
 void PagedContent::moveEvent(QMoveEvent *event)
 {
-    // Refresh immediately, but delay rendering until we've stopped moving.
+    // Refresh once immediately so the user can see the new content, but
+    // delay further renders until we've stopped moving.
     // This avoids rendering pages that aren't visible for any meaningful
     // amount of time when rapidly scrolling.
-    isMoving = true;
     refresh();
-    moveTimer->start(100);
+    isMoving = true;
+    moveTimer->start(50);
 }
 
 void PagedContent::paintEvent(QPaintEvent *event)
