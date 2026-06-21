@@ -1,6 +1,6 @@
 /*
  * Widget for viewing plain text content.
- * Copyright (c) 2021 Benjamin Johnson
+ * Copyright (c) 2021-2026 Benjamin Johnson
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,21 @@ TextContentViewer::TextContentViewer(QWidget *parent)
     setTabChangesFocus(true);
     setWordWrapMode(QTextOption::WordWrap);
 
+    renderer = nullptr;
     initialFontSize = font().pointSize();
+}
+
+void TextContentViewer::setRenderer(Renderer *replacement)
+{
+    if (replacement->mode() == Renderer::TextContent) {
+        renderer = (TextContentRenderer*)replacement;
+
+        connect(renderer, &TextContentRenderer::renderedText,
+                this, &TextContentViewer::setPlainText);
+
+        QTimer::singleShot(0, renderer, &TextContentRenderer::render);
+    } else
+        renderer = nullptr;
 }
 
 void TextContentViewer::setZoomFactor(int percent)

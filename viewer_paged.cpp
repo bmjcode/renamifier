@@ -100,7 +100,10 @@ void PagedContentViewer::resizeEvent(QResizeEvent *event)
 PagedContent::PagedContent(PagedContentViewer *parent)
     : QFrame(parent)
 {
+    renderer = nullptr;
     viewport = parent->viewport();
+
+    zoomFactor = 100;
 
     isMoving = false;
     moveTimer = new QTimer(this);
@@ -113,41 +116,95 @@ PagedContent::~PagedContent()
     clear();
 }
 
-void PagedContent::reservePages(int numPages)
+void PagedContent::setRenderer(Renderer *replacement)
 {
-    clear();
-    pages.reserve(numPages);
-    for (int i = 0; i < numPages; i++)
-        pages.append(new Page);
+    purgeCache();
+    if (replacement->mode() == Renderer::PagedContent) {
+        renderer = (PagedContentRenderer*)replacement;
+
+        // Prepare the cache
+        int numPages = renderer->numPages();
+        pages.reserve(numPages);
+        for (int i = 0; i < numPages; i++)
+            pages.append(new Page);
+
+        // Set initial state now that the cache is prepared
+        setZoomFactor(zoomFactor);
+
+        // Connect signals last now that our prep work is all done
+        connect(this, &PagedContent::imageRequested,
+                renderer, &PagedContentRenderer::renderPage);
+        connect(renderer, &PagedContentRenderer::renderedPage,
+                this, &PagedContent::setPageImage);
+    } else
+        renderer = nullptr;
 }
 
-void PagedContent::setPageImage(int num, const QImage &image)
+void PagedContent::setZoomFactor(int percent)
 {
-    if (0 <= num && num < pages.count()) {
-        Page *page = pages[num];
-        page->image = image;
-        page->isRendering = false;
-    }
-}
+    zoomFactor = percent;
 
-void PagedContent::setPageSize(int num, const QSize &size)
-{
-    if (0 <= num && num < pages.count()) {
-        Page *page = pages[num];
-        page->width = size.width();
-        page->height = size.height();
+    if (renderer != nullptr) {
+        renderer->setZoomFactor(percent);
+        // Logical DPI provides correctly-scaled output on high-DPI screens
+        renderer->setPixelDensity(logicalDpiX(), logicalDpiY());
+
+        for (int i = 0; i < pages.count(); i++) {
+            Page *page = pages[i];
+            QSize size = renderer->pageSize(i);
+
+            page->width = size.width();
+            page->height = size.height();
+        }
     }
 }
 
 void PagedContent::clear()
 {
-    for (int i = 0; i < pages.count(); i++)
-        delete pages[i];
-    pages.clear();
-    visiblePages.clear();
+    purgeCache();
+}
 
+void PagedContent::refresh()
+{
     fitToContent();
+    repaginate();
     update();
+}
+
+void PagedContent::moveEvent(QMoveEvent *event)
+{
+    // Repaginate once immediately when we start moving to limit flicker,
+    // but delay further repagination until we've stopped moving.
+    // This avoids rendering pages that aren't visible for any meaningful
+    // amount of time when rapidly scrolling.
+    if (!isMoving) {
+        isMoving = true;
+        repaginate();
+        moveTimer->start(100);
+    }
+}
+
+void PagedContent::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+
+    for (int i = 0; i < visiblePages.count(); i++) {
+        Page *page = visiblePages[i];
+        QRect pageRect = page->rect();
+
+        // the area to paint may be smaller than the total visible area
+        if (pageRect.intersects(event->rect())) {
+            if (page->image.isNull())
+                painter.fillRect(pageRect, Qt::white);
+            else
+                painter.drawImage(pageRect, page->image);
+        }
+    }
+}
+
+void PagedContent::resizeEvent(QResizeEvent *event)
+{
+    repaginate();
 }
 
 /*
@@ -168,6 +225,14 @@ void PagedContent::fitToContent()
 
     setMinimumSize(w, h);
     resize(w, h);
+}
+
+void PagedContent::purgeCache()
+{
+    for (int i = 0; i < pages.count(); i++)
+        delete pages[i];
+    pages.clear();
+    visiblePages.clear();
 }
 
 /*
@@ -205,40 +270,14 @@ void PagedContent::repaginate()
     }
 }
 
-void PagedContent::moveEvent(QMoveEvent *event)
+void PagedContent::setPageImage(int num, const QImage &image)
 {
-    // Repaginate once immediately when we start moving to limit flicker,
-    // but delay further repagination until we've stopped moving.
-    // This avoids rendering pages that aren't visible for any meaningful
-    // amount of time when rapidly scrolling.
-    if (!isMoving) {
-        isMoving = true;
-        repaginate();
-        moveTimer->start(100);
+    if (0 <= num && num < pages.count()) {
+        Page *page = pages[num];
+        page->image = image;
+        page->isRendering = false;
+        update(page->rect());
     }
-}
-
-void PagedContent::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(this);
-
-    for (int i = 0; i < visiblePages.count(); i++) {
-        Page *page = visiblePages[i];
-        QRect pageRect = page->rect();
-
-        // the area to paint may be smaller than the total visible area
-        if (pageRect.intersects(event->rect())) {
-            if (page->image.isNull())
-                painter.fillRect(pageRect, Qt::white);
-            else
-                painter.drawImage(pageRect, page->image);
-        }
-    }
-}
-
-void PagedContent::resizeEvent(QResizeEvent *event)
-{
-    repaginate();
 }
 
 void PagedContent::stoppedMoving()

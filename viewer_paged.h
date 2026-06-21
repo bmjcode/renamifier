@@ -33,6 +33,8 @@
 #include <QPaintEvent>
 #include <QResizeEvent>
 
+#include "renderer.h"
+
 class PagedContent; // defined below
 struct Page;        // defined in viewer_paged.cpp
 
@@ -59,28 +61,35 @@ class PagedContent : public QFrame
 public:
     PagedContent(PagedContentViewer *parent);
     ~PagedContent();
-
-    void reservePages(int numPages);
-    void setPageImage(int num, const QImage &image);
-    void setPageSize(int num, const QSize &size);
+    void setRenderer(Renderer *replacement);
+    void setZoomFactor(int percent);
 
 public slots:
     void clear();
-    void fitToContent();
-    void repaginate();
+    void refresh();
 
 private:
+    // Qt events
     void moveEvent(QMoveEvent *event);
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
 
+    // Other private methods
+    void fitToContent();
+    void purgeCache();
+    void reservePages();
+    void repaginate();
+
+    PagedContentRenderer *renderer;
     QWidget *viewport;
     QList<Page*> pages;
     QList<Page*> visiblePages;
     QTimer *moveTimer;
+    int zoomFactor;
     bool isMoving;
 
 private slots:
+    void setPageImage(int num, const QImage &image);
     void stoppedMoving();
 
 signals:

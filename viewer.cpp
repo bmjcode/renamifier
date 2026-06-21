@@ -1,6 +1,6 @@
 /*
  * A widget to display file previews.
- * Copyright (c) 2021 Benjamin Johnson
+ * Copyright (c) 2021-2026 Benjamin Johnson
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,9 @@ Viewer::Viewer(QWidget *parent)
             this, &Viewer::setZoom);
     connect(pagedContentViewer, &PagedContentViewer::zoomChanged,
             this, &Viewer::setZoom);
+
+    connect(this, &QStackedWidget::currentChanged,
+            this, &Viewer::handleCurrentChanged);
 }
 
 Viewer::~Viewer()
@@ -65,29 +68,22 @@ void Viewer::display(const QString &path)
     renderer = Renderer::create(path);
     if (renderer == nullptr)
         return; // this should never fail, but...
-
-    Renderer::Mode mode = renderer->mode();
-    setMode(mode);
-
-    if (mode == Renderer::TextContent) {
-        TextContentRenderer *tcRenderer = (TextContentRenderer*)renderer;
-
-        connect(tcRenderer, &TextContentRenderer::renderedText,
-                this, &Viewer::setText);
-    } else if (mode == Renderer::PagedContent) {
-        PagedContentRenderer *pcRenderer = (PagedContentRenderer*)renderer;
-
-        connect(pagedContent, &PagedContent::imageRequested,
-                pcRenderer, &PagedContentRenderer::renderPage);
-        connect(pcRenderer, &PagedContentRenderer::renderedPage,
-                this, &Viewer::setPageImage);
-    }
+    renderer->moveToThread(renderThread);
 
     connect(renderer, &Renderer::errorEncountered,
             this, &Viewer::displayError);
 
-    renderer->moveToThread(renderThread);
-    startRender();
+    Renderer::Mode mode = renderer->mode();
+    setMode(mode);
+    switch (mode) {
+    case Renderer::TextContent:
+        textContentViewer->setRenderer(renderer);
+        break;
+    case Renderer::PagedContent:
+        pagedContent->setRenderer(renderer);
+        pagedContent->refresh();
+        break;
+    }
 }
 
 void Viewer::setFocusPolicy(Qt::FocusPolicy policy)
@@ -113,6 +109,8 @@ void Viewer::setZoom(int percent)
 {
     zoomFactor = percent;
     textContentViewer->setZoomFactor(zoomFactor);
+    pagedContent->setZoomFactor(zoomFactor);
+
     if (currentWidget() == pagedContentViewer) {
         // Preserve the current scrollbar position
         QScrollBar *hScrollBar = pagedContentViewer->horizontalScrollBar(),
@@ -124,8 +122,7 @@ void Viewer::setZoom(int percent)
         if (vScrollBar != nullptr)
             yPos = vScrollBar->sliderPosition();
 
-        clear();
-        repaginate();   // automatically triggers pagedContent->update()
+        pagedContent->refresh();
 
         if (hScrollBar != nullptr)
             hScrollBar->setSliderPosition(xPos);
@@ -140,7 +137,13 @@ void Viewer::displayError(const QString &details)
     deleteRenderer();
 
     setCurrentWidget(textContentViewer);
-    setText(details);
+    textContentViewer->setPlainText(details);
+}
+
+void Viewer::handleCurrentChanged(int index)
+{
+    // Only update pagedContent when it is visible
+    pagedContent->setUpdatesEnabled(currentWidget() == pagedContentViewer);
 }
 
 void Viewer::setMode(Renderer::Mode mode)
@@ -149,22 +152,11 @@ void Viewer::setMode(Renderer::Mode mode)
     case Renderer::TextContent:
         setCurrentWidget(textContentViewer);
         break;
-
     case Renderer::PagedContent:
         setCurrentWidget(pagedContentViewer);
+        pagedContent->refresh();
         break;
     }
-}
-
-void Viewer::setPageImage(int num, const QImage &image)
-{
-    pagedContent->setPageImage(num, image);
-    pagedContent->update();
-}
-
-void Viewer::setText(const QString &text)
-{
-    textContentViewer->setPlainText(text);
 }
 
 /*
@@ -183,45 +175,5 @@ void Viewer::deleteRenderer()
         disconnect(renderer, nullptr, nullptr, nullptr);
         delete renderer;
         renderer = nullptr;
-    }
-}
-
-void Viewer::repaginate()
-{
-    int pageCount;
-
-    if (renderer == nullptr || renderer->mode() != Renderer::PagedContent)
-        return;
-
-    PagedContentRenderer *pcRenderer = (PagedContentRenderer*)renderer;
-
-    pcRenderer->setZoomFactor(zoomFactor);
-    // Always use logical DPI for correctly-scaled output on high-DPI screens
-    pcRenderer->setPixelDensity(logicalDpiX(), logicalDpiY());
-
-    pageCount = pcRenderer->numPages();
-    pagedContent->reservePages(pageCount);
-
-    for (int i = 0; i < pageCount; i++)
-        pagedContent->setPageSize(i, pcRenderer->pageSize(i));
-
-    pagedContent->fitToContent();
-    pagedContent->repaginate();
-}
-
-void Viewer::startRender()
-{
-    if (renderer == nullptr)
-        return;
-
-    switch (renderer->mode()) {
-    case Renderer::TextContent:
-        QTimer::singleShot(
-            0, (TextContentRenderer*)renderer, &TextContentRenderer::render);
-        break;
-
-    case Renderer::PagedContent:
-        repaginate();
-        break;
     }
 }

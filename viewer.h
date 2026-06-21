@@ -1,6 +1,6 @@
 /*
  * A widget to display file previews.
- * Copyright (c) 2021 Benjamin Johnson
+ * Copyright (c) 2021-2026 Benjamin Johnson
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,12 +38,8 @@ class PagedContent;
 /*
  * File preview widget.
  *
- * Internally, the Viewer class does two things:
- *  1. Create a Renderer to read and process the file.
- *  2. Provide an appropriate viewer widget to display its content.
- *
- * In other words, it does not actually process or display content itself,
- * but rather manages and connects the other individual classes that do.
+ * The Viewer presents a unified interface to several specialized widgets
+ * that do the actual work of displaying the file.
  */
 class Viewer : public QStackedWidget
 {
@@ -69,9 +65,10 @@ public slots:
 
 protected:
     QThread *renderThread;
+    // The Viewer class creates and owns the renderer, but the individual
+    // widgets below handle most of the interaction with it
     Renderer *renderer;
-    // The Viewer widget automatically selects the most appropriate
-    // of these to display its content
+    // Specialized widgets to display different types of content
     TextContentViewer *textContentViewer;
     PagedContentViewer *pagedContentViewer;
     PagedContent *pagedContent;
@@ -79,14 +76,12 @@ protected:
 
 protected slots:
     void displayError(const QString &details);
+    void handleCurrentChanged(int indexed);
     void setMode(Renderer::Mode mode);
-    void setPageImage(int num, const QImage &image);
-    void setText(const QString &text);
 
 private:
     void deleteRenderer();
     void repaginate();
-    void startRender();
 
 signals:
     void zoomChanged(int percent);

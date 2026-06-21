@@ -1,6 +1,6 @@
 /*
  * Widget for viewing plain text content.
- * Copyright (c) 2021 Benjamin Johnson
+ * Copyright (c) 2021-2026 Benjamin Johnson
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,17 +25,21 @@
 #include <QWidget>
 #include <QPlainTextEdit>
 
+#include "renderer.h"
+
 class TextContentViewer : public QPlainTextEdit
 {
     Q_OBJECT
 
 public:
     TextContentViewer(QWidget *parent);
+    void setRenderer(Renderer *replacement);
 
 public slots:
     void setZoomFactor(int percent);
 
-protected:
+private:
+    TextContentRenderer *renderer;
     int initialFontSize;
 
 signals:
