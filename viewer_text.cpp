@@ -36,7 +36,8 @@ TextContentViewer::TextContentViewer(QWidget *parent)
 
 void TextContentViewer::setRenderer(Renderer *replacement)
 {
-    if (replacement->mode() == Renderer::TextContent) {
+    if (replacement != nullptr
+        && replacement->mode() == Renderer::TextContent) {
         renderer = (TextContentRenderer*)replacement;
 
         connect(renderer, &TextContentRenderer::renderedText,

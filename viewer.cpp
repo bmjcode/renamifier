@@ -170,6 +170,9 @@ QSize Viewer::sizeHint() const
 void Viewer::deleteRenderer()
 {
     stopRender();
+    textContentViewer->setRenderer(nullptr);
+    pagedContent->setRenderer(nullptr);
+
     if (renderer != nullptr) {
         // Don't respond to any more signals from this Renderer
         disconnect(renderer, nullptr, nullptr, nullptr);

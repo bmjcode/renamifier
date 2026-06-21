@@ -122,7 +122,8 @@ PagedContent::~PagedContent()
 void PagedContent::setRenderer(Renderer *replacement)
 {
     purgeCache();
-    if (replacement->mode() == Renderer::PagedContent) {
+    if (replacement != nullptr
+        && replacement->mode() == Renderer::PagedContent) {
         renderer = (PagedContentRenderer*)replacement;
 
         // Prepare the cache
