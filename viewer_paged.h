@@ -92,6 +92,7 @@ private:
     QTimer *moveTimer;
     int zoomFactor;
     bool isMoving;
+    bool purgeInvisible;
 
 private slots:
     void setPageImage(int num, const QImage &image);

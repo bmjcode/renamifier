@@ -104,6 +104,7 @@ PagedContent::PagedContent(PagedContentViewer *parent)
     viewport = parent->viewport();
 
     zoomFactor = 100;
+    purgeInvisible = true;  // purge invisible pages to save memory?
 
     isMoving = false;
     moveTimer = new QTimer(this);
@@ -196,8 +197,10 @@ void PagedContent::refresh()
                 page->isRendering = true;
                 emit imageRequested(i);
             }
-        } else
-            page->image = QImage(); // purge invisible pages to save memory
+        } else if (purgeInvisible)
+            page->image = QImage(); // tantamount to deletion
+        else if (page->y > visibleArea.bottom())
+            break;  // the remaining pages are outside our visible area
     }
 
     update();
