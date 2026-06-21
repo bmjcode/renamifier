@@ -236,6 +236,7 @@ void PagedContent::resizeEvent(QResizeEvent *event)
 void PagedContent::fitToContent()
 {
     int w = 0, h = 0, pageCount = pages.count();
+    QRect visibleArea = visibleRect();
 
     if (pageCount) {
         h = (pageCount - 1) * PAGE_MARGIN;
@@ -247,7 +248,7 @@ void PagedContent::fitToContent()
     }
 
     setMinimumSize(w, h);
-    resize(sizeHint());
+    resize(std::max(w, visibleArea.width()), h);
 }
 
 void PagedContent::purgeCache()
