@@ -116,7 +116,7 @@ PagedContent::PagedContent(PagedContentViewer *parent)
 
 PagedContent::~PagedContent()
 {
-    clear();
+    purgeCache();
 }
 
 void PagedContent::setRenderer(Renderer *replacement)
