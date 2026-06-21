@@ -17,12 +17,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <algorithm>    // for std::clamp()
+
 #include <QtCore>
 #include <QtWidgets>
 
 #include "viewer.h"
 #include "viewer_text.h"
 #include "viewer_paged.h"
+
+#define ZOOM_MIN 10
+#define ZOOM_MAX 800
 
 Viewer::Viewer(QWidget *parent)
     : QStackedWidget(parent)
@@ -107,7 +112,7 @@ void Viewer::stopRender()
 
 void Viewer::setZoom(int percent)
 {
-    zoomFactor = percent;
+    zoomFactor = std::clamp(percent, ZOOM_MIN, ZOOM_MAX);
     textContentViewer->setZoomFactor(zoomFactor);
     pagedContent->setZoomFactor(zoomFactor);
 
