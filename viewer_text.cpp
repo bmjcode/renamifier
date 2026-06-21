@@ -42,10 +42,13 @@ void TextContentViewer::setRenderer(Renderer *replacement)
 
         connect(renderer, &TextContentRenderer::renderedText,
                 this, &TextContentViewer::setPlainText);
-
-        QTimer::singleShot(0, renderer, &TextContentRenderer::render);
     } else
         renderer = nullptr;
+}
+
+void TextContentViewer::render()
+{
+    QTimer::singleShot(0, renderer, &TextContentRenderer::render);
 }
 
 void TextContentViewer::setZoomFactor(int percent)

@@ -82,6 +82,7 @@ void Viewer::display(const QString &path)
     case Renderer::TextContent:
         textContentViewer->setRenderer(renderer);
         setCurrentWidget(textContentViewer);
+        textContentViewer->render();
         break;
     case Renderer::PagedContent:
         pagedContent->setRenderer(renderer);
