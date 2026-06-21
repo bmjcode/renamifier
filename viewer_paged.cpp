@@ -263,6 +263,7 @@ void PagedContent::fitToContent()
     qDebug() << "fitToContent()";
     int w = 0, h = 0, pageCount = pages.count();
     QRect visibleArea = visibleRect();
+    bool wereUpdatesEnabled = updatesEnabled();
 
     if (pageCount) {
         h = (pageCount - 1) * PAGE_MARGIN;
@@ -273,8 +274,13 @@ void PagedContent::fitToContent()
         }
     }
 
+    // Disable updates so the resize event doesn't call setPagePositions().
+    // It isn't reliably triggered here, so we call it manually after calling
+    // this method to ensure it always happens when we need it to.
+    setUpdatesEnabled(false);
     setMinimumSize(w, h);
     resize(std::max(w, visibleArea.width()), h);
+    setUpdatesEnabled(wereUpdatesEnabled);
 }
 
 void PagedContent::purgeCache()
