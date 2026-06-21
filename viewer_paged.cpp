@@ -163,6 +163,9 @@ void PagedContent::setZoomFactor(int percent)
 
             page->width = size.width();
             page->height = size.height();
+
+            // Purge the old image so we're forced to re-render
+            page->image = QImage();
         }
     }
 
