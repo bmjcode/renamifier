@@ -77,7 +77,6 @@ protected:
 protected slots:
     void displayError(const QString &details);
     void handleCurrentChanged(int indexed);
-    void setMode(Renderer::Mode mode);
 
 private:
     void deleteRenderer();

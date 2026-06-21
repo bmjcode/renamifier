@@ -78,14 +78,14 @@ void Viewer::display(const QString &path)
     connect(renderer, &Renderer::errorEncountered,
             this, &Viewer::displayError);
 
-    Renderer::Mode mode = renderer->mode();
-    setMode(mode);
-    switch (mode) {
+    switch (renderer->mode()) {
     case Renderer::TextContent:
         textContentViewer->setRenderer(renderer);
+        setCurrentWidget(textContentViewer);
         break;
     case Renderer::PagedContent:
         pagedContent->setRenderer(renderer);
+        setCurrentWidget(pagedContentViewer);
         pagedContent->refresh();
         break;
     }
@@ -149,19 +149,6 @@ void Viewer::handleCurrentChanged(int index)
 {
     // Only update pagedContent when it is visible
     pagedContent->setUpdatesEnabled(currentWidget() == pagedContentViewer);
-}
-
-void Viewer::setMode(Renderer::Mode mode)
-{
-    switch (mode) {
-    case Renderer::TextContent:
-        setCurrentWidget(textContentViewer);
-        break;
-    case Renderer::PagedContent:
-        setCurrentWidget(pagedContentViewer);
-        pagedContent->refresh();
-        break;
-    }
 }
 
 /*
