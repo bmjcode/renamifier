@@ -146,7 +146,6 @@ void PagedContent::setRenderer(Renderer *replacement)
 
 void PagedContent::setZoomFactor(int percent)
 {
-    qDebug() << "setZoomFactor()";
     zoomFactor = percent;
 
     if (renderer != nullptr) {
@@ -172,7 +171,6 @@ void PagedContent::setZoomFactor(int percent)
 
 void PagedContent::clear()
 {
-    qDebug() << "clear()";
     if (!pages.isEmpty())
         purgeCache();
     update();
@@ -189,7 +187,6 @@ void PagedContent::display()
  */
 void PagedContent::refresh()
 {
-    qDebug() << "refresh()";
     visiblePages.clear();
     visiblePages.reserve(2);    // this doesn't have to be exact
 
@@ -217,7 +214,6 @@ void PagedContent::refresh()
 
 void PagedContent::moveEvent(QMoveEvent *event)
 {
-    qDebug() << "moveEvent()";
     if (updatesEnabled()) {
         event->accept();
 
@@ -234,7 +230,6 @@ void PagedContent::moveEvent(QMoveEvent *event)
 
 void PagedContent::paintEvent(QPaintEvent *event)
 {
-    qDebug() << "paintEvent()";
     if (updatesEnabled()) {
         event->accept();
 
@@ -258,7 +253,6 @@ void PagedContent::paintEvent(QPaintEvent *event)
 
 void PagedContent::resizeEvent(QResizeEvent *event)
 {
-    qDebug() << "resizeEvent()";
     if (updatesEnabled()) {
         event->accept();
 
@@ -272,7 +266,6 @@ void PagedContent::resizeEvent(QResizeEvent *event)
  */
 void PagedContent::fitToContent()
 {
-    qDebug() << "fitToContent()";
     int w = 0, h = 0, pageCount = pages.count();
     QRect visibleArea = visibleRect();
     bool wereUpdatesEnabled = updatesEnabled();
@@ -297,7 +290,6 @@ void PagedContent::fitToContent()
 
 void PagedContent::purgeCache()
 {
-    qDebug() << "purgeCache()";
     for (int i = 0; i < pages.count(); i++)
         delete pages[i];
     pages.clear();
@@ -310,7 +302,6 @@ void PagedContent::purgeCache()
  */
 void PagedContent::setPagePositions()
 {
-    qDebug() << "setPagePositions()";
     QRect visibleArea = visibleRect();
 
     for (int i = 0, y = 0; i < pages.count(); i++) {
@@ -324,7 +315,6 @@ void PagedContent::setPagePositions()
 
 void PagedContent::setPageImage(int num, const QImage &image)
 {
-    qDebug() << "setPageImage()";
     if (0 <= num && num < pages.count()) {
         Page *page = pages[num];
         page->image = image;
@@ -336,7 +326,6 @@ void PagedContent::setPageImage(int num, const QImage &image)
 
 void PagedContent::stoppedMoving()
 {
-    qDebug() << "stoppedMoving()";
     isMoving = false;
     refresh();
 }
