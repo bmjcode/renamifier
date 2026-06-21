@@ -77,12 +77,17 @@ private:
     // Other private methods
     void fitToContent();
     void purgeCache();
-    void reservePages();
-    void repaginate();
+    void setPagePositions();
+
+    // Area of this widget currently visible in the viewport
+    inline QRect visibleRect() const
+        { return viewport->rect().translated(-pos()); }
 
     PagedContentRenderer *renderer;
     QWidget *viewport;
     QList<Page*> pages;
+    // We use a list rather than a queue for this because Qt may generate
+    // more than one paint event for any given update()
     QList<Page*> visiblePages;
     QTimer *moveTimer;
     int zoomFactor;

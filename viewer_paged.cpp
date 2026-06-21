@@ -109,6 +109,9 @@ PagedContent::PagedContent(PagedContentViewer *parent)
     moveTimer = new QTimer(this);
     moveTimer->setSingleShot(true);
     connect(moveTimer, &QTimer::timeout, this, &PagedContent::stoppedMoving);
+
+    // Never shrink smaller than the content
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }
 
 PagedContent::~PagedContent()
@@ -157,31 +160,50 @@ void PagedContent::setZoomFactor(int percent)
             page->height = size.height();
         }
     }
+
+    fitToContent();
+    setPagePositions();
 }
 
 void PagedContent::clear()
 {
     purgeCache();
+    refresh();
 }
 
 void PagedContent::refresh()
 {
-    fitToContent();
-    repaginate();
+    visiblePages.clear();
+    visiblePages.reserve(2);    // this doesn't have to be exact
+
+    QRect visibleArea = visibleRect();
+    for (int i = 0; i < pages.count(); i++) {
+        Page *page = pages[i];
+
+        if (page->rect().intersects(visibleArea)) {
+            visiblePages.append(page);
+            if (page->image.isNull()
+                && (!(isMoving || page->isRendering))) {
+                // Request an image from the renderer
+                // setPageImage() will paint it when it comes back
+                page->isRendering = true;
+                emit imageRequested(i);
+            }
+        } else
+            page->image = QImage(); // purge invisible pages to save memory
+    }
+
     update();
 }
 
 void PagedContent::moveEvent(QMoveEvent *event)
 {
-    // Repaginate once immediately when we start moving to limit flicker,
-    // but delay further repagination until we've stopped moving.
+    // Refresh immediately, but delay rendering until we've stopped moving.
     // This avoids rendering pages that aren't visible for any meaningful
     // amount of time when rapidly scrolling.
-    if (!isMoving) {
-        isMoving = true;
-        repaginate();
-        moveTimer->start(100);
-    }
+    isMoving = true;
+    refresh();
+    moveTimer->start(100);
 }
 
 void PagedContent::paintEvent(QPaintEvent *event)
@@ -192,9 +214,10 @@ void PagedContent::paintEvent(QPaintEvent *event)
         Page *page = visiblePages[i];
         QRect pageRect = page->rect();
 
-        // the area to paint may be smaller than the total visible area
+        // The area to paint may be smaller than the total visible area
         if (pageRect.intersects(event->rect())) {
             if (page->image.isNull())
+                // Paint a placeholder to reduce flicker
                 painter.fillRect(pageRect, Qt::white);
             else
                 painter.drawImage(pageRect, page->image);
@@ -204,7 +227,7 @@ void PagedContent::paintEvent(QPaintEvent *event)
 
 void PagedContent::resizeEvent(QResizeEvent *event)
 {
-    repaginate();
+    setPagePositions();
 }
 
 /*
@@ -224,7 +247,7 @@ void PagedContent::fitToContent()
     }
 
     setMinimumSize(w, h);
-    resize(w, h);
+    resize(sizeHint());
 }
 
 void PagedContent::purgeCache()
@@ -232,41 +255,23 @@ void PagedContent::purgeCache()
     for (int i = 0; i < pages.count(); i++)
         delete pages[i];
     pages.clear();
-    visiblePages.clear();
+    pages.squeeze();
+    visiblePages.clear();   // this is small so we don't need to squeeze() it
 }
 
 /*
- * This does most of the heavy lifting: calculating page positions,
- * rendering visible pages, and unloading invisible pages from memory.
+ * Recalculate page positions when the widget is resized.
  */
-void PagedContent::repaginate()
+void PagedContent::setPagePositions()
 {
-    // visible area of this widget
-    QRect visibleArea = viewport->rect().translated(-pos());
+    QRect visibleArea = visibleRect();
 
-    // we use a list rather than a queue because Qt may generate more than
-    // one paint event for any given update()
-    visiblePages.clear();
-    visiblePages.reserve(2);
-
-    // recalculate page positions
     for (int i = 0, y = 0; i < pages.count(); i++) {
         Page *page = pages[i];
-        // center the page if the visible area is wider
+        // Center the page if the visible area is wider
         page->x = std::max(0, (visibleArea.width() - page->width) / 2);
         page->y = y;
         y += page->height + PAGE_MARGIN;
-
-        // render visible pages as needed, and unload invisible ones
-        if (page->rect().intersects(visibleArea)) {
-            visiblePages.append(page);
-            if (page->image.isNull() && !page->isRendering) {
-                // no image for this page; request one from the renderer
-                page->isRendering = true;
-                emit imageRequested(i);
-            }
-        } else
-            page->image = QImage(); // tantamount to deletion
     }
 }
 
@@ -276,6 +281,7 @@ void PagedContent::setPageImage(int num, const QImage &image)
         Page *page = pages[num];
         page->image = image;
         page->isRendering = false;
+        // Paint just this page
         update(page->rect());
     }
 }
@@ -283,5 +289,5 @@ void PagedContent::setPageImage(int num, const QImage &image)
 void PagedContent::stoppedMoving()
 {
     isMoving = false;
-    repaginate();
+    refresh();
 }
