@@ -46,7 +46,7 @@ void TextContentViewer::setRenderer(Renderer *replacement)
         renderer = nullptr;
 }
 
-void TextContentViewer::render()
+void TextContentViewer::display()
 {
     QTimer::singleShot(0, renderer, &TextContentRenderer::render);
 }

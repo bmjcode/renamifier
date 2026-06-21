@@ -36,7 +36,7 @@ public:
     void setRenderer(Renderer *replacement);
 
 public slots:
-    void render();
+    void display();
     void setZoomFactor(int percent);
 
 private:

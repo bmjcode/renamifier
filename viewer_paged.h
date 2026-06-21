@@ -66,6 +66,7 @@ public:
 
 public slots:
     void clear();
+    void display();
     void refresh();
 
 private:

@@ -135,10 +135,6 @@ void PagedContent::setRenderer(Renderer *replacement)
         for (int i = 0; i < numPages; i++)
             pages.append(new Page);
 
-        // Set initial state now that the cache is prepared
-        setZoomFactor(zoomFactor);
-
-        // Connect signals last now that our prep work is all done
         connect(this, &PagedContent::imageRequested,
                 renderer, &PagedContentRenderer::renderPage);
         connect(renderer, &PagedContentRenderer::renderedPage,
@@ -179,6 +175,12 @@ void PagedContent::clear()
     if (!pages.isEmpty())
         purgeCache();
     update();
+}
+
+void PagedContent::display()
+{
+    setZoomFactor(zoomFactor);
+    refresh();
 }
 
 void PagedContent::refresh()
