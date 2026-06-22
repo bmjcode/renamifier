@@ -27,13 +27,12 @@
 
 #include <QStackedWidget>
 
-#include "renderer.h"
-
 // We include the actual headers in viewer.cpp to limit the number of files
 // that need recompiling when their internals change
 class TextContentViewer;
 class PagedContentViewer;
 class PagedContent;
+class Renderer;
 
 /*
  * File preview widget.

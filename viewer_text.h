@@ -25,7 +25,8 @@
 #include <QWidget>
 #include <QPlainTextEdit>
 
-#include "renderer.h"
+class Renderer;
+class TextContentRenderer;
 
 class TextContentViewer : public QPlainTextEdit
 {

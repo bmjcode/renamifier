@@ -33,10 +33,11 @@
 #include <QPaintEvent>
 #include <QResizeEvent>
 
-#include "renderer.h"
-
 class PagedContent; // defined below
 struct Page;        // defined in viewer_paged.cpp
+
+class Renderer;
+class PagedContentRenderer;
 
 class PagedContentViewer : public QScrollArea
 {

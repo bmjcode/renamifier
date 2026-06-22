@@ -21,6 +21,7 @@
 #include <QtWidgets>
 
 #include "viewer_text.h"
+#include "renderer.h"
 
 TextContentViewer::TextContentViewer(QWidget *parent)
     : QPlainTextEdit(parent)

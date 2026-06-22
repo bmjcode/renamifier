@@ -25,6 +25,7 @@
 #include <QFileInfo>
 
 #include "mainwindow.h"
+#include "renderer.h"
 
 int main(int argc, char **argv)
 {

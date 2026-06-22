@@ -23,6 +23,7 @@
 #include <QtWidgets>
 
 #include "viewer_paged.h"
+#include "renderer.h"
 
 /* ------------------------------------------------------------------------ */
 

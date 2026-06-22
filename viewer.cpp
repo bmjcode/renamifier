@@ -25,6 +25,7 @@
 #include "viewer.h"
 #include "viewer_text.h"
 #include "viewer_paged.h"
+#include "renderer.h"
 
 #define ZOOM_MIN 10
 #define ZOOM_MAX 800
