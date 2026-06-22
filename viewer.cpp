@@ -70,14 +70,11 @@ void Viewer::display(const QString &path)
     clear();
     deleteRenderer();
 
-    renderer = Renderer::create(path);
+    path_ = path;
+    renderer = Renderer::create(path_);
     if (renderer == nullptr) {
         // This should never fail, but...
-        QString message;
-        QTextStream(&message) << "Failed to create a renderer for file:"
-                              << Qt::endl
-                              << path;
-        displayError(message);
+        displayError("Failed to create an appropriate renderer.");
         return;
     } else if (!renderer->isReady()) {
         // An error occurred while loading the file
@@ -114,6 +111,7 @@ void Viewer::clear()
 {
     // Do NOT delete the renderer here; we may want to reuse it
     stopRender();
+    path_.clear();
     textContentViewer->clear();
     pagedContent->clear();
 
@@ -151,11 +149,26 @@ void Viewer::setZoom(int percent)
 
 void Viewer::displayError(const QString &details)
 {
-    clear();
+    QString message;
+    QTextStream textStream(&message);
+
+    // Stop rendering immediately; we'll do other cleanup later
     deleteRenderer();
 
+    // Tell the user what happened
+    textStream << "An error occurred while attempting to display this file:"
+               << Qt::endl
+               << path_;
+
+    // Append details if we have them
+    if (!details.isEmpty())
+        textStream << Qt::endl
+                   << Qt::endl
+                   << details;
+
+    clear();    // note we don't do this earlier because it clears path_
     setCurrentWidget(textContentViewer);
-    textContentViewer->setPlainText(details);
+    textContentViewer->setPlainText(message);
 }
 
 void Viewer::handleCurrentChanged(int index)

@@ -35,7 +35,7 @@ bool ImageRenderer::load()
 void ImageRenderer::renderPage(int num)
 {
     if (image.isNull()) {
-        displayError();
+        emit errorEncountered();
         return;
     }
 

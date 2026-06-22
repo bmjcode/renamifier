@@ -30,14 +30,6 @@ Renderer::Renderer()
 }
 
 /*
- * Display an error if we were unable to render a file.
- */
-void Renderer::displayError(const QString &details)
-{
-    emit errorEncountered(formatError(details));
-}
-
-/*
  * Run an external program to convert a file into something we can display.
  *
  * Returns the raw data as a QByteArray.
@@ -53,30 +45,11 @@ QByteArray Renderer::runHelper(const QString &program,
         QString message;
         QTextStream(&message) << helper.readAll();
         if (loaded_)
-            displayError(message);
+            emit errorEncountered(message);
         else
             setLoadError(message);
     }
     return nullptr;
-}
-
-QString Renderer::formatError(const QString &details) const
-{
-    QString message;
-    QTextStream textStream(&message);
-
-    // Tell the user what happened
-    textStream << "An error occurred while attempting to display this file:"
-               << Qt::endl
-               << path_;
-
-    // Append details if we have them
-    if (!details.isEmpty())
-        textStream << Qt::endl
-                   << Qt::endl
-                   << details;
-
-    return message;
 }
 
 TextContentRenderer::TextContentRenderer()

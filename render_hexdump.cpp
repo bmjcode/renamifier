@@ -40,7 +40,7 @@ void HexDumpRenderer::render()
     QFile file(path());
     QString output = hexDump(file);
     if (output.isEmpty()) {
-        displayError(file.errorString());
+        emit errorEncountered(file.errorString());
         return;
     } else
         emit renderedText(output);

@@ -81,6 +81,8 @@ private:
     void deleteRenderer();
     void repaginate();
 
+    QString path_;
+
 signals:
     void zoomChanged(int percent);
 };

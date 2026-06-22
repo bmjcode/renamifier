@@ -69,7 +69,7 @@ void PDFRenderer::renderPage(int num)
 {
     if (data->document == nullptr) {
         // This should never happen, but...
-        displayError(popplerError);
+        emit errorEncountered(popplerError);
         return;
     }
 
@@ -105,7 +105,7 @@ bool PDFRenderer::loadFromData(const QByteArray &bytes)
 {
     data->document = Poppler::Document::loadFromData(bytes);
     if (data->document == nullptr) {
-        if (loadError_.isEmpty())
+        if (loadError().isEmpty())
             setLoadError(popplerError);
         return false;
     } else

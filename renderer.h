@@ -54,7 +54,7 @@ public:
     inline QString path() const { return path_; }
 
     inline bool isReady() const { return loaded_; }
-    inline QString loadError() const { return formatError(loadError_); }
+    inline QString loadError() const { return loadError_; }
 
     enum Mode { TextContent, PagedContent };
     virtual Renderer::Mode mode() const = 0;
@@ -65,20 +65,19 @@ protected:
     // Override this and return true if the file loaded, false otherwise.
     virtual bool load() = 0;
 
-    void displayError(const QString &details = QString());
     QByteArray runHelper(const QString &program,
                          const QStringList &arguments);
-    QString formatError(const QString &details) const;
 
     // load() runs in the constructor so it can't use signals for this
     inline void setLoadError(const QString &message) { loadError_ = message; }
 
+private:
     QString path_;
     QString loadError_;
     bool loaded_;
 
 signals:
-    void errorEncountered(const QString &details);
+    void errorEncountered(const QString &details = QString());
 };
 
 /*
