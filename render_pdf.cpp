@@ -54,7 +54,13 @@ PDFRenderer::~PDFRenderer()
 
 void PDFRenderer::load()
 {
-    data->document = Poppler::Document::load(path_);
+    // Always load the file into memory to avoid locking issues on Windows
+    QFile file(path_);
+    if (file.open(QIODevice::ReadOnly)) {
+        loadFromData(file.readAll());
+        file.close();
+    } else
+        renderError(file.errorString());
 }
 
 void PDFRenderer::renderPage(int num)
