@@ -54,15 +54,12 @@ PDFRenderer::~PDFRenderer()
 
 bool PDFRenderer::load()
 {
-    bool loaded = false;
-    // Always load the file into memory to avoid locking issues on Windows
-    QFile file(path());
-    if (file.open(QIODevice::ReadOnly)) {
-        loaded = loadFromData(file.readAll());
-        file.close();
+    data->document = Poppler::Document::load(path());
+    if (data->document == nullptr) {
+        setLoadError(popplerError);
+        return false;
     } else
-        setLoadError(file.errorString());
-    return loaded;
+        return true;
 }
 
 void PDFRenderer::renderPage(int num)
