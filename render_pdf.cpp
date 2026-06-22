@@ -105,7 +105,8 @@ bool PDFRenderer::loadFromData(const QByteArray &bytes)
 {
     data->document = Poppler::Document::loadFromData(bytes);
     if (data->document == nullptr) {
-        setLoadError(popplerError);
+        if (loadError_.isEmpty())
+            setLoadError(popplerError);
         return false;
     } else
         return true;

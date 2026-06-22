@@ -68,12 +68,10 @@ protected:
     void displayError(const QString &details = QString());
     QByteArray runHelper(const QString &program,
                          const QStringList &arguments);
+    QString formatError(const QString &details) const;
 
     // load() runs in the constructor so it can't use signals for this
     inline void setLoadError(const QString &message) { loadError_ = message; }
-
-private:
-    QString formatError(const QString &details) const;
 
     QString path_;
     QString loadError_;

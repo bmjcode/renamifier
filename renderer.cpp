@@ -52,7 +52,10 @@ QByteArray Renderer::runHelper(const QString &program,
     else {
         QString message;
         QTextStream(&message) << helper.readAll();
-        displayError(message);
+        if (loaded_)
+            displayError(message);
+        else
+            setLoadError(message);
     }
     return nullptr;
 }
