@@ -58,17 +58,30 @@ Viewer::Viewer(QWidget *parent)
 
 Viewer::~Viewer()
 {
-    deleteRenderer();
+    unloadRenderer();
     if (renderThread != nullptr) {
         renderThread->quit();
         renderThread->wait();
     }
 }
 
+/*
+ * Load and display the specified file.
+ */
 void Viewer::display(const QString &path)
 {
     clear();
-    deleteRenderer();
+    load(path);
+    refresh();
+}
+
+/*
+ * Create and connect a renderer for the specified file,
+ * but do not immediately display it.
+ */
+void Viewer::load(const QString &path)
+{
+    unloadRenderer();
 
     path_ = path;
     renderer = Renderer::create(path_);
@@ -87,17 +100,25 @@ void Viewer::display(const QString &path)
     connect(renderer, &Renderer::errorEncountered,
             this, &Viewer::displayError);
 
-    switch (renderer->mode()) {
-    case Renderer::TextContent:
-        textContentViewer->setRenderer(renderer);
-        setCurrentWidget(textContentViewer);
-        textContentViewer->display();
-        break;
-    case Renderer::PagedContent:
-        pagedContent->setRenderer(renderer);
-        setCurrentWidget(pagedContentViewer);
-        pagedContent->display();
-        break;
+    // These will reject one another's Renderers, so no need to overthink this
+    textContentViewer->setRenderer(renderer);
+    pagedContent->setRenderer(renderer);
+}
+
+/*
+ * Disconnect and delete the current renderer.
+ */
+void Viewer::unloadRenderer()
+{
+    path_.clear();
+    textContentViewer->setRenderer(nullptr);
+    pagedContent->setRenderer(nullptr);
+
+    if (renderer != nullptr) {
+        // Don't respond to any more signals from this Renderer
+        disconnect(renderer, nullptr, nullptr, nullptr);
+        delete renderer;
+        renderer = nullptr;
     }
 }
 
@@ -107,11 +128,12 @@ void Viewer::setFocusPolicy(Qt::FocusPolicy policy)
     pagedContentViewer->setFocusPolicy(policy);
 }
 
+/*
+ * Clear displayed content.
+ */
 void Viewer::clear()
 {
-    // Do NOT delete the renderer here; we may want to reuse it
-    stopRender();
-    path_.clear();
+    // Do NOT unload the renderer here; we may want to reuse it
     textContentViewer->clear();
     pagedContent->clear();
 
@@ -120,9 +142,26 @@ void Viewer::clear()
     pagedContentViewer->verticalScrollBar()->setSliderPosition(0);
 }
 
-void Viewer::stopRender()
+/*
+ * Update the display.
+ */
+void Viewer::refresh()
 {
-    // This currently does nothing, but is kept just in case we need it again
+    if (renderer == nullptr)
+        return;
+
+    // Do not clear() here! The entire _point_ is that we do not clear() here.
+    // (We don't want its side effects like changing the scrollbar position)
+    switch (renderer->mode()) {
+    case Renderer::TextContent:
+        setCurrentWidget(textContentViewer);
+        textContentViewer->display();
+        break;
+    case Renderer::PagedContent:
+        setCurrentWidget(pagedContentViewer);
+        pagedContent->display();
+        break;
+    }
 }
 
 void Viewer::setZoom(int percent)
@@ -151,14 +190,15 @@ void Viewer::displayError(const QString &details)
 {
     QString message;
     QTextStream textStream(&message);
+    QString path = path_;   // save this before unloadRenderer() clears it
 
     // Stop rendering immediately; we'll do other cleanup later
-    deleteRenderer();
+    unloadRenderer();
 
     // Tell the user what happened
     textStream << "An error occurred while attempting to display this file:"
                << Qt::endl
-               << path_;
+               << path;
 
     // Append details if we have them
     if (!details.isEmpty())
@@ -166,7 +206,7 @@ void Viewer::displayError(const QString &details)
                    << Qt::endl
                    << details;
 
-    clear();    // note we don't do this earlier because it clears path_
+    clear();
     setCurrentWidget(textContentViewer);
     textContentViewer->setPlainText(message);
 }
@@ -183,18 +223,4 @@ void Viewer::handleCurrentChanged(int index)
 QSize Viewer::sizeHint() const
 {
     return pagedContentViewer->sizeHint();
-}
-
-void Viewer::deleteRenderer()
-{
-    stopRender();
-    textContentViewer->setRenderer(nullptr);
-    pagedContent->setRenderer(nullptr);
-
-    if (renderer != nullptr) {
-        // Don't respond to any more signals from this Renderer
-        disconnect(renderer, nullptr, nullptr, nullptr);
-        delete renderer;
-        renderer = nullptr;
-    }
 }

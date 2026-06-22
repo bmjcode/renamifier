@@ -481,7 +481,7 @@ bool MainWindow::rename_(const QString &srcPath, const QString &dstPath)
         return false;
 
     // Stop any active render, since that may have placed a lock on the file
-    viewer->stopRender();
+    viewer->unloadRenderer();
 
     QFile srcFile(srcPath);
     if (srcFile.rename(dstPath)) {
@@ -607,6 +607,9 @@ void MainWindow::triggerRenameOnly(bool checked)
 {
     (void)checked;
     if (processRename()) {
+        // Reload the file now that its name has changed
+        viewer->load(fileNames[currentFileIndex]);
+        viewer->refresh();
         updateGoMenu();
         // This provides a subtle indication that we've done something
         nameEntry->setFocus();

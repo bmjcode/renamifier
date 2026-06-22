@@ -49,13 +49,16 @@ public:
     ~Viewer();
 
     void display(const QString &path);
+    void load(const QString &path);
+    void unloadRenderer();
+
     void setFocusPolicy(Qt::FocusPolicy policy);
 
     QSize sizeHint() const;
 
 public slots:
     void clear();
-    void stopRender();
+    void refresh();
 
     void setZoom(int percent);
     inline void zoomActualSize()     { setZoom(100); }
@@ -78,9 +81,6 @@ protected slots:
     void handleCurrentChanged(int indexed);
 
 private:
-    void deleteRenderer();
-    void repaginate();
-
     QString path_;
 
 signals:
