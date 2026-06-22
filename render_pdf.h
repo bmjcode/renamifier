@@ -41,7 +41,7 @@ public:
     void renderPage(int num);
 
     int numPages() const;
-    QSize pageSize(int num) const;
+    QSize pageSize(int num);
 
 protected:
     bool loadFromData(const QByteArray &bytes);

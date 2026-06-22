@@ -107,7 +107,7 @@ class PagedContentRenderer : public Renderer {
 
 public:
     virtual int numPages() const = 0;
-    virtual QSize pageSize(int num) const = 0;  // in pixels
+    virtual QSize pageSize(int num) = 0;    // in pixels
 
     inline Renderer::Mode mode() const { return PagedContent; }
     inline int zoomFactor() const { return zoomFactor_; }

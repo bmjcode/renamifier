@@ -31,6 +31,7 @@ struct PDFRendererData {
 };
 
 static QString popplerError;
+static QMutex popplerErrorMutex;
 
 static void storePopplerError(const QString &message, const QVariant &closure);
 
@@ -44,7 +45,6 @@ PDFRenderer::PDFRenderer()
 {
     data = new PDFRendererData;
     data->document = nullptr;
-    popplerError.clear();
 }
 
 PDFRenderer::~PDFRenderer()
@@ -54,6 +54,9 @@ PDFRenderer::~PDFRenderer()
 
 bool PDFRenderer::load()
 {
+    QMutexLocker locker(&popplerErrorMutex);
+    popplerError.clear();
+
     data->document = Poppler::Document::load(path());
     if (data->document == nullptr) {
         setLoadError(popplerError);
@@ -64,19 +67,22 @@ bool PDFRenderer::load()
 
 void PDFRenderer::renderPage(int num)
 {
-    if (data->document == nullptr) {
-        // This should never happen, but...
-        emit errorEncountered(popplerError);
-        return;
-    }
+    QMutexLocker locker(&popplerErrorMutex);
+    popplerError.clear();
+
+    if (data->document == nullptr)
+        return; // usually the renderer would be deleted before we got here
 
     // Make the document look nice on screen
     data->document->setRenderHint(Poppler::Document::Antialiasing);
     data->document->setRenderHint(Poppler::Document::TextAntialiasing);
 
     int xRes = zoomScaled(dpiX_), yRes = zoomScaled(dpiY_);
-    emit renderedPage(num,
-                      data->document->page(num)->renderToImage(xRes, yRes));
+    QImage image = data->document->page(num)->renderToImage(xRes, yRes);
+    if (image.isNull())
+        emit errorEncountered(popplerError);
+    else
+        emit renderedPage(num, image);
 }
 
 int PDFRenderer::numPages() const
@@ -84,11 +90,17 @@ int PDFRenderer::numPages() const
     return (data->document == nullptr) ? 0 : data->document->numPages();
 }
 
-QSize PDFRenderer::pageSize(int num) const
+// Note this is not const because emitting a signal changes internal state
+QSize PDFRenderer::pageSize(int num)
 {
+    QMutexLocker locker(&popplerErrorMutex);
+    popplerError.clear();
+
     if (data->document != nullptr) {
         std::unique_ptr<Poppler::Page> page = data->document->page(num);
-        if (page != nullptr) {
+        if (page == nullptr)
+            emit errorEncountered(popplerError);
+        else {
             QSize pointSize = page->pageSize();
             // Convert points to pixels at our current DPI
             return zoomScaled(QSize(pointSize.width() * dpiX_ / 72,
@@ -100,10 +112,18 @@ QSize PDFRenderer::pageSize(int num) const
 
 bool PDFRenderer::loadFromData(const QByteArray &bytes)
 {
+    QMutexLocker locker(&popplerErrorMutex);
+    popplerError.clear();
+
     data->document = Poppler::Document::loadFromData(bytes);
     if (data->document == nullptr) {
-        if (loadError().isEmpty())
-            setLoadError(popplerError);
+        // If `bytes` came from a helper program, this now contains its output
+        QString message = loadError();
+        // Append any additional error messages from Poppler
+        if (!message.isEmpty())
+            message += "\n";
+        message += popplerError;
+        setLoadError(message);
         return false;
     } else
         return true;
@@ -112,10 +132,13 @@ bool PDFRenderer::loadFromData(const QByteArray &bytes)
 /*
  * Stores debug and error messages from Poppler so we can display them
  * in the application.
+ * Note the mutex has already been locked by the time we get here.
  */
 void storePopplerError(const QString &message, const QVariant &closure)
 {
     (void)closure;
+    // Do not clear popplerError here; any given Poppler method call may
+    // result in more than one error, and we want to preserve them all
     if (!popplerError.isEmpty())
         popplerError += "\n";
     popplerError += message;

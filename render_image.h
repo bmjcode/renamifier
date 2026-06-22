@@ -35,7 +35,7 @@ public:
     void renderPage(int num);
 
     inline int numPages() const { return 1; }
-    inline QSize pageSize(int num) const { return zoomScaled(image.size()); }
+    inline QSize pageSize(int num) { return zoomScaled(image.size()); }
 
 private:
     QImage image;
