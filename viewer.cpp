@@ -116,6 +116,10 @@ void Viewer::clear()
     stopRender();
     textContentViewer->clear();
     pagedContent->clear();
+
+    // Scroll back to the top-left corner
+    pagedContentViewer->horizontalScrollBar()->setSliderPosition(0);
+    pagedContentViewer->verticalScrollBar()->setSliderPosition(0);
 }
 
 void Viewer::stopRender()
