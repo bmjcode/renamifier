@@ -26,9 +26,10 @@ ImageRenderer::ImageRenderer()
 {
 }
 
-void ImageRenderer::load()
+bool ImageRenderer::load()
 {
-    image = QImage(path_);
+    image = QImage(path());
+    return !image.isNull();
 }
 
 void ImageRenderer::renderPage(int num)

@@ -26,6 +26,7 @@
  */
 Renderer::Renderer()
 {
+    loaded_ = false;
 }
 
 /*
@@ -33,21 +34,7 @@ Renderer::Renderer()
  */
 void Renderer::displayError(const QString &details)
 {
-    QString message;
-    QTextStream textStream(&message);
-
-    // Tell the user what happened
-    textStream << "An error occurred while attempting to display this file:"
-               << Qt::endl
-               << path_;
-
-    // Append details if we have them
-    if (!details.isEmpty())
-        textStream << Qt::endl
-                   << Qt::endl
-                   << details;
-
-    emit errorEncountered(message);
+    emit errorEncountered(formatError(details));
 }
 
 /*
@@ -68,6 +55,25 @@ QByteArray Renderer::runHelper(const QString &program,
         displayError(message);
     }
     return nullptr;
+}
+
+QString Renderer::formatError(const QString &details) const
+{
+    QString message;
+    QTextStream textStream(&message);
+
+    // Tell the user what happened
+    textStream << "An error occurred while attempting to display this file:"
+               << Qt::endl
+               << path_;
+
+    // Append details if we have them
+    if (!details.isEmpty())
+        textStream << Qt::endl
+                   << Qt::endl
+                   << details;
+
+    return message;
 }
 
 TextContentRenderer::TextContentRenderer()

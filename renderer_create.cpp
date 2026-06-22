@@ -64,7 +64,7 @@ Renderer *Renderer::create(const QString &path)
         renderer = new HexDumpRenderer;
 
     renderer->path_ = path;
-    renderer->load();
+    renderer->loaded_ = renderer->load();
     return renderer;
 }
 

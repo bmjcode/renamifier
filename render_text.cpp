@@ -26,13 +26,14 @@ TextRenderer::TextRenderer()
 {
 }
 
-void TextRenderer::load()
+bool TextRenderer::load()
 {
+    return true;
 }
 
 void TextRenderer::render()
 {
-    QFile file(path_);
+    QFile file(path());
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         emit renderedText(file.readAll());
         file.close();

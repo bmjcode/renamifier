@@ -30,13 +30,14 @@ HexDumpRenderer::HexDumpRenderer()
 {
 }
 
-void HexDumpRenderer::load()
+bool HexDumpRenderer::load()
 {
+    return true;
 }
 
 void HexDumpRenderer::render()
 {
-    QFile file(path_);
+    QFile file(path());
     QString output = hexDump(file);
     if (output.isEmpty()) {
         displayError(file.errorString());

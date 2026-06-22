@@ -37,21 +37,21 @@ XPSRenderer::XPSRenderer()
 {
 }
 
-void XPSRenderer::load()
+bool XPSRenderer::load()
 {
     if (program.isEmpty()) {
-        displayError("Cannot display this file because GhostXPS "
+        setLoadError("Cannot display this file because GhostXPS "
                      "is not installed.");
-        return;
+        return false;
     }
 
     QStringList arguments;
     arguments << "-dNOPAUSE"
               << "-sDEVICE=pdfwrite"
               << "-sOutputFile=-"
-              << path_;
+              << path();
 
-    loadFromData(runHelper(program, arguments));
+    return loadFromData(runHelper(program, arguments));
 }
 
 /*

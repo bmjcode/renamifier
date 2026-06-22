@@ -30,7 +30,7 @@ class TextRenderer : public TextContentRenderer {
 
 public:
     TextRenderer();
-    void load();
+    bool load();
     void render();
 };
 

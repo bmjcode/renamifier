@@ -31,7 +31,7 @@ public:
     static void init();
 
     PSRenderer();
-    void load();
+    bool load();
 };
 
 #endif /* RENDER_PS_H */

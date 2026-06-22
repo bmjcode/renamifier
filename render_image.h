@@ -31,7 +31,7 @@ class ImageRenderer : public PagedContentRenderer {
 
 public:
     ImageRenderer();
-    void load();
+    bool load();
     void renderPage(int num);
 
     inline int numPages() const { return 1; }

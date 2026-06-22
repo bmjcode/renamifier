@@ -37,15 +37,14 @@ public:
 
     PDFRenderer();
     ~PDFRenderer();
-    virtual void load();
+    virtual bool load();
     void renderPage(int num);
 
     int numPages() const;
     QSize pageSize(int num) const;
 
 protected:
-    // For derived classes like PSRenderer that convert to PDF internally
-    void loadFromData(const QByteArray &bytes);
+    bool loadFromData(const QByteArray &bytes);
 
 private:
     PDFRendererData *data;

@@ -36,12 +36,12 @@ PSRenderer::PSRenderer()
 {
 }
 
-void PSRenderer::load()
+bool PSRenderer::load()
 {
     if (program.isEmpty()) {
-        displayError("Cannot display this file because Ghostscript "
+        setLoadError("Cannot display this file because Ghostscript "
                      "is not installed.");
-        return;
+        return false;
     }
 
     QStringList arguments;
@@ -51,9 +51,9 @@ void PSRenderer::load()
               << "-dSAFER"
               << "-sDEVICE=pdfwrite"
               << "-sOutputFile=-"
-              << path_;
+              << path();
 
-    loadFromData(runHelper(program, arguments));
+    return loadFromData(runHelper(program, arguments));
 }
 
 /*

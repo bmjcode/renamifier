@@ -52,21 +52,23 @@ PDFRenderer::~PDFRenderer()
     delete data;
 }
 
-void PDFRenderer::load()
+bool PDFRenderer::load()
 {
+    bool loaded = false;
     // Always load the file into memory to avoid locking issues on Windows
-    QFile file(path_);
+    QFile file(path());
     if (file.open(QIODevice::ReadOnly)) {
-        loadFromData(file.readAll());
+        loaded = loadFromData(file.readAll());
         file.close();
     } else
-        displayError(file.errorString());
+        setLoadError(file.errorString());
+    return loaded;
 }
 
 void PDFRenderer::renderPage(int num)
 {
-    // Check whether an error occurred while rendering this document
     if (data->document == nullptr) {
+        // This should never happen, but...
         displayError(popplerError);
         return;
     }
@@ -99,9 +101,14 @@ QSize PDFRenderer::pageSize(int num) const
     return QSize(0, 0);
 }
 
-void PDFRenderer::loadFromData(const QByteArray &bytes)
+bool PDFRenderer::loadFromData(const QByteArray &bytes)
 {
     data->document = Poppler::Document::loadFromData(bytes);
+    if (data->document == nullptr) {
+        setLoadError(popplerError);
+        return false;
+    } else
+        return true;
 }
 
 /*

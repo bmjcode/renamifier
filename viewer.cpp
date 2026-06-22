@@ -70,8 +70,20 @@ void Viewer::display(const QString &path)
     deleteRenderer();
 
     renderer = Renderer::create(path);
-    if (renderer == nullptr)
-        return; // this should never fail, but...
+    if (renderer == nullptr) {
+        // This should never fail, but...
+        QString message;
+        QTextStream(&message) << "Failed to create a renderer for file:"
+                              << Qt::endl
+                              << path;
+        displayError(message);
+        return;
+    } else if (!renderer->isReady()) {
+        // An error occurred while loading the file
+        displayError(renderer->loadError());
+        return;
+    }
+
     renderer->moveToThread(renderThread);
 
     connect(renderer, &Renderer::errorEncountered,

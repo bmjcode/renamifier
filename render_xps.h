@@ -31,7 +31,7 @@ public:
     static void init();
 
     XPSRenderer();
-    void load();
+    bool load();
 };
 
 #endif /* RENDER_XPS_H */

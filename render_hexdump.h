@@ -29,7 +29,7 @@ class HexDumpRenderer : public TextContentRenderer {
 
 public:
     HexDumpRenderer();
-    void load();
+    bool load();
     void render();
 };
 
