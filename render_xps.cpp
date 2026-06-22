@@ -40,8 +40,8 @@ XPSRenderer::XPSRenderer()
 void XPSRenderer::load()
 {
     if (program.isEmpty()) {
-        renderError("Cannot display this file because GhostXPS "
-                    "is not installed.");
+        displayError("Cannot display this file because GhostXPS "
+                     "is not installed.");
         return;
     }
 

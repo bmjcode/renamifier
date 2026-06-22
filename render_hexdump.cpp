@@ -39,7 +39,7 @@ void HexDumpRenderer::render()
     QFile file(path_);
     QString output = hexDump(file);
     if (output.isEmpty()) {
-        renderError(file.errorString());
+        displayError(file.errorString());
         return;
     } else
         emit renderedText(output);

@@ -39,8 +39,8 @@ PSRenderer::PSRenderer()
 void PSRenderer::load()
 {
     if (program.isEmpty()) {
-        renderError("Cannot display this file because Ghostscript "
-                    "is not installed.");
+        displayError("Cannot display this file because Ghostscript "
+                     "is not installed.");
         return;
     }
 

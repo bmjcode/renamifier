@@ -62,7 +62,7 @@ protected:
     Renderer();
     virtual void load() = 0;
 
-    void renderError(const QString &details = QString());
+    void displayError(const QString &details = QString());
     QByteArray runHelper(const QString &program,
                          const QStringList &arguments);
 

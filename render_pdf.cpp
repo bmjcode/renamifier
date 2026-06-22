@@ -60,14 +60,14 @@ void PDFRenderer::load()
         loadFromData(file.readAll());
         file.close();
     } else
-        renderError(file.errorString());
+        displayError(file.errorString());
 }
 
 void PDFRenderer::renderPage(int num)
 {
     // Check whether an error occurred while rendering this document
     if (data->document == nullptr) {
-        renderError(popplerError);
+        displayError(popplerError);
         return;
     }
 

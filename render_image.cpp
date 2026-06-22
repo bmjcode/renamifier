@@ -34,7 +34,7 @@ void ImageRenderer::load()
 void ImageRenderer::renderPage(int num)
 {
     if (image.isNull()) {
-        renderError();
+        displayError();
         return;
     }
 

@@ -31,7 +31,7 @@ Renderer::Renderer()
 /*
  * Display an error if we were unable to render a file.
  */
-void Renderer::renderError(const QString &details)
+void Renderer::displayError(const QString &details)
 {
     QString message;
     QTextStream textStream(&message);
@@ -65,7 +65,7 @@ QByteArray Renderer::runHelper(const QString &program,
     else {
         QString message;
         QTextStream(&message) << helper.readAll();
-        renderError(message);
+        displayError(message);
     }
     return nullptr;
 }

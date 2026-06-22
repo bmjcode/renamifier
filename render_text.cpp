@@ -37,5 +37,5 @@ void TextRenderer::render()
         emit renderedText(file.readAll());
         file.close();
     } else
-        renderError(file.errorString());
+        displayError(file.errorString());
 }
