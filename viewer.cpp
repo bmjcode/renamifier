@@ -139,17 +139,13 @@ void Viewer::setZoom(int percent)
             *vScrollBar = pagedContentViewer->verticalScrollBar();
         int xPos, yPos;
 
-        if (hScrollBar != nullptr)
-            xPos = hScrollBar->sliderPosition();
-        if (vScrollBar != nullptr)
-            yPos = vScrollBar->sliderPosition();
+        xPos = hScrollBar->sliderPosition();
+        yPos = vScrollBar->sliderPosition();
 
         pagedContent->refresh();
 
-        if (hScrollBar != nullptr)
-            hScrollBar->setSliderPosition(xPos);
-        if (vScrollBar != nullptr)
-            vScrollBar->setSliderPosition(yPos);
+        hScrollBar->setSliderPosition(xPos);
+        vScrollBar->setSliderPosition(yPos);
     }
 }
 
