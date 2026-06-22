@@ -33,12 +33,9 @@ void TextRenderer::load()
 void TextRenderer::render()
 {
     QFile file(path_);
-    QString contents;
-
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream(&contents) << file.readAll();
+        emit renderedText(file.readAll());
         file.close();
-        emit renderedText(contents);
     } else
         renderError(file.errorString());
 }
