@@ -125,7 +125,7 @@ PagedContent::~PagedContent()
 void PagedContent::setRenderer(Renderer *replacement)
 {
     if (!pages.isEmpty())
-        purgeCache();   // normally clear() does this before we get here
+        purgeCache();
 
     if (replacement != nullptr
         && replacement->mode() == Renderer::PagedContent) {
@@ -172,8 +172,7 @@ void PagedContent::setZoomFactor(int percent)
 
 void PagedContent::clear()
 {
-    if (!pages.isEmpty())
-        purgeCache();
+    visiblePages.clear();
     update();
 }
 
