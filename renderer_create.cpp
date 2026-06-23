@@ -33,8 +33,9 @@
 
 /*
  * Return an appropriate renderer subclass for the specified path.
+ * If this fails, it will return nullptr and put error details in errorOut.
  */
-Renderer *Renderer::create(const QString &path)
+Renderer *Renderer::create(const QString &path, QString *errorOut)
 {
     Renderer *renderer;
     QMimeDatabase mimeDatabase;
@@ -64,7 +65,12 @@ Renderer *Renderer::create(const QString &path)
         renderer = new HexDumpRenderer;
 
     renderer->path_ = path;
-    renderer->loaded_ = renderer->load();
+    if (!renderer->load()) {
+        if (errorOut != nullptr)
+            *errorOut = renderer->loadError();
+        delete renderer;
+        renderer = nullptr;
+    }
     return renderer;
 }
 

@@ -81,17 +81,14 @@ void Viewer::display(const QString &path)
  */
 void Viewer::load(const QString &path)
 {
+    QString loadError;
     unloadRenderer();
 
     path_ = path;
-    renderer = Renderer::create(path_);
+    renderer = Renderer::create(path_, &loadError);
     if (renderer == nullptr) {
-        // This should never fail, but...
-        displayError("Failed to create an appropriate renderer.");
-        return;
-    } else if (!renderer->isReady()) {
         // An error occurred while loading the file
-        displayError(renderer->loadError());
+        displayError(loadError);
         return;
     }
 

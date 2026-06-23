@@ -48,13 +48,11 @@ class Renderer : public QObject
     Q_OBJECT
 
 public:
-    static Renderer *create(const QString &path);
+    static Renderer *create(const QString &path,
+                            QString *errorOut = nullptr);
     static void init();
 
     inline QString path() const { return path_; }
-
-    inline bool isReady() const { return loaded_; }
-    inline QString loadError() const { return loadError_; }
 
     enum Mode { TextContent, PagedContent };
     virtual Renderer::Mode mode() const = 0;
@@ -69,6 +67,7 @@ protected:
                          const QStringList &arguments);
 
     // load() runs in the constructor so it can't use signals for this
+    inline QString loadError() const { return loadError_; }
     inline void setLoadError(const QString &message) { loadError_ = message; }
 
 private:
