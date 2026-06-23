@@ -65,7 +65,7 @@ public slots:
     inline void zoomIn(int range=1)  { setZoom(zoomFactor + 10 * range); }
     inline void zoomOut(int range=1) { setZoom(zoomFactor - 10 * range); }
 
-protected:
+private:
     QThread *renderThread;
     // The Viewer class creates and owns the renderer, but the individual
     // widgets below handle most of the interaction with it
@@ -74,14 +74,12 @@ protected:
     TextContentViewer *textContentViewer;
     PagedContentViewer *pagedContentViewer;
     PagedContent *pagedContent;
+    QString path_;
     int zoomFactor;
 
-protected slots:
+private slots:
     void displayError(const QString &details);
     void handleCurrentChanged(int indexed);
-
-private:
-    QString path_;
 
 signals:
     void zoomChanged(int percent);

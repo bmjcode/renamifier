@@ -52,7 +52,7 @@ public:
     void displayNext();
     void displayPrevious();
 
-protected:
+private:
     Viewer *viewer;
     QMenu *fileMenu;
     QMenu *viewMenu;
@@ -90,7 +90,9 @@ protected:
     void updateGoMenu();
     void updateWindowTitle();
 
-protected slots:
+    friend class RenamifierTest;
+
+private slots:
     void triggerBrowseForDir(bool checked);
     void triggerBrowseForFiles(bool checked);
     void triggerCloseCurrent(bool checked);
@@ -107,9 +109,6 @@ protected slots:
     inline void zoomActualSize() { viewer->zoomActualSize(); }
     inline void zoomIn()         { viewer->zoomIn(); }
     inline void zoomOut()        { viewer->zoomOut(); }
-
-private:
-    friend class RenamifierTest;
 };
 
 #endif /* MAINWINDOW_H */
