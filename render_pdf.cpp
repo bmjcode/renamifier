@@ -59,7 +59,7 @@ bool PDFRenderer::load()
 
     data->document = Poppler::Document::load(path());
     if (data->document == nullptr) {
-        setLoadError(popplerError);
+        storeLoadError(popplerError);
         return false;
     } else
         return true;
@@ -117,13 +117,7 @@ bool PDFRenderer::loadFromData(const QByteArray &bytes)
 
     data->document = Poppler::Document::loadFromData(bytes);
     if (data->document == nullptr) {
-        // If `bytes` came from a helper program, this now contains its output
-        QString message = loadError();
-        // Append any additional error messages from Poppler
-        if (!message.isEmpty())
-            message += "\n";
-        message += popplerError;
-        setLoadError(message);
+        storeLoadError(popplerError);
         return false;
     } else
         return true;

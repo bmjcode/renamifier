@@ -47,7 +47,7 @@ QByteArray Renderer::runHelper(const QString &program,
         if (loaded_)
             emit errorEncountered(message);
         else
-            setLoadError(message);
+            storeLoadError(message);
     }
     return nullptr;
 }

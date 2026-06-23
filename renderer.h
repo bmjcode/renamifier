@@ -67,12 +67,10 @@ protected:
                          const QStringList &arguments);
 
     // load() runs in the constructor so it can't use signals for this
-    inline QString loadError() const { return loadError_; }
-    inline void setLoadError(const QString &message) { loadError_ = message; }
+    static void storeLoadError(const QString &message);
 
 private:
     QString path_;
-    QString loadError_;
     bool loaded_;
 
 signals:

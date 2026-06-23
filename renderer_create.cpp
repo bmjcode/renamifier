@@ -17,6 +17,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <QString>
+#include <QMutex>
+#include <QMutexLocker>
 #include <QMimeType>
 #include <QMimeDatabase>
 
@@ -31,6 +34,9 @@
 #include "render_text.h"
 #include "render_xps.h"
 
+static QString loadError;
+static QMutex loadErrorMutex;
+
 /*
  * Return an appropriate renderer subclass for the specified path.
  * If this fails, it will return nullptr and put error details in errorOut.
@@ -40,6 +46,9 @@ Renderer *Renderer::create(const QString &path, QString *errorOut)
     Renderer *renderer;
     QMimeDatabase mimeDatabase;
     QMimeType mimeType = mimeDatabase.mimeTypeForFile(path);
+
+    QMutexLocker locker(&loadErrorMutex);
+    loadError.clear();
 
     // Specific MIME types
     // List alphabetically by name
@@ -67,7 +76,7 @@ Renderer *Renderer::create(const QString &path, QString *errorOut)
     renderer->path_ = path;
     if (!renderer->load()) {
         if (errorOut != nullptr)
-            *errorOut = renderer->loadError();
+            *errorOut = loadError;
         delete renderer;
         renderer = nullptr;
     }
@@ -82,4 +91,17 @@ void Renderer::init()
     PDFRenderer::init();
     PSRenderer::init();
     XPSRenderer::init();
+}
+
+/*
+ * Store errors that occurred while loading the document.
+ * Note the mutex has already been locked by Renderer::create().
+ */
+void Renderer::storeLoadError(const QString &message)
+{
+    // Do not clear loadError here; we want to store all errors that occur
+    // during any given load attempt
+    if (!loadError.isEmpty())
+        loadError += "\n";
+    loadError += message;
 }
