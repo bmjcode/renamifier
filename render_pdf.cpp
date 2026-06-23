@@ -85,22 +85,22 @@ void PDFRenderer::renderPage(int num)
         emit renderedPage(num, image);
 }
 
+/*
+ * Don't worry about handling errors in the getters; anything interesting
+ * would have happened earlier in load(), or will happen later in render().
+ * These are expected to always just return something sensible.
+ */
+
 int PDFRenderer::numPages() const
 {
     return (data->document == nullptr) ? 0 : data->document->numPages();
 }
 
-// Note this is not const because emitting a signal changes internal state
-QSize PDFRenderer::pageSize(int num)
+QSize PDFRenderer::pageSize(int num) const
 {
-    QMutexLocker locker(&popplerErrorMutex);
-    popplerError.clear();
-
     if (data->document != nullptr) {
         std::unique_ptr<Poppler::Page> page = data->document->page(num);
-        if (page == nullptr)
-            emit errorEncountered(popplerError);
-        else {
+        if (page != nullptr) {
             QSize pointSize = page->pageSize();
             // Convert points to pixels at our current DPI
             return zoomScaled(QSize(pointSize.width() * dpiX_ / 72,
