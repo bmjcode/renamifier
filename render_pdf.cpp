@@ -77,8 +77,14 @@ void PDFRenderer::renderPage(int num)
     data->document->setRenderHint(Poppler::Document::Antialiasing);
     data->document->setRenderHint(Poppler::Document::TextAntialiasing);
 
+    std::unique_ptr<Poppler::Page> page = data->document->page(num);
+    if (page == nullptr) {
+        emit errorEncountered(popplerError);
+        return;
+    }
+
     int xRes = zoomScaled(dpiX_), yRes = zoomScaled(dpiY_);
-    QImage image = data->document->page(num)->renderToImage(xRes, yRes);
+    QImage image = page->renderToImage(xRes, yRes);
     if (image.isNull())
         emit errorEncountered(popplerError);
     else
