@@ -195,7 +195,6 @@ void PagedContent::refresh()
         Page *page = pages[i];
 
         if (page->rect().intersects(visibleArea)) {
-            visiblePages.append(page);
             if (page->image.isNull()
                 && (!(isMoving || page->isRendering))) {
                 // Request an image from the renderer
@@ -203,6 +202,7 @@ void PagedContent::refresh()
                 page->isRendering = true;
                 emit imageRequested(i);
             }
+            visiblePages.append(pages.at(i));
         } else if (purgeInvisible)
             page->image = QImage(); // tantamount to deletion
         else if (page->y > visibleArea.bottom())
@@ -235,7 +235,7 @@ void PagedContent::paintEvent(QPaintEvent *event)
 
         QPainter painter(this);
         for (int i = 0; i < visiblePages.count(); i++) {
-            Page *page = visiblePages[i];
+            const Page *page = visiblePages.at(i);
             QRect pageRect = page->rect();
 
             // The area to paint may be smaller than the total visible area

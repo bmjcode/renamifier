@@ -90,7 +90,7 @@ private:
     QList<Page*> pages;
     // We use a list rather than a queue for this because Qt may generate
     // multiple paint events between refresh()es
-    QList<Page*> visiblePages;
+    QList<const Page*> visiblePages;
     QTimer *moveTimer;
     int zoomFactor;
     bool isMoving;
