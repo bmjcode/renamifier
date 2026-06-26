@@ -68,6 +68,18 @@ PagedContentViewer::PagedContentViewer(QWidget *parent)
     setBackgroundRole(QPalette::Dark);
 }
 
+QPoint PagedContentViewer::scrollBarPosition() const {
+    return QPoint(
+        horizontalScrollBar()->sliderPosition(),
+        verticalScrollBar()->sliderPosition());
+}
+
+void PagedContentViewer::setScrollBarPosition(int x, int y)
+{
+    horizontalScrollBar()->setSliderPosition(x);
+    verticalScrollBar()->setSliderPosition(y);
+}
+
 /*
  * Default to a size large enough to show a reasonable amount of content on
  * most screens. The exact size is specified by INITIAL_{HEIGHT,WIDTH} above.

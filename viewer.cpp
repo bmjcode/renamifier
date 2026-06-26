@@ -136,8 +136,7 @@ void Viewer::clear()
     pagedContent->clear();
 
     // Scroll back to the top-left corner
-    pagedContentViewer->horizontalScrollBar()->setSliderPosition(0);
-    pagedContentViewer->verticalScrollBar()->setSliderPosition(0);
+    pagedContentViewer->setScrollBarPosition(0, 0);
 }
 
 /*
@@ -169,18 +168,9 @@ void Viewer::setZoom(int percent)
     pagedContent->setZoomFactor(zoomFactor);
 
     if (currentWidget() == pagedContentViewer) {
-        // Preserve the current scrollbar position
-        QScrollBar *hScrollBar = pagedContentViewer->horizontalScrollBar(),
-            *vScrollBar = pagedContentViewer->verticalScrollBar();
-        int xPos, yPos;
-
-        xPos = hScrollBar->sliderPosition();
-        yPos = vScrollBar->sliderPosition();
-
+        QPoint where = pagedContentViewer->scrollBarPosition();
         pagedContent->refresh();
-
-        hScrollBar->setSliderPosition(xPos);
-        vScrollBar->setSliderPosition(yPos);
+        pagedContentViewer->setScrollBarPosition(where);
     }
 }
 

@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QList>
+#include <QPoint>
 #include <QSize>
 #include <QImage>
 #include <QTimer>
@@ -45,6 +46,11 @@ class PagedContentViewer : public QScrollArea
 
 public:
     PagedContentViewer(QWidget *parent);
+
+    QPoint scrollBarPosition() const;
+    void setScrollBarPosition(int x, int y);
+    inline void setScrollBarPosition(const QPoint &point)
+        { setScrollBarPosition(point.x(), point.y()); }
 
     QSize sizeHint() const;
 
