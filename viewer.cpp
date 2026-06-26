@@ -114,7 +114,8 @@ void Viewer::unloadRenderer()
     if (renderer != nullptr) {
         // Don't respond to any more signals from this Renderer
         disconnect(renderer, nullptr, nullptr, nullptr);
-        delete renderer;
+        // Qt gets upset and segfaults if we delete this directly
+        renderer->deleteLater();
         renderer = nullptr;
     }
 }
