@@ -51,9 +51,6 @@ Viewer::Viewer(QWidget *parent)
             this, &Viewer::setZoom);
     connect(pagedContentViewer, &PagedContentViewer::zoomChanged,
             this, &Viewer::setZoom);
-
-    connect(this, &QStackedWidget::currentChanged,
-            this, &Viewer::handleCurrentChanged);
 }
 
 Viewer::~Viewer()
@@ -197,12 +194,6 @@ void Viewer::displayError(const QString &details)
     clear();
     setCurrentWidget(textContentViewer);
     textContentViewer->setPlainText(message);
-}
-
-void Viewer::handleCurrentChanged(int index)
-{
-    // Only update pagedContent when it is visible
-    pagedContent->setUpdatesEnabled(currentWidget() == pagedContentViewer);
 }
 
 /*

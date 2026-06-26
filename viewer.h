@@ -79,7 +79,6 @@ private:
 
 private slots:
     void displayError(const QString &details);
-    void handleCurrentChanged(int indexed);
 
 signals:
     void zoomChanged(int percent);
