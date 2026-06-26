@@ -60,6 +60,7 @@ bool PDFRenderer::load()
     data->document = Poppler::Document::load(path());
     if (data->document == nullptr) {
         storeLoadError(popplerError);
+        popplerError.clear();
         return false;
     } else
         return true;
@@ -72,6 +73,7 @@ void PDFRenderer::renderPage(int num)
 
     if (!pageExists(num)) {
         emit errorEncountered(popplerError);
+        popplerError.clear();
         return;
     }
 
@@ -82,14 +84,16 @@ void PDFRenderer::renderPage(int num)
     std::unique_ptr<Poppler::Page> page = data->document->page(num);
     if (page == nullptr) {
         emit errorEncountered(popplerError);
+        popplerError.clear();
         return;
     }
 
     int xRes = zoomScaled(dpiX_), yRes = zoomScaled(dpiY_);
     QImage image = page->renderToImage(xRes, yRes);
-    if (image.isNull())
+    if (image.isNull()) {
         emit errorEncountered(popplerError);
-    else
+        popplerError.clear();
+    } else
         emit renderedPage(num, image);
 }
 
@@ -126,6 +130,7 @@ bool PDFRenderer::loadFromData(const QByteArray &bytes)
     data->document = Poppler::Document::loadFromData(bytes);
     if (data->document == nullptr) {
         storeLoadError(popplerError);
+        popplerError.clear();
         return false;
     } else
         return true;

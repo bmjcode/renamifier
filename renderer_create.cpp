@@ -77,6 +77,7 @@ Renderer *Renderer::create(const QString &path, QString *errorOut)
     if (!(renderer->loaded_ = renderer->load())) {
         if (errorOut != nullptr)
             *errorOut = loadError;
+        loadError.clear();
         delete renderer;
         renderer = nullptr;
     }
