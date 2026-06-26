@@ -113,6 +113,9 @@ public:
         { dpiX_ = dpiX, dpiY_ = dpiY; }
     inline void setZoomFactor(int percent) { zoomFactor_ = percent; }
 
+    inline bool pageExists(int num) const
+        { return (0 <= num && num < numPages()); }
+
 public slots:
     virtual void renderPage(int num) = 0;
 

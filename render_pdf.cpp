@@ -70,8 +70,10 @@ void PDFRenderer::renderPage(int num)
     QMutexLocker locker(&popplerErrorMutex);
     popplerError.clear();
 
-    if (data->document == nullptr)
-        return; // usually the renderer would be deleted before we got here
+    if (!pageExists(num)) {
+        emit errorEncountered(popplerError);
+        return;
+    }
 
     // Make the document look nice on screen
     data->document->setRenderHint(Poppler::Document::Antialiasing);
@@ -104,7 +106,7 @@ int PDFRenderer::numPages() const
 
 QSize PDFRenderer::pageSize(int num) const
 {
-    if (data->document != nullptr) {
+    if (pageExists(num)) {
         std::unique_ptr<Poppler::Page> page = data->document->page(num);
         if (page != nullptr) {
             QSize pointSize = page->pageSize();
