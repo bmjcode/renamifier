@@ -245,40 +245,40 @@ void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu("&File");
     fileMenu->addAction("&Open Files...",
+                        QKeySequence("Ctrl+O"),
                         this,
-                        &MainWindow::triggerBrowseForFiles,
-                        QKeySequence("Ctrl+O"));
+                        &MainWindow::triggerBrowseForFiles);
     fileMenu->addAction(BROWSE_FOR_DIR_LABEL,
                         this,
                         &MainWindow::triggerBrowseForDir);
     fileMenu->addSeparator();
     fileMenu->addAction("Rename and &Move...",
+                        QKeySequence("Ctrl+M"),
                         this,
-                        &MainWindow::triggerRenameAndMove,
-                        QKeySequence("Ctrl+M"));
+                        &MainWindow::triggerRenameAndMove);
     fileMenu->addSeparator();
     fileMenu->addAction("&Close",
+                        QKeySequence("Ctrl+W"),
                         this,
-                        &MainWindow::triggerCloseCurrent,
-                        QKeySequence("Ctrl+W"));
+                        &MainWindow::triggerCloseCurrent);
     fileMenu->addAction("E&xit",
+                        QKeySequence("Ctrl+Q"),
                         this,
-                        &MainWindow::triggerQuit,
-                        QKeySequence("Ctrl+Q"));
+                        &MainWindow::triggerQuit);
 
     viewMenu = menuBar()->addMenu("&View");
     viewMenu->addAction("Zoom &In",
+                        QKeySequence("Ctrl+="),
                         this,
-                        &MainWindow::zoomIn,
-                        QKeySequence("Ctrl+="));
+                        &MainWindow::zoomIn);
     viewMenu->addAction("Zoom &Out",
+                        QKeySequence("Ctrl+-"),
                         this,
-                        &MainWindow::zoomOut,
-                        QKeySequence("Ctrl+-"));
+                        &MainWindow::zoomOut);
     viewMenu->addAction("Zoom &100%",
+                        QKeySequence("Ctrl+0"),
                         this,
-                        &MainWindow::zoomActualSize,
-                        QKeySequence("Ctrl+0"));
+                        &MainWindow::zoomActualSize);
 
     // Note this is populated by updateGoMenu()
     goMenu = menuBar()->addMenu("&Go");
@@ -509,13 +509,13 @@ void MainWindow::updateGoMenu()
 {
     goMenu->clear();
     goMenu->addAction("&Previous File",
+                      QKeySequence("Back"),
                       this,
-                      &MainWindow::triggerDisplayPrevious,
-                      QKeySequence("Back"));
+                      &MainWindow::triggerDisplayPrevious);
     goMenu->addAction("&Next File",
+                      QKeySequence("Forward"),
                       this,
-                      &MainWindow::triggerDisplayNext,
-                      QKeySequence("Forward"));
+                      &MainWindow::triggerDisplayNext);
     goMenu->addSeparator();
 
     // Note triggerDisplayFile() is connected to goMenu's triggered()
@@ -574,7 +574,7 @@ void MainWindow::triggerDisplayFile(QAction *action)
     // int value, which is the index of the file to display. Actions
     // without associated data, like the "Previous" and "Next" commands,
     // are handled by their own trigger slots.
-    if (action->data().canConvert(QMetaType::Int))
+    if (action->data().canConvert(QMetaType(QMetaType::Int)))
         displayFile(action->data().toInt());
 }
 
