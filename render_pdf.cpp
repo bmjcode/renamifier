@@ -88,7 +88,7 @@ void PDFRenderer::renderPage(int num)
         return;
     }
 
-    int xRes = zoomScaled(dpiX_), yRes = zoomScaled(dpiY_);
+    int xRes = zoomScaled(dpiX()), yRes = zoomScaled(dpiY());
     QImage image = page->renderToImage(xRes, yRes);
     if (image.isNull()) {
         emit errorEncountered(popplerError);
@@ -115,8 +115,8 @@ QSize PDFRenderer::pageSize(int num) const
         if (page != nullptr) {
             QSize pointSize = page->pageSize();
             // Convert points to pixels at our current DPI
-            return zoomScaled(QSize(pointSize.width() * dpiX_ / 72,
-                                    pointSize.height() * dpiY_ / 72));
+            return zoomScaled(QSize(pointSize.width() * dpiX() / 72,
+                                    pointSize.height() * dpiY() / 72));
         }
     }
     return QSize(0, 0);

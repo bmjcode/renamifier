@@ -117,10 +117,13 @@ public:
     virtual QSize pageSize(int num) const = 0;  // in pixels
 
     inline Renderer::Mode mode() const { return PagedContent; }
-    inline int zoomFactor() const { return zoomFactor_; }
 
+    inline int dpiX() const { return dpiX_; }
+    inline int dpiY() const { return dpiY_; }
     inline void setPixelDensity(int dpiX, int dpiY)
         { dpiX_ = dpiX, dpiY_ = dpiY; }
+
+    inline int zoomFactor() const { return zoomFactor_; }
     inline void setZoomFactor(int percent) { zoomFactor_ = percent; }
 
     inline bool pageExists(int num) const
@@ -137,6 +140,7 @@ protected:
     inline QSize zoomScaled(const QSize &size) const
         { return (zoomFactor_ == 100) ? size : size * zoomFactor_ / 100; }
 
+private:
     int dpiX_, dpiY_;
     int zoomFactor_;
 
