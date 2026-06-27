@@ -69,5 +69,5 @@ void TextContentViewer::wheelEvent(QWheelEvent *event)
         emit wheelZoomed(delta);
         return;
     }
-    TextContentViewer::wheelEvent(event);
+    QPlainTextEdit::wheelEvent(event);
 }
