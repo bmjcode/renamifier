@@ -120,11 +120,10 @@ public:
 
     inline int dpiX() const { return dpiX_; }
     inline int dpiY() const { return dpiY_; }
-    inline void setPixelDensity(int dpiX, int dpiY)
-        { dpiX_ = dpiX, dpiY_ = dpiY; }
+    void setPixelDensity(int dpiX, int dpiY);
 
     inline int zoomFactor() const { return zoomFactor_; }
-    inline void setZoomFactor(int percent) { zoomFactor_ = percent; }
+    void setZoomFactor(int percent);
 
     inline bool pageExists(int num) const
         { return (0 <= num && num < numPages()); }

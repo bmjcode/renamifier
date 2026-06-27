@@ -64,3 +64,22 @@ PagedContentRenderer::PagedContentRenderer()
     dpiX_ = dpiY_ = 96;
     zoomFactor_ = 100;
 }
+
+/*
+ * We enforce a lower limit on these values to keep our page geometry
+ * from getting spicy, but otherwise we don't question them. If the
+ * caller wants these large enough that something crashes or overflows,
+ * that's their problem.
+ */
+
+void PagedContentRenderer::setPixelDensity(int dpiX, int dpiY)
+{
+    if (dpiX > 0 && dpiY > 0)
+        dpiX_ = dpiX, dpiY_ = dpiY;
+}
+
+void PagedContentRenderer::setZoomFactor(int percent)
+{
+    if (percent > 0)
+        zoomFactor_ = percent;
+}
