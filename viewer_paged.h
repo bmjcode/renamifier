@@ -28,7 +28,6 @@
 #include <QTimer>
 
 #include <QWidget>
-#include <QFrame>
 #include <QScrollArea>
 #include <QMoveEvent>
 #include <QPaintEvent>
@@ -61,7 +60,7 @@ signals:
     void zoomChanged(int percent);
 };
 
-class PagedContent : public QFrame
+class PagedContent : public QWidget
 {
     Q_OBJECT
 

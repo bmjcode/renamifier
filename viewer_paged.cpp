@@ -111,7 +111,7 @@ void PagedContentViewer::resizeEvent(QResizeEvent *event)
 /* ------------------------------------------------------------------------ */
 
 PagedContent::PagedContent(PagedContentViewer *parent)
-    : QFrame(parent)
+    : QWidget(parent)
 {
     renderer = nullptr;
     viewport = parent->viewport();
