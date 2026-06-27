@@ -79,6 +79,9 @@ signals:
 
 /*
  * Base class for text content renderers.
+ *
+ * render() is called once when the file is initially displayed.
+ * It passes back the entire file contents via the renderedText signal.
  */
 class TextContentRenderer : public Renderer {
     Q_OBJECT
@@ -98,6 +101,13 @@ signals:
 
 /*
  * Base class for paged content renderers.
+ *
+ * renderPage() is called through a signal from the viewer. It passes back
+ * a QImage of the requested page's contents via the renderedPage signal.
+ *
+ * Your subclass should also implement numPages(), which returns the total
+ * number of pages in the file, and pageSize(), which returns the dimensions
+ * in pixels of the specified page.
  */
 class PagedContentRenderer : public Renderer {
     Q_OBJECT
