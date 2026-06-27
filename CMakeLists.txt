@@ -17,8 +17,9 @@ qt_standard_project_setup()
 
 enable_testing(true)
 
-qt_add_library(renamifier-ui
-               mainwindow.cpp
+# The renderer is logically a support component for the viewer
+# (separating them also breaks PDF rendering)
+qt_add_library(renamifier-viewer
                render_hexdump.cpp
                render_image.cpp
                render_pdf.cpp
@@ -31,28 +32,38 @@ qt_add_library(renamifier-ui
                viewer.cpp
                viewer_paged.cpp
                viewer_text.cpp)
-target_include_directories(renamifier-ui
+target_include_directories(renamifier-viewer
                            SYSTEM PUBLIC ${POPPLER_INCLUDE_DIRS})
-target_link_libraries(renamifier-ui
+target_link_libraries(renamifier-viewer
                       PRIVATE Qt6::Widgets ${POPPLER_LIBRARIES})
+
+# Putting the UI in a library lets us avoid building separate copies
+# for the main application and test suite
+qt_add_library(renamifier-ui
+               mainwindow.cpp)
+target_include_directories(renamifier-ui
+                           SYSTEM PUBLIC)
+target_link_libraries(renamifier-ui
+                      PRIVATE Qt6::Widgets
+                      renamifier-viewer)
 
 qt_add_executable(renamifier WIN32
                   renamifier.cpp
                   renamifier.qrc)
 target_include_directories(renamifier
-                           SYSTEM PUBLIC ${POPPLER_INCLUDE_DIRS})
+                           SYSTEM PUBLIC)
 target_link_libraries(renamifier
-                      PRIVATE Qt6::Widgets ${POPPLER_LIBRARIES}
-                      renamifier-ui)
+                      PRIVATE Qt6::Widgets
+                      renamifier-viewer renamifier-ui)
 
 qt_add_executable(renamifier-test
                   test.cpp
                   test.qrc)
 target_include_directories(renamifier-test
-                           SYSTEM PUBLIC ${POPPLER_INCLUDE_DIRS})
+                           SYSTEM PUBLIC)
 target_link_libraries(renamifier-test
-                      PRIVATE Qt6::Widgets Qt6::Test ${POPPLER_LIBRARIES}
-                      renamifier-ui)
+                      PRIVATE Qt6::Widgets Qt6::Test
+                      renamifier-viewer renamifier-ui)
 add_test(NAME renamifier-test COMMAND renamifier-test)
 
 if(WIN32)
