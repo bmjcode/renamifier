@@ -23,7 +23,10 @@
 
 #include "render_hexdump.h"
 
-static const QString hexDump(QIODevice &device);
+// Stop reading after this many bytes to avoid running out of memory
+#define MAX_FILE_SIZE 1048576   // 1 MiB
+
+static const QString hexDump(QIODevice &device, qint64 limit = 0);
 
 HexDumpRenderer::HexDumpRenderer()
     : TextContentRenderer()
@@ -38,7 +41,7 @@ bool HexDumpRenderer::load()
 void HexDumpRenderer::render()
 {
     QFile file(path());
-    QString output = hexDump(file);
+    QString output = hexDump(file, MAX_FILE_SIZE);
     if (output.isEmpty()) {
         emit errorEncountered(file.errorString());
         return;
@@ -49,7 +52,7 @@ void HexDumpRenderer::render()
 /*
  * Returns a hex dump of the specified file in the style of xxd(1).
  */
-const QString hexDump(QIODevice &device)
+const QString hexDump(QIODevice &device, qint64 limit)
 {
     QString output;
     QTextStream outputStream(&output);
@@ -94,6 +97,15 @@ const QString hexDump(QIODevice &device)
             for (int i = 0; i < std::min(bytesRead, 16); ++i)
                 outputStream << (std::isprint(c[i]) ? c[i] : '.');
             outputStream << Qt::endl;
+
+            if (limit != 0 && position >= limit) {
+                if (!device.atEnd())
+                    outputStream << Qt::dec
+                                 << "Remaining "
+                                 << device.size() - position
+                                 << " bytes omitted.";
+                break;
+            }
         }
         device.close();
     } else
