@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.5.0)
 include(FindPkgConfig)
 
 project(renamifier VERSION 0.1.4 LANGUAGES CXX)
