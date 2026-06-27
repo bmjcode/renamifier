@@ -58,3 +58,16 @@ void TextContentViewer::setZoomFactor(int percent)
     newFont.setPointSize(initialFontSize * percent / 100);
     setFont(newFont);
 }
+
+void TextContentViewer::wheelEvent(QWheelEvent *event)
+{
+    // Adapted from QPlainTextEdit::wheelEvent()
+    if (event->modifiers() & Qt::ControlModifier) {
+        // Instead of processing this directly, we go through the main
+        // Viewer widget to keep all sub-widgets in sync
+        float delta = event->angleDelta().y() / 120.f;
+        emit wheelZoomed(delta);
+        return;
+    }
+    TextContentViewer::wheelEvent(event);
+}

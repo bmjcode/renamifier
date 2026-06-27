@@ -24,6 +24,7 @@
 
 #include <QWidget>
 #include <QPlainTextEdit>
+#include <QWheelEvent>
 
 class Renderer;
 class TextContentRenderer;
@@ -41,11 +42,13 @@ public slots:
     void setZoomFactor(int percent);
 
 private:
+    void wheelEvent(QWheelEvent *event);
+
     TextContentRenderer *renderer;
     int initialFontSize;
 
 signals:
-    void zoomChanged(int percent);
+    void wheelZoomed(int delta);
 };
 
 #endif /* VIEWER_TEXT_H */

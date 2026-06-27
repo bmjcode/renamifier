@@ -28,6 +28,7 @@
 #include <QStackedWidget>
 #include <QScrollArea>
 #include <QResizeEvent>
+#include <QWheelEvent>
 
 // Defined further below
 class ViewerScrollArea;
@@ -107,9 +108,10 @@ public:
 
 private:
     void resizeEvent(QResizeEvent *event);
+    void wheelEvent(QWheelEvent *event);
 
 signals:
-    void zoomChanged(int percent);
+    void wheelZoomed(int delta);
 };
 
 #endif /* VIEWER_H */

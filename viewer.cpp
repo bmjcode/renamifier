@@ -60,10 +60,10 @@ Viewer::Viewer(QWidget *parent)
     renderThread->start();
 
     zoomFactor = 100;
-    connect(textContentViewer, &TextContentViewer::zoomChanged,
-            this, &Viewer::setZoom);
-    connect(pagedContentScrollArea, &ViewerScrollArea::zoomChanged,
-            this, &Viewer::setZoom);
+    connect(textContentViewer, &TextContentViewer::wheelZoomed,
+            this, &Viewer::zoomIn);
+    connect(pagedContentScrollArea, &ViewerScrollArea::wheelZoomed,
+            this, &Viewer::zoomIn);
 }
 
 Viewer::~Viewer()
@@ -263,4 +263,15 @@ void ViewerScrollArea::resizeEvent(QResizeEvent *event)
     widget()->resize(
         std::max(viewport()->width(), widget()->minimumWidth()),
         std::max(viewport()->height(), widget()->minimumHeight()));
+}
+
+void ViewerScrollArea::wheelEvent(QWheelEvent *event)
+{
+    // Adapted from QPlainTextEdit::wheelEvent()
+    if (event->modifiers() & Qt::ControlModifier) {
+        float delta = event->angleDelta().y() / 120.f;
+        emit wheelZoomed(delta);
+        return;
+    }
+    QScrollArea::wheelEvent(event);
 }
