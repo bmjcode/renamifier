@@ -18,6 +18,7 @@
  */
 
 #include <QtCore>
+#include <QImageReader>
 
 #include "render_image.h"
 
@@ -28,8 +29,13 @@ ImageRenderer::ImageRenderer()
 
 bool ImageRenderer::load()
 {
-    image = QImage(path());
-    return !image.isNull();
+    QImageReader reader(path());
+    if (reader.read(&image))
+        return true;
+    else {
+        storeLoadError(reader.errorString());
+        return false;
+    }
 }
 
 void ImageRenderer::renderPage(int num)
