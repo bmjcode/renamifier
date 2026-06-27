@@ -24,6 +24,10 @@
 #include <QDir>
 #include <QFileInfo>
 
+#ifdef Q_OS_WIN
+#   include <QStyleFactory>
+#endif
+
 #include "mainwindow.h"
 #include "renderer.h"
 
@@ -31,6 +35,11 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(true);
+
+#ifdef Q_OS_WIN
+    // This looks more native than the default style on Windows 11
+    QApplication::setStyle(QStyleFactory::create("windowsvista"));
+#endif
 
     Renderer::init();
 
