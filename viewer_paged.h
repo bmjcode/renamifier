@@ -22,8 +22,6 @@
 
 #include <QObject>
 #include <QList>
-#include <QPoint>
-#include <QSize>
 #include <QImage>
 #include <QTimer>
 
@@ -39,33 +37,12 @@ struct Page;        // defined in viewer_paged.cpp
 class Renderer;
 class PagedContentRenderer;
 
-class PagedContentViewer : public QScrollArea
-{
-    Q_OBJECT
-
-public:
-    PagedContentViewer(QWidget *parent);
-
-    QPoint scrollBarPosition() const;
-    void setScrollBarPosition(int x, int y);
-    inline void setScrollBarPosition(const QPoint &point)
-        { setScrollBarPosition(point.x(), point.y()); }
-
-    QSize sizeHint() const;
-
-private:
-    void resizeEvent(QResizeEvent *event);
-
-signals:
-    void zoomChanged(int percent);
-};
-
 class PagedContent : public QWidget
 {
     Q_OBJECT
 
 public:
-    PagedContent(PagedContentViewer *parent);
+    PagedContent(QScrollArea *parent);
     ~PagedContent();
     void setRenderer(Renderer *replacement);
     void setZoomFactor(int percent);

@@ -27,8 +27,21 @@
 #include "viewer_paged.h"
 #include "renderer.h"
 
+/* ------------------------------------------------------------------------ */
+
 #define ZOOM_MIN 10
 #define ZOOM_MAX 800
+
+// The initial viewer size is 8.5 x 5.5 in, or half of a US letter page.
+// This fits a reasonable amount of content without making drastic assumptions
+// about the size of the user's screen, and approximates the 16:9 or 16:10
+// aspect ratio found on most modern displays.
+#define INITIAL_WIDTH 85
+#define INITIAL_HEIGHT 55
+// Units above are multiplied by a factor of 10 to allow use of integer math.
+#define INITIAL_FACTOR 10
+
+/* ------------------------------------------------------------------------ */
 
 Viewer::Viewer(QWidget *parent)
     : QStackedWidget(parent)
@@ -36,11 +49,11 @@ Viewer::Viewer(QWidget *parent)
     textContentViewer = new TextContentViewer(this);
     addWidget(textContentViewer);
 
-    pagedContentViewer = new PagedContentViewer(this);
-    addWidget(pagedContentViewer);
+    pagedContentScrollArea = new ViewerScrollArea(this);
+    addWidget(pagedContentScrollArea);
 
-    pagedContent = new PagedContent(pagedContentViewer);
-    pagedContentViewer->setWidget(pagedContent);
+    pagedContent = new PagedContent(pagedContentScrollArea);
+    pagedContentScrollArea->setWidget(pagedContent);
 
     renderer = nullptr;
     renderThread = new QThread(this);
@@ -49,7 +62,7 @@ Viewer::Viewer(QWidget *parent)
     zoomFactor = 100;
     connect(textContentViewer, &TextContentViewer::zoomChanged,
             this, &Viewer::setZoom);
-    connect(pagedContentViewer, &PagedContentViewer::zoomChanged,
+    connect(pagedContentScrollArea, &ViewerScrollArea::zoomChanged,
             this, &Viewer::setZoom);
 }
 
@@ -120,7 +133,7 @@ void Viewer::unloadRenderer()
 void Viewer::setFocusPolicy(Qt::FocusPolicy policy)
 {
     textContentViewer->setFocusPolicy(policy);
-    pagedContentViewer->setFocusPolicy(policy);
+    pagedContentScrollArea->setFocusPolicy(policy);
 }
 
 /*
@@ -133,7 +146,7 @@ void Viewer::clear()
     pagedContent->clear();
 
     // Scroll back to the top-left corner
-    pagedContentViewer->setScrollBarPosition(0, 0);
+    pagedContentScrollArea->setScrollBarPosition(0, 0);
 }
 
 /*
@@ -152,7 +165,7 @@ void Viewer::refresh()
         textContentViewer->display();
         break;
     case Renderer::PagedContent:
-        setCurrentWidget(pagedContentViewer);
+        setCurrentWidget(pagedContentScrollArea);
         pagedContent->display();
         break;
     }
@@ -164,10 +177,10 @@ void Viewer::setZoom(int percent)
     textContentViewer->setZoomFactor(zoomFactor);
     pagedContent->setZoomFactor(zoomFactor);
 
-    if (currentWidget() == pagedContentViewer) {
-        QPoint where = pagedContentViewer->scrollBarPosition();
+    if (currentWidget() == pagedContentScrollArea) {
+        QPoint where = pagedContentScrollArea->scrollBarPosition();
         pagedContent->refresh();
-        pagedContentViewer->setScrollBarPosition(where);
+        pagedContentScrollArea->setScrollBarPosition(where);
     }
 }
 
@@ -197,9 +210,57 @@ void Viewer::displayError(const QString &details)
 }
 
 /*
- * Default to PagedContentViewer's preferred size.
+ * Default to the paged content viewer's preferred size.
  */
 QSize Viewer::sizeHint() const
 {
-    return pagedContentViewer->sizeHint();
+    return pagedContentScrollArea->sizeHint();
+}
+
+/* ------------------------------------------------------------------------ */
+
+ViewerScrollArea::ViewerScrollArea(QWidget *parent)
+    : QScrollArea(parent)
+{
+    setBackgroundRole(QPalette::Dark);
+}
+
+QPoint ViewerScrollArea::scrollBarPosition() const {
+    return QPoint(
+        horizontalScrollBar()->sliderPosition(),
+        verticalScrollBar()->sliderPosition());
+}
+
+void ViewerScrollArea::setScrollBarPosition(int x, int y)
+{
+    horizontalScrollBar()->setSliderPosition(x);
+    verticalScrollBar()->setSliderPosition(y);
+}
+
+/*
+ * Default to a size large enough to show a reasonable amount of content on
+ * most screens. The exact size is specified by INITIAL_{HEIGHT,WIDTH} above.
+ */
+QSize ViewerScrollArea::sizeHint() const
+{
+    int initialWidth, initialHeight;
+    initialWidth = INITIAL_WIDTH * logicalDpiX() / INITIAL_FACTOR;
+    initialHeight = INITIAL_HEIGHT * logicalDpiY();
+
+    // Compensate for the viewport margins and vertical scroll bar
+    QMargins margins = viewportMargins();
+    initialWidth += margins.left() + margins.right();
+    initialWidth += verticalScrollBar()->width();
+
+    return QSize(initialWidth, initialHeight);
+}
+
+/*
+ * Resize the inner frame when the widget's size changes.
+ */
+void ViewerScrollArea::resizeEvent(QResizeEvent *event)
+{
+    widget()->resize(
+        std::max(viewport()->width(), widget()->minimumWidth()),
+        std::max(viewport()->height(), widget()->minimumHeight()));
 }

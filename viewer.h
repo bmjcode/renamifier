@@ -21,16 +21,20 @@
 #define VIEWER_H
 
 #include <QObject>
-#include <QList>
+#include <QPoint>
 #include <QSize>
 #include <QThread>
 
 #include <QStackedWidget>
+#include <QScrollArea>
+#include <QResizeEvent>
+
+// Defined further below
+class ViewerScrollArea;
 
 // We include the actual headers in viewer.cpp to limit the number of files
 // that need recompiling when their internals change
 class TextContentViewer;
-class PagedContentViewer;
 class PagedContent;
 class Renderer;
 
@@ -72,13 +76,37 @@ private:
     Renderer *renderer;
     // Specialized widgets to display different types of content
     TextContentViewer *textContentViewer;
-    PagedContentViewer *pagedContentViewer;
+    ViewerScrollArea *pagedContentScrollArea;
     PagedContent *pagedContent;
     QString path_;
     int zoomFactor;
 
 private slots:
     void displayError(const QString &details);
+
+signals:
+    void zoomChanged(int percent);
+};
+
+/*
+ * A customized QScrollArea with some quality-of-life enhancements.
+ */
+class ViewerScrollArea : public QScrollArea
+{
+    Q_OBJECT
+
+public:
+    ViewerScrollArea(QWidget *parent);
+
+    QPoint scrollBarPosition() const;
+    void setScrollBarPosition(int x, int y);
+    inline void setScrollBarPosition(const QPoint &point)
+        { setScrollBarPosition(point.x(), point.y()); }
+
+    QSize sizeHint() const;
+
+private:
+    void resizeEvent(QResizeEvent *event);
 
 signals:
     void zoomChanged(int percent);

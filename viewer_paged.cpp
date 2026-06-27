@@ -27,15 +27,6 @@
 
 /* ------------------------------------------------------------------------ */
 
-// The initial viewer size is 8.5 x 5.5 in, or half of a US letter page.
-// This fits a reasonable amount of content without making drastic assumptions
-// about the size of the user's screen, and approximates the 16:9 or 16:10
-// aspect ratio found on most modern displays.
-#define INITIAL_WIDTH 85
-#define INITIAL_HEIGHT 55
-// Units above are multiplied by a factor of 10 to allow use of integer math.
-#define INITIAL_FACTOR 10
-
 // Margin in pixels for graphical content
 #define PAGE_MARGIN 2
 
@@ -62,55 +53,7 @@ Page::Page()
 
 /* ------------------------------------------------------------------------ */
 
-PagedContentViewer::PagedContentViewer(QWidget *parent)
-    : QScrollArea(parent)
-{
-    setBackgroundRole(QPalette::Dark);
-}
-
-QPoint PagedContentViewer::scrollBarPosition() const {
-    return QPoint(
-        horizontalScrollBar()->sliderPosition(),
-        verticalScrollBar()->sliderPosition());
-}
-
-void PagedContentViewer::setScrollBarPosition(int x, int y)
-{
-    horizontalScrollBar()->setSliderPosition(x);
-    verticalScrollBar()->setSliderPosition(y);
-}
-
-/*
- * Default to a size large enough to show a reasonable amount of content on
- * most screens. The exact size is specified by INITIAL_{HEIGHT,WIDTH} above.
- */
-QSize PagedContentViewer::sizeHint() const
-{
-    int initialWidth, initialHeight;
-    initialWidth = INITIAL_WIDTH * logicalDpiX() / INITIAL_FACTOR;
-    initialHeight = INITIAL_HEIGHT * logicalDpiY();
-
-    // Compensate for the viewport margins and vertical scroll bar
-    QMargins margins = viewportMargins();
-    initialWidth += margins.left() + margins.right();
-    initialWidth += verticalScrollBar()->width();
-
-    return QSize(initialWidth, initialHeight);
-}
-
-/*
- * Resize the inner frame when the widget's size changes.
- */
-void PagedContentViewer::resizeEvent(QResizeEvent *event)
-{
-    widget()->resize(
-        std::max(viewport()->width(), widget()->minimumWidth()),
-        std::max(viewport()->height(), widget()->minimumHeight()));
-}
-
-/* ------------------------------------------------------------------------ */
-
-PagedContent::PagedContent(PagedContentViewer *parent)
+PagedContent::PagedContent(QScrollArea *parent)
     : QWidget(parent)
 {
     renderer = nullptr;
