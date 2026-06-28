@@ -23,6 +23,7 @@
 
 #include "renamifier.h"
 #include "mainwindow.h"
+#include "settings_dialog.h"
 
 MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags f)
     : QMainWindow(parent, f)
@@ -284,6 +285,11 @@ void MainWindow::createMenus()
     goMenu = menuBar()->addMenu("&Go");
     connect(goMenu, &QMenu::triggered, this, &MainWindow::triggerDisplayFile);
 
+    toolsMenu = menuBar()->addMenu("&Tools");
+    toolsMenu->addAction("&Options...",
+                         this,
+                         &MainWindow::showSettingsDialog);
+
     helpMenu = menuBar()->addMenu("&Help");
     helpMenu->addAction("&About...",
                         this,
@@ -497,6 +503,20 @@ bool MainWindow::rename_(const QString &srcPath, const QString &dstPath)
             << srcFile.errorString();
         QMessageBox::critical(this, "Error", message);
         return false;
+    }
+}
+
+/*
+ * Show the Settings dialog.
+ */
+void MainWindow::showSettingsDialog()
+{
+    SettingsDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted) {
+        // Re-display the current file in case we changed the path to
+        // one of the helper programs needed to render it
+        if (!fileNames.isEmpty())
+            viewer->display(fileNames[currentFileIndex]);
     }
 }
 

@@ -57,6 +57,7 @@ private:
     QMenu *fileMenu;
     QMenu *viewMenu;
     QMenu *goMenu;
+    QMenu *toolsMenu;
     QMenu *helpMenu;
     QToolBar *toolBar;
     QLineEdit *nameEntry;
@@ -87,6 +88,7 @@ private:
     bool processRenameAndMove();
     bool readyToRename();
     bool rename_(const QString &srcPath, const QString &dstPath);
+    void showSettingsDialog();
     void updateGoMenu();
     void updateWindowTitle();
 

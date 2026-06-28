@@ -40,7 +40,8 @@ target_link_libraries(renamifier-viewer
 # Putting the UI in a library lets us avoid building separate copies
 # for the main application and test suite
 qt_add_library(renamifier-ui
-               mainwindow.cpp)
+               mainwindow.cpp
+               settings_dialog.cpp)
 target_include_directories(renamifier-ui
                            SYSTEM PUBLIC)
 target_link_libraries(renamifier-ui
