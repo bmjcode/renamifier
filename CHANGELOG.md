@@ -9,8 +9,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * Filenames passed on the command line can now include wildcard characters.
 ### Added
 * Zooming support.
+* A settings dialog.
+  * Settings for custom paths for helper programs (Ghostscript and GhostXPS).
+### Removed
+* The bundled GhostXPS in the Windows installer.
 ### Fixed
-* Aggressively optimized internals to reduce memory usage.
+* Massively cleaned up internals.
+* Optimized the rendering logic to reduce memory usage.
 
 ## [0.1.4] - 2023-09-24
 ### Changed
