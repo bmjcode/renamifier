@@ -17,6 +17,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <cstdlib>  // for std::getenv()
+
 #include <QtCore>
 
 #include "render_ps.h"
