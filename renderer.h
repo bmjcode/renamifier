@@ -63,6 +63,8 @@ protected:
     // Override this and return true if the file loaded, false otherwise.
     virtual bool load() = 0;
 
+    static QString findHelper(const QString &settingName,
+                              const QString &fallback = QString());
     QByteArray runHelper(const QString &program,
                          const QStringList &arguments);
 

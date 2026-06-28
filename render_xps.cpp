@@ -25,10 +25,6 @@
 
 static const QString findGhostXPS();
 
-void XPSRenderer::init()
-{
-}
-
 XPSRenderer::XPSRenderer()
     : PDFRenderer()
 {
@@ -36,7 +32,7 @@ XPSRenderer::XPSRenderer()
 
 bool XPSRenderer::load()
 {
-    QString program = findGhostXPS();
+    QString program = findHelper("helpers/gxps", findGhostXPS());
     if (program.isEmpty()) {
         storeLoadError("Cannot display this file because GhostXPS "
                        "is not installed.");

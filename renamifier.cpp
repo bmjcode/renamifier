@@ -17,6 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <QCoreApplication>
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
@@ -33,6 +34,9 @@
 
 int main(int argc, char **argv)
 {
+    QCoreApplication::setOrganizationName("Benjamin Johnson");
+    QCoreApplication::setApplicationName("Renamifier");
+
     QApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(true);
 

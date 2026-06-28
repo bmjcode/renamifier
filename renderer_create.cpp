@@ -90,8 +90,6 @@ Renderer *Renderer::create(const QString &path, QString *errorOut)
 void Renderer::init()
 {
     PDFRenderer::init();
-    PSRenderer::init();
-    XPSRenderer::init();
 }
 
 /*

@@ -30,6 +30,33 @@ Renderer::Renderer()
 }
 
 /*
+ * Find an external program to use with runHelper().
+ *
+ * This first checks the settings for a path specified by the user.
+ * If none was set, it defaults to the specified fallback, which
+ * becomes the new setting if it is found.
+ *
+ * If no valid executable is found, any existing setting is cleared.
+ *
+ * Returns the full path of the executable if the program is found,
+ * or an empty string otherwise.
+ */
+QString Renderer::findHelper(const QString &settingName,
+                             const QString &fallback)
+{
+    QSettings settings;
+    QString program = settings.value(settingName, fallback).toString();
+    if (QFileInfo(program).isExecutable()) {
+        if (!settings.contains(settingName))
+            settings.setValue(settingName, program);
+    } else {
+        settings.remove(settingName);
+        program.clear();
+    }
+    return program;
+}
+
+/*
  * Run an external program to convert a file into something we can display.
  *
  * Returns the raw data as a QByteArray.

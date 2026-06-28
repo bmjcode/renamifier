@@ -24,10 +24,6 @@
 
 static const QString findGhostscript();
 
-void PSRenderer::init()
-{
-}
-
 PSRenderer::PSRenderer()
     : PDFRenderer()
 {
@@ -35,7 +31,7 @@ PSRenderer::PSRenderer()
 
 bool PSRenderer::load()
 {
-    QString program = findGhostscript();
+    QString program = findHelper("helpers/gs", findGhostscript());
     if (program.isEmpty()) {
         storeLoadError("Cannot display this file because Ghostscript "
                        "is not installed.");
