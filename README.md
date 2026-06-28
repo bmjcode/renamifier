@@ -1,28 +1,12 @@
 **Renamifier** is a tool to preview and rename digital files.
 
-![Screenshot of Renamifier displaying part of its own source code](docs/screenshot.png)
+![Screenshot](docs/screenshot.png)
 
-Renamifier lets you rename files while you're viewing them, making it easier to give them meaningful names. It's great for organizing files with automatically-generated names, like scanned documents or digital camera photos.
+I created Renamifier to more easily organize files with automatically-generated names like scanned documents and digital photos. It is intended to "[do one thing and do it well](https://en.wikipedia.org/wiki/Unix_philosophy)" rather than to replace full-featured dedicated viewers like Acrobat Reader.
 
+Downloads are available on the project's [GitHub releases page](https://github.com/bmjcode/renamifier/releases).
 
-## Downloads
-
-File | Size | Description
----- | ---- | -----------
-[renamifier-0.1.4-win32-setup.exe](https://github.com/bmjcode/renamifier/releases/download/v0.1.4/renamifier-0.1.4-win32-setup.exe) | 40.1 MB | Windows (32-bit installer)
-[renamifier-0.1.4-win64-setup.exe](https://github.com/bmjcode/renamifier/releases/download/v0.1.4/renamifier-0.1.4-win64-setup.exe) | 39.7 MB | Windows (64-bit installer)
-[renamifier-0.1.4.zip](https://github.com/bmjcode/renamifier/archive/refs/tags/v0.1.4.zip) | | source code (zip)
-[renamifier-0.1.4.tar.gz](https://github.com/bmjcode/renamifier/archive/refs/tags/v0.1.4.tar.gz) | | source code (tar.gz)
-
-
-## How to Use Renamifier
-
-Using Renamifier is pretty straightforward:
-
-1. Select the files you want to rename. The first file will be displayed.
-2. Enter a new name for the file. You don't have to include the extension; Renamifier will automatically keep its current extension.
-3. Press Enter (or click the "Rename" button) to rename this file. The next file will be displayed.
-4. Repeats steps 2 and 3 for each remaining file.
+Please be aware that Renamifier is a low-priority personal project; development does not follow a set plan or schedule, and is largely driven by my own needs. Issues and pull requests are therefore closed since I can't promise they'll be responded to in any reasonable amount of time.
 
 
 ## Supported File Formats
@@ -32,6 +16,7 @@ Renamifier has built-in support for the following formats:
 Format | Extensions | Notes
 ------ | ---------- | -----
 Plain text | Various | Includes files with an explicit `.txt` extension, as well as other plain-text formats like source code.
+PDF | `.pdf` |
 Bitmap image | `.bmp` |
 GIF | `.gif` | Animations are not currently supported.
 JPEG | `.jpe`, `.jpg`, `.jpeg` |
@@ -45,7 +30,9 @@ Renamifier can also display these formats if additional software is installed:
 Format | Extensions | Requirements | Notes
 ------ | ---------- | ------------ | -----
 Postscript | `.ps` | [Ghostscript](https://ghostscript.com/) |
-XPS | `.xps` | [GhostXPS](https://www.ghostscript.com/download/gxpsdnld.html) (included on Windows) | OpenXPS has not been tested.
+XPS | `.xps` | [GhostXPS](https://www.ghostscript.com/download/gxpsdnld.html) | OpenXPS has not been tested.
+
+All other file types are displayed as a [hex dump](https://en.wikipedia.org/wiki/Hex_dump), which may or may not contain anything meaningful, but at least it looks cool.
 
 
 ## Building from Source
