@@ -1,9 +1,5 @@
 ; This script builds the Windows installer for Renamifier.
 ;
-; Extract the GhostXPS distribution file to the build directory:
-; ghostxps-10.02.0-win64.zip                (for the 64-bit version)
-; ghostxps-10.02.0-win32.zip                (for the 32-bit version)
-;
 ; Usage:
 ; makensis winsetup.nsi                     (for the 64-bit version)
 ; makensis /DPLATFORM=win32 winsetup.nsi    (for the 32-bit version)
@@ -23,12 +19,10 @@
 
 !if ${PLATFORM} == "win64"
   !define MINGW_DIR "C:\msys64\mingw64"
-  !define GXPS_DIR "ghostxps-10.02.0-win64"
   InstallDir "$PROGRAMFILES64\Renamifier"
 
 !else if ${PLATFORM} == "win32"
   !define MINGW_DIR "C:\msys64\mingw32"
-  !define GXPS_DIR "ghostxps-10.02.0-win32"
   InstallDir "$PROGRAMFILES32\Renamifier"
 
 !else
@@ -62,7 +56,7 @@ Section "Renamifier"
 
   SetOutPath $INSTDIR
 
-  ; Remove older versions of GhostXPS
+  ; Remove the bundled GhostXPS from older Renamifier versions
   RMDir /r "$INSTDIR\ghostxps-9.53.3-win32"
   RMDir /r "$INSTDIR\ghostxps-9.53.3-win64"
   RMDir /r "$INSTDIR\ghostxps-10.0.0-win32"
@@ -203,12 +197,6 @@ Section "Renamifier"
   WriteUninstaller "$INSTDIR\uninstall.exe"
 SectionEnd
 
-SectionGroup "File format support"
-  Section "XPS support via GhostXPS"
-    File /r ${GXPS_DIR}
-  SectionEnd
-SectionGroupEnd
-
 SectionGroup "Create shortcuts"
   Section "Start menu shortcut"
     CreateShortcut "$SMPROGRAMS\Renamifier.lnk" "$INSTDIR\renamifier.exe" "" "$INSTDIR\renamifier.exe" 0
@@ -237,7 +225,6 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\Renamifier.lnk"
 
   ; Delete application files
-  RMDir /r "$INSTDIR\${GXPS_DIR}"
   RMDir /r "$INSTDIR\generic"
   RMDir /r "$INSTDIR\imageformats"
   RMDir /r "$INSTDIR\networkinformation"
