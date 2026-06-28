@@ -180,6 +180,9 @@ Section "Renamifier"
   File "${MINGW_DIR}\bin\smime3.dll"
   File "${MINGW_DIR}\bin\zlib1.dll"
 
+  ; Always create a Start menu shortcut
+  CreateShortcut "$SMPROGRAMS\Renamifier.lnk" "$INSTDIR\renamifier.exe" "" "$INSTDIR\renamifier.exe" 0
+
   !if ${PLATFORM} == "win64"
     SetRegView 64
   !else if ${PLATFORM} == "win32"
@@ -197,15 +200,9 @@ Section "Renamifier"
   WriteUninstaller "$INSTDIR\uninstall.exe"
 SectionEnd
 
-SectionGroup "Create shortcuts"
-  Section "Start menu shortcut"
-    CreateShortcut "$SMPROGRAMS\Renamifier.lnk" "$INSTDIR\renamifier.exe" "" "$INSTDIR\renamifier.exe" 0
-  SectionEnd
-
-  Section "Desktop shortcut"
-    CreateShortcut "$DESKTOP\Renamifier.lnk" "$INSTDIR\renamifier.exe" "" "$INSTDIR\renamifier.exe" 0
-  SectionEnd
-SectionGroupEnd
+Section "Create desktop shortcut"
+  CreateShortcut "$DESKTOP\Renamifier.lnk" "$INSTDIR\renamifier.exe" "" "$INSTDIR\renamifier.exe" 0
+SectionEnd
 
 ; ------------------------------------------------------------------------
 
