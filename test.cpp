@@ -28,8 +28,8 @@ void RenamifierTest::initTestCase()
     testFiles
         << "CMakeLists.txt"
         << "COPYING"
-        << "mainwindow.cpp"
-        << "mainwindow.h"
+        << "main_window.cpp"
+        << "main_window.h"
         << "renamifier.cpp"
         << "renamifier.h"
         << "renamifier.qrc"

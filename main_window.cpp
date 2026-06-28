@@ -22,7 +22,7 @@
 #include <QMessageBox>
 
 #include "renamifier.h"
-#include "mainwindow.h"
+#include "main_window.h"
 #include "settings_dialog.h"
 
 MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags f)

@@ -7,8 +7,8 @@
       -->
     <file>CMakeLists.txt</file>
     <file>COPYING</file>
-    <file>mainwindow.cpp</file>
-    <file>mainwindow.h</file>
+    <file>main_window.cpp</file>
+    <file>main_window.h</file>
     <file>renamifier.cpp</file>
     <file>renamifier.h</file>
     <file>renamifier.qrc</file>

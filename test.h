@@ -27,7 +27,7 @@
 
 #include <QtTest>
 
-#include "mainwindow.h"
+#include "main_window.h"
 
 class RenamifierTest : public QObject
 {
