@@ -307,11 +307,8 @@ void MainWindow::createToolBar()
 
     nameEntry = new QLineEdit(toolBar);
 
-    // Try to use icons from the system theme when available
-    QIcon iconPrevious = QIcon::fromTheme("go-previous",
-                                          QIcon(":/icons/action_back.gif"));
-    QIcon iconNext = QIcon::fromTheme("go-next",
-                                      QIcon(":/icons/action_forward.gif"));
+    QIcon iconPrevious = QIcon(":/icons/action_back.gif");
+    QIcon iconNext = QIcon(":/icons/action_forward.gif");
     QIcon iconRename = QIcon(":/icons/icon_wand.gif");
 
     toolBar->addAction(iconPrevious,
