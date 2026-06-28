@@ -23,13 +23,10 @@
 #include "render_xps.h"
 #include "renderer_util.h"
 
-static QString program;
-
 static const QString findGhostXPS();
 
 void XPSRenderer::init()
 {
-    program = findGhostXPS();
 }
 
 XPSRenderer::XPSRenderer()
@@ -39,6 +36,7 @@ XPSRenderer::XPSRenderer()
 
 bool XPSRenderer::load()
 {
+    QString program = findGhostXPS();
     if (program.isEmpty()) {
         storeLoadError("Cannot display this file because GhostXPS "
                        "is not installed.");

@@ -22,13 +22,10 @@
 #include "render_ps.h"
 #include "renderer_util.h"
 
-static QString program;
-
 static const QString findGhostscript();
 
 void PSRenderer::init()
 {
-    program = findGhostscript();
 }
 
 PSRenderer::PSRenderer()
@@ -38,6 +35,7 @@ PSRenderer::PSRenderer()
 
 bool PSRenderer::load()
 {
+    QString program = findGhostscript();
     if (program.isEmpty()) {
         storeLoadError("Cannot display this file because Ghostscript "
                        "is not installed.");
