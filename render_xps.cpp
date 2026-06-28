@@ -76,15 +76,14 @@ const QString findGhostXPS()
                                   + gxpsDirs[i] + "/" + gxpsNames[j];
                 if (QFileInfo(gxpsExe).isExecutable()) {
                     program = gxpsExe;
-                    break;
+                    goto finished;
                 }
             }
-            if (!program.isEmpty())
-                break;
         }
 #else /* Q_OS_WIN */
         program = findInSystemPath("gxps");
 #endif /* Q_OS_WIN */
     }
+finished:
     return program;
 }

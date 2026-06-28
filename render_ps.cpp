@@ -92,16 +92,15 @@ const QString findGhostscript()
                                     + gsDirs[j] + "/bin/" + gsNames[k];
                     if (QFileInfo(gsExe).isExecutable()) {
                         program = gsExe;
-                        break;
+                        goto finished;
                     }
                 }
-                if (!program.isEmpty())
-                    break;
             }
         }
 #else /* Q_OS_WIN */
         program = findInSystemPath("gs");
 #endif /* Q_OS_WIN */
     }
+finished:
     return program;
 }
