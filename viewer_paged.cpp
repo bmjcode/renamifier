@@ -106,12 +106,16 @@ void PagedContent::setZoomFactor(int percent)
 
     if (renderer != nullptr) {
         renderer->setZoomFactor(percent);
-        // Logical DPI provides correctly-scaled output on high-DPI screens
+        // Render at the correct physical size on high-DPI screens
         renderer->setPixelDensity(logicalDpiX(), logicalDpiY());
+        qreal dpRatio = devicePixelRatio();
 
         for (int i = 0; i < pages.count(); i++) {
             Page *page = pages[i];
-            QSize size = renderer->pageSize(i);
+            // The renderer does not understand Qt's high-DPI handling
+            // (something it and I have in common), so we need to manually
+            // scale this back to the correct logical size
+            QSize size = renderer->pageSize(i) / dpRatio;
 
             page->width = size.width();
             page->height = size.height();
@@ -274,6 +278,8 @@ void PagedContent::setPageImage(int num, const QImage &image)
         Page *page = pages[num];
         page->image = image;
         page->isRendering = false;
+        // Paint at the correct physical size on high-DPI screens
+        page->image.setDevicePixelRatio(devicePixelRatio());
         // We only need to repaint this page; the others are fine
         update(page->rect());
     }
