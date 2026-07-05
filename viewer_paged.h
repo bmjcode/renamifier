@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QList>
+#include <QSize>
 #include <QImage>
 #include <QTimer>
 
@@ -31,23 +32,52 @@
 #include <QPaintEvent>
 #include <QResizeEvent>
 
+#include "viewer_util.h"
+
 class PagedContent; // defined below
 struct Page;        // defined in viewer_paged.cpp
 
 class Renderer;
 class PagedContentRenderer;
 
-class PagedContent : public QWidget
+class PagedContentViewer : public ViewerScrollArea
 {
     Q_OBJECT
 
 public:
+    PagedContentViewer(QWidget *parent);
+
+    QSize sizeHint() const;
+
+    void setRenderer(Renderer *replacement);
+    void setZoomFactor(int percent);
+
+public slots:
+    void clear();
+    void display();
+    void refresh();
+
+private:
+    PagedContent *content;
+};
+
+/*
+ * This class is considered an implementation detail.
+ * All interactions should go through PagedContentViewer.
+ */
+class PagedContent : public QWidget
+{
+    Q_OBJECT
+
+protected:
     PagedContent(QScrollArea *parent);
     ~PagedContent();
     void setRenderer(Renderer *replacement);
     void setZoomFactor(int percent);
 
-public slots:
+    friend class PagedContentViewer;
+
+protected slots:
     void clear();
     void display();
     void refresh();

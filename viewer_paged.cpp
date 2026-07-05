@@ -30,6 +30,15 @@
 // Margin in pixels for graphical content
 #define PAGE_MARGIN 2
 
+// The initial viewer size is 8.5 x 5.5 in, or half of a US letter page.
+// This fits a reasonable amount of content without making drastic assumptions
+// about the size of the user's screen, and approximates the 16:9 or 16:10
+// aspect ratio found on most modern displays.
+#define INITIAL_WIDTH 85
+#define INITIAL_HEIGHT 55
+// Units above are multiplied by a factor of 10 to allow use of integer math.
+#define INITIAL_FACTOR 10
+
 /* ------------------------------------------------------------------------ */
 
 struct Page {
@@ -49,6 +58,65 @@ Page::Page()
     x = y = -1;
     width = height = 0;
     isRendering = false;
+}
+
+/* ------------------------------------------------------------------------ */
+
+PagedContentViewer::PagedContentViewer(QWidget *parent)
+    : ViewerScrollArea(parent)
+{
+    content = new PagedContent(this);
+    setWidget(content);
+}
+
+/*
+ * Default to a size large enough to show a reasonable amount of content on
+ * most screens. The exact size is specified by INITIAL_{HEIGHT,WIDTH} above.
+ */
+QSize PagedContentViewer::sizeHint() const
+{
+    int initialWidth, initialHeight;
+    initialWidth = INITIAL_WIDTH * logicalDpiX() / INITIAL_FACTOR;
+    initialHeight = INITIAL_HEIGHT * logicalDpiY();
+
+    // Compensate for the viewport margins and vertical scroll bar
+    QMargins margins = viewportMargins();
+    initialWidth += margins.left() + margins.right();
+    initialWidth += verticalScrollBar()->width();
+
+    return QSize(initialWidth, initialHeight);
+}
+
+void PagedContentViewer::setRenderer(Renderer *replacement)
+{
+    content->setRenderer(replacement);
+}
+
+void PagedContentViewer::setZoomFactor(int percent)
+{
+    content->setZoomFactor(percent);
+    if (updatesEnabled()) {
+        QPoint where = scrollBarPosition();
+        refresh();
+        setScrollBarPosition(where);
+    }
+}
+
+void PagedContentViewer::clear()
+{
+    content->clear();
+    // Scroll back to the top-left corner
+    setScrollBarPosition(0, 0);
+}
+
+void PagedContentViewer::display()
+{
+    content->display();
+}
+
+void PagedContentViewer::refresh()
+{
+    content->refresh();
 }
 
 /* ------------------------------------------------------------------------ */

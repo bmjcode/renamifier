@@ -27,21 +27,8 @@
 #include "viewer_paged.h"
 #include "renderer.h"
 
-/* ------------------------------------------------------------------------ */
-
 #define ZOOM_MIN 10
 #define ZOOM_MAX 800
-
-// The initial viewer size is 8.5 x 5.5 in, or half of a US letter page.
-// This fits a reasonable amount of content without making drastic assumptions
-// about the size of the user's screen, and approximates the 16:9 or 16:10
-// aspect ratio found on most modern displays.
-#define INITIAL_WIDTH 85
-#define INITIAL_HEIGHT 55
-// Units above are multiplied by a factor of 10 to allow use of integer math.
-#define INITIAL_FACTOR 10
-
-/* ------------------------------------------------------------------------ */
 
 Viewer::Viewer(QWidget *parent)
     : QStackedWidget(parent)
@@ -49,11 +36,8 @@ Viewer::Viewer(QWidget *parent)
     textContentViewer = new TextContentViewer(this);
     addWidget(textContentViewer);
 
-    pagedContentScrollArea = new ViewerScrollArea(this);
-    addWidget(pagedContentScrollArea);
-
-    pagedContent = new PagedContent(pagedContentScrollArea);
-    pagedContentScrollArea->setWidget(pagedContent);
+    pagedContentViewer = new PagedContentViewer(this);
+    addWidget(pagedContentViewer);
 
     renderer = nullptr;
     renderThread = new QThread(this);
@@ -62,7 +46,7 @@ Viewer::Viewer(QWidget *parent)
     zoomFactor = 100;
     connect(textContentViewer, &TextContentViewer::wheelZoomed,
             this, &Viewer::zoomIn);
-    connect(pagedContentScrollArea, &ViewerScrollArea::wheelZoomed,
+    connect(pagedContentViewer, &PagedContentViewer::wheelZoomed,
             this, &Viewer::zoomIn);
 }
 
@@ -109,7 +93,7 @@ void Viewer::load(const QString &path)
 
     // These will reject one another's Renderers, so no need to overthink this
     textContentViewer->setRenderer(renderer);
-    pagedContent->setRenderer(renderer);
+    pagedContentViewer->setRenderer(renderer);
 }
 
 /*
@@ -119,7 +103,7 @@ void Viewer::unloadRenderer()
 {
     path_.clear();
     textContentViewer->setRenderer(nullptr);
-    pagedContent->setRenderer(nullptr);
+    pagedContentViewer->setRenderer(nullptr);
 
     if (renderer != nullptr) {
         // Don't respond to any more signals from this Renderer
@@ -133,7 +117,7 @@ void Viewer::unloadRenderer()
 void Viewer::setFocusPolicy(Qt::FocusPolicy policy)
 {
     textContentViewer->setFocusPolicy(policy);
-    pagedContentScrollArea->setFocusPolicy(policy);
+    pagedContentViewer->setFocusPolicy(policy);
 }
 
 /*
@@ -143,10 +127,8 @@ void Viewer::clear()
 {
     // Do NOT unload the renderer here; we may want to reuse it
     textContentViewer->clear();
-    pagedContent->clear();
+    pagedContentViewer->clear();
 
-    // Scroll back to the top-left corner
-    pagedContentScrollArea->setScrollBarPosition(0, 0);
 }
 
 /*
@@ -165,8 +147,8 @@ void Viewer::refresh()
         textContentViewer->display();
         break;
     case Renderer::PagedContent:
-        setCurrentWidget(pagedContentScrollArea);
-        pagedContent->display();
+        setCurrentWidget(pagedContentViewer);
+        pagedContentViewer->display();
         break;
     }
 }
@@ -175,13 +157,7 @@ void Viewer::setZoom(int percent)
 {
     zoomFactor = std::clamp(percent, ZOOM_MIN, ZOOM_MAX);
     textContentViewer->setZoomFactor(zoomFactor);
-    pagedContent->setZoomFactor(zoomFactor);
-
-    if (currentWidget() == pagedContentScrollArea) {
-        QPoint where = pagedContentScrollArea->scrollBarPosition();
-        pagedContent->refresh();
-        pagedContentScrollArea->setScrollBarPosition(where);
-    }
+    pagedContentViewer->setZoomFactor(zoomFactor);
 }
 
 void Viewer::displayError(const QString &details)
@@ -214,64 +190,5 @@ void Viewer::displayError(const QString &details)
  */
 QSize Viewer::sizeHint() const
 {
-    return pagedContentScrollArea->sizeHint();
-}
-
-/* ------------------------------------------------------------------------ */
-
-ViewerScrollArea::ViewerScrollArea(QWidget *parent)
-    : QScrollArea(parent)
-{
-    setBackgroundRole(QPalette::Dark);
-}
-
-QPoint ViewerScrollArea::scrollBarPosition() const {
-    return QPoint(
-        horizontalScrollBar()->sliderPosition(),
-        verticalScrollBar()->sliderPosition());
-}
-
-void ViewerScrollArea::setScrollBarPosition(int x, int y)
-{
-    horizontalScrollBar()->setSliderPosition(x);
-    verticalScrollBar()->setSliderPosition(y);
-}
-
-/*
- * Default to a size large enough to show a reasonable amount of content on
- * most screens. The exact size is specified by INITIAL_{HEIGHT,WIDTH} above.
- */
-QSize ViewerScrollArea::sizeHint() const
-{
-    int initialWidth, initialHeight;
-    initialWidth = INITIAL_WIDTH * logicalDpiX() / INITIAL_FACTOR;
-    initialHeight = INITIAL_HEIGHT * logicalDpiY();
-
-    // Compensate for the viewport margins and vertical scroll bar
-    QMargins margins = viewportMargins();
-    initialWidth += margins.left() + margins.right();
-    initialWidth += verticalScrollBar()->width();
-
-    return QSize(initialWidth, initialHeight);
-}
-
-/*
- * Resize the inner frame when the widget's size changes.
- */
-void ViewerScrollArea::resizeEvent(QResizeEvent *event)
-{
-    widget()->resize(
-        std::max(viewport()->width(), widget()->minimumWidth()),
-        std::max(viewport()->height(), widget()->minimumHeight()));
-}
-
-void ViewerScrollArea::wheelEvent(QWheelEvent *event)
-{
-    // Adapted from QPlainTextEdit::wheelEvent()
-    if (event->modifiers() & Qt::ControlModifier) {
-        float delta = event->angleDelta().y() / 120.f;
-        emit wheelZoomed(delta);
-        return;
-    }
-    QScrollArea::wheelEvent(event);
+    return pagedContentViewer->sizeHint();
 }
