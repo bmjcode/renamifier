@@ -246,51 +246,45 @@ void PagedContent::refresh()
 
 void PagedContent::moveEvent(QMoveEvent *event)
 {
-    if (updatesEnabled()) {
-        event->accept();
+    if (!updatesEnabled())
+        return;
 
-        // Refresh once immediately so the user can see the new content, but
-        // delay further renders until we've stopped moving.
-        // This avoids rendering pages that aren't visible for any meaningful
-        // amount of time when rapidly scrolling.
-        refresh();
-        isMoving = true;
-        moveTimer->start(50);
-    } else
-        event->ignore();
+    // Refresh once immediately so the user can see the new content, but
+    // delay further renders until we've stopped moving.
+    // This avoids rendering pages that aren't visible for any meaningful
+    // amount of time when rapidly scrolling.
+    refresh();
+    isMoving = true;
+    moveTimer->start(50);
 }
 
 void PagedContent::paintEvent(QPaintEvent *event)
 {
-    if (updatesEnabled()) {
-        event->accept();
+    if (!updatesEnabled())
+        return;
 
-        QPainter painter(this);
-        for (int i = 0; i < visiblePages.count(); i++) {
-            const Page *page = visiblePages.at(i);
-            QRect pageRect = page->rect();
+    QPainter painter(this);
+    for (int i = 0; i < visiblePages.count(); i++) {
+        const Page *page = visiblePages.at(i);
+        QRect pageRect = page->rect();
 
-            // The area to paint may be smaller than the total visible area
-            if (pageRect.intersects(event->rect())) {
-                if (page->pixmap.isNull())
-                    // Paint a placeholder to reduce flicker
-                    painter.fillRect(pageRect, Qt::white);
-                else
-                    painter.drawPixmap(pageRect, page->pixmap);
-            }
+        // The area to paint may be smaller than the total visible area
+        if (pageRect.intersects(event->rect())) {
+            if (page->pixmap.isNull())
+                // Paint a placeholder to reduce flicker
+                painter.fillRect(pageRect, Qt::white);
+            else
+                painter.drawPixmap(pageRect, page->pixmap);
         }
-    } else
-        event->ignore();
+    }
 }
 
 void PagedContent::resizeEvent(QResizeEvent *event)
 {
-    if (updatesEnabled()) {
-        event->accept();
+    if (!updatesEnabled())
+        return;
 
-        setPagePositions();
-    } else
-        event->ignore();
+    setPagePositions();
 }
 
 /*
