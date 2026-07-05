@@ -120,6 +120,12 @@ public:
 
     inline Renderer::Mode mode() const { return PagedContent; }
 
+    // This hints to the viewer to determine how to handle high-DPI scaling.
+    // If this is true, 1 screen pixel == 1 image pixel regardless of DPI;
+    // otherwise, scaling is based on the image's inch, not pixel, dimensions.
+    // Note this is just a hint, and the renderer itself is DPI-agnostic.
+    virtual inline bool isPixelExact() const { return false; }
+
     inline int dpiX() const { return dpiX_; }
     inline int dpiY() const { return dpiY_; }
     void setPixelDensity(int dpiX, int dpiY);

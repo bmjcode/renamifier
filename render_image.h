@@ -34,6 +34,7 @@ public:
     bool load();
     void renderPage(int num);
 
+    inline bool isPixelExact() const { return true; }
     inline int numPages() const { return 1; }
     inline QSize pageSize(int num) const { return zoomScaled(image.size()); }
 

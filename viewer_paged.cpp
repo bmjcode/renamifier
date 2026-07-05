@@ -174,15 +174,20 @@ void PagedContent::setZoomFactor(int percent)
 
     if (renderer != nullptr) {
         renderer->setZoomFactor(percent);
-        // Render at the correct physical size on high-DPI screens
-        renderer->setPixelDensity(logicalDpiX(), logicalDpiY());
+        // Images are always rendered at their real pixel size, but layout
+        // calculations use DPI-independent "logical" pixels. You are not
+        // expected to understand this -- just to trust that this produces
+        // correct results on high-DPI screens.
         qreal dpRatio = devicePixelRatio();
+        int dpiX = logicalDpiX(), dpiY = logicalDpiY();
+        if (!renderer->isPixelExact())
+            // Scale the image to occupy the same relative area as it would
+            // on a standard-DPI display (i.e., based on inches, not pixels)
+            dpiX *= dpRatio, dpiY *= dpRatio;
+        renderer->setPixelDensity(dpiX, dpiY);
 
         for (int i = 0; i < pages.count(); i++) {
             Page *page = pages[i];
-            // The renderer does not understand Qt's high-DPI handling
-            // (something it and I have in common), so we need to manually
-            // scale this back to the correct logical size
             QSize size = renderer->pageSize(i) / dpRatio;
 
             page->width = size.width();
