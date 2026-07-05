@@ -45,7 +45,7 @@ struct Page {
     Page();
     inline QRect rect() const { return QRect(x, y, width, height); }
 
-    QImage image;
+    QPixmap pixmap; // more efficient for display than QImage
     int x;
     int y;
     int width;
@@ -189,7 +189,7 @@ void PagedContent::setZoomFactor(int percent)
             page->height = size.height();
 
             // Purge the old image so we're forced to re-render
-            page->image = QImage();
+            page->pixmap = QPixmap();
         }
     }
 
@@ -222,7 +222,7 @@ void PagedContent::refresh()
         Page *page = pages[i];
 
         if (page->rect().intersects(visibleArea)) {
-            if (page->image.isNull()
+            if (page->pixmap.isNull()
                 && (!(isMoving || page->isRendering))) {
                 // Request an image from the renderer
                 // setPageImage() will paint it when it comes back
@@ -231,7 +231,7 @@ void PagedContent::refresh()
             }
             visiblePages.append(pages.at(i));
         } else if (purgeInvisible)
-            page->image = QImage(); // tantamount to deletion
+            page->pixmap = QPixmap();   // tantamount to deletion
         else if (page->y > visibleArea.bottom())
             break;  // the remaining pages are outside our visible area
     }
@@ -267,11 +267,11 @@ void PagedContent::paintEvent(QPaintEvent *event)
 
             // The area to paint may be smaller than the total visible area
             if (pageRect.intersects(event->rect())) {
-                if (page->image.isNull())
+                if (page->pixmap.isNull())
                     // Paint a placeholder to reduce flicker
                     painter.fillRect(pageRect, Qt::white);
                 else
-                    painter.drawImage(pageRect, page->image);
+                    painter.drawPixmap(pageRect, page->pixmap);
             }
         }
     } else
@@ -344,10 +344,10 @@ void PagedContent::setPageImage(int num, const QImage &image)
 {
     if (0 <= num && num < pages.count()) {
         Page *page = pages[num];
-        page->image = image;
+        page->pixmap = QPixmap::fromImage(image);
         page->isRendering = false;
         // Paint at the correct physical size on high-DPI screens
-        page->image.setDevicePixelRatio(devicePixelRatio());
+        page->pixmap.setDevicePixelRatio(devicePixelRatio());
         // We only need to repaint this page; the others are fine
         update(page->rect());
     }
