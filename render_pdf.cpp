@@ -24,7 +24,6 @@
 #include <poppler-qt6.h>
 
 #include "render_pdf.h"
-#include "renderer_util.h"
 
 struct PDFRendererData {
     std::unique_ptr<Poppler::Document> document;

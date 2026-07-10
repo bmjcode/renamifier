@@ -1,5 +1,5 @@
 /*
- * Renderer utility functions.
+ * Functions for rendering using external "helper" programs.
  * Copyright (c) 2021-2026 Benjamin Johnson
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,14 +21,22 @@
 
 #include <QtCore>
 
-#include "renderer_util.h"
+#include "renderer_helpers.h"
 
-/*
- * Helper function to locate a program in the system's $PATH.
- *
- * Returns the full path to the program executable if found, or an empty
- * string otherwise.
- */
+const QString findHelper(const QString &settingName, const QString &fallback)
+{
+    QSettings settings;
+    QString program = settings.value(settingName, fallback).toString();
+    if (QFileInfo(program).isExecutable()) {
+        if (!settings.contains(settingName))
+            settings.setValue(settingName, program);
+    } else {
+        settings.remove(settingName);
+        program.clear();
+    }
+    return program;
+}
+
 const QString findInSystemPath(const QString &fileName)
 {
     QString program, candidate;
@@ -42,4 +50,15 @@ const QString findInSystemPath(const QString &fileName)
         }
     }
     return program;
+}
+
+HelperStatus runHelper(const QString &program, const QStringList &arguments)
+{
+    QProcess helper;
+    helper.start(program, arguments);
+    bool success = (helper.waitForFinished() && helper.exitCode() == 0);
+    // If things went well, we just need standard output. If they didn't,
+    // we want both standard output and error for debugging.
+    return HelperStatus(success,
+        success ? helper.readAllStandardOutput() : helper.readAll());
 }

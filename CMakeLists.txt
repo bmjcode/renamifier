@@ -28,7 +28,7 @@ qt_add_library(renamifier-viewer
                render_xps.cpp
                renderer.cpp
                renderer_create.cpp
-               renderer_util.cpp
+               renderer_helpers.cpp
                viewer.cpp
                viewer_paged.cpp
                viewer_text.cpp

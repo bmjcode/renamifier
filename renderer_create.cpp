@@ -74,7 +74,7 @@ Renderer *Renderer::create(const QString &path, QString *errorOut)
         renderer = new HexDumpRenderer;
 
     renderer->path_ = path;
-    if (!(renderer->loaded_ = renderer->load())) {
+    if (!renderer->load()) {
         if (errorOut != nullptr)
             *errorOut = loadError;
         loadError.clear();

@@ -21,7 +21,6 @@
 #define RENDERER_H
 
 #include <QObject>  // inherited by basically everything else
-#include <QByteArray>
 #include <QSize>
 #include <QString>
 #include <QImage>
@@ -59,21 +58,16 @@ public:
 
 protected:
     Renderer();
+
     // This runs in the constructor to load the file specified by path().
     // Override this and return true if the file loaded, false otherwise.
     virtual bool load() = 0;
-
-    static QString findHelper(const QString &settingName,
-                              const QString &fallback = QString());
-    QByteArray runHelper(const QString &program,
-                         const QStringList &arguments);
 
     // load() runs in the constructor so it can't use signals for this
     static void storeLoadError(const QString &message);
 
 private:
     QString path_;
-    bool loaded_;
 
 signals:
     void errorEncountered(const QString &details = QString());

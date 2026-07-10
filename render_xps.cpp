@@ -21,7 +21,7 @@
 #include <QApplication>
 
 #include "render_xps.h"
-#include "renderer_util.h"
+#include "renderer_helpers.h"
 
 static const QString findGhostXPS();
 
@@ -45,7 +45,13 @@ bool XPSRenderer::load()
               << "-sOutputFile=-"
               << path();
 
-    return loadFromData(runHelper(program, arguments));
+    HelperStatus status = runHelper(program, arguments);
+    if (status.first)
+        return loadFromData(status.second);
+    else {
+        storeLoadError(status.second);
+        return false;
+    }
 }
 
 /*
