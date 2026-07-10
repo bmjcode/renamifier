@@ -26,7 +26,8 @@
 
 #include "renderer.h"
 
-class ImageRenderer : public PagedContentRenderer {
+class ImageRenderer : public PagedContentRenderer
+{
     Q_OBJECT
 
 public:

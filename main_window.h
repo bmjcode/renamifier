@@ -35,7 +35,8 @@
 /*
  * The application's main window.
  */
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 
 public:
@@ -53,6 +54,24 @@ public:
     void displayPrevious();
 
 private:
+    void addDir(const QString &path, bool recurseIntoSubdirs);
+    void addFile(const QString &path);
+    void createActions();
+    void createMenus();
+    void createToolBar();
+    void displayNextOrPromptToExit();
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
+    // The rename methods are protected because they should only be triggered
+    // interactively by the user, not programatically.
+    bool processRename();
+    bool processRenameAndMove();
+    bool readyToRename();
+    bool rename_(const QString &srcPath, const QString &dstPath);
+    void showSettingsDialog();
+    void updateGoMenu();
+    void updateWindowTitle();
+
     Viewer *viewer;
     QMenu *fileMenu;
     QMenu *viewMenu;
@@ -73,24 +92,6 @@ private:
     QStringList fileNames;
     QString lastBrowseDir;
     QString lastMoveDir;
-
-    void addDir(const QString &path, bool recurseIntoSubdirs);
-    void addFile(const QString &path);
-    void createActions();
-    void createMenus();
-    void createToolBar();
-    void displayNextOrPromptToExit();
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent *event);
-    // The rename methods are protected because they should only be triggered
-    // interactively by the user, not programatically.
-    bool processRename();
-    bool processRenameAndMove();
-    bool readyToRename();
-    bool rename_(const QString &srcPath, const QString &dstPath);
-    void showSettingsDialog();
-    void updateGoMenu();
-    void updateWindowTitle();
 
     friend class RenamifierTest;
 

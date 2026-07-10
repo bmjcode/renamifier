@@ -25,7 +25,8 @@
 
 #include "renderer.h"
 
-class TextRenderer : public TextContentRenderer {
+class TextRenderer : public TextContentRenderer
+{
     Q_OBJECT
 
 public:

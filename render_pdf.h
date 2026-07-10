@@ -29,7 +29,8 @@
 // Hide backend implementation details
 struct PDFRendererData;
 
-class PDFRenderer : public PagedContentRenderer {
+class PDFRenderer : public PagedContentRenderer
+{
     Q_OBJECT
 
 public:

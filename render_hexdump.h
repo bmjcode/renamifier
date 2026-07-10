@@ -24,7 +24,8 @@
 
 #include "renderer.h"
 
-class HexDumpRenderer : public TextContentRenderer {
+class HexDumpRenderer : public TextContentRenderer
+{
     Q_OBJECT
 
 public:

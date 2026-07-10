@@ -24,7 +24,8 @@
 
 #include "render_pdf.h"
 
-class PSRenderer : public PDFRenderer {
+class PSRenderer : public PDFRenderer
+{
     Q_OBJECT
 
 public:

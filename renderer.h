@@ -85,7 +85,8 @@ signals:
  * render() is called once when the file is initially displayed.
  * It passes back the entire file contents via the renderedText signal.
  */
-class TextContentRenderer : public Renderer {
+class TextContentRenderer : public Renderer
+{
     Q_OBJECT
 
 public:
@@ -111,7 +112,8 @@ signals:
  * number of pages in the file, and pageSize(), which returns the dimensions
  * in pixels of the specified page.
  */
-class PagedContentRenderer : public Renderer {
+class PagedContentRenderer : public Renderer
+{
     Q_OBJECT
 
 public:

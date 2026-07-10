@@ -33,11 +33,6 @@ class RenamifierTest : public QObject
 {
     Q_OBJECT
 
-private:
-    MainWindow *mainWindow;
-    QStringList testFiles;
-    QStringList tempFiles;
-
 private slots:
     void initTestCase();
     void cleanupTestCase();
@@ -61,6 +56,10 @@ private:
     void confirmThatNothingIsOpen();
     void confirmThatFileIsDisplayed(int index);
     QTemporaryFile *renameTestFile();
+
+    MainWindow *mainWindow;
+    QStringList testFiles;
+    QStringList tempFiles;
 };
 
 #endif /* RENAMIFIFER_TEST_H */

@@ -24,7 +24,8 @@
 
 #include "render_pdf.h"
 
-class XPSRenderer : public PDFRenderer {
+class XPSRenderer : public PDFRenderer
+{
     Q_OBJECT
 
 public:
