@@ -125,8 +125,6 @@ PagedContent::PagedContent(QScrollArea *parent)
     : QWidget(parent)
 {
     renderer = nullptr;
-    viewport = parent->viewport();
-
     zoomFactor = 100;
     purgeInvisible = true;  // purge invisible pages to save memory?
 
