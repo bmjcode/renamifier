@@ -89,9 +89,11 @@ private:
     void resizeEvent(QResizeEvent *event);
 
     // Other private methods
+    void adjustPagePositions();
+    void calculatePageSizes();
     void fitToContent();
     void purgeCache();
-    void setPagePositions();
+    void renderVisiblePages();
 
     // Area of this widget currently visible in the viewport
     inline QRect visibleRect() const

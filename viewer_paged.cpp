@@ -95,11 +95,6 @@ void PagedContentViewer::setRenderer(Renderer *replacement)
 void PagedContentViewer::setZoomFactor(int percent)
 {
     content->setZoomFactor(percent);
-    if (updatesEnabled()) {
-        QPoint where = scrollBarPosition();
-        refresh();
-        setScrollBarPosition(where);
-    }
 }
 
 void PagedContentViewer::clear()
@@ -169,35 +164,7 @@ void PagedContent::setRenderer(Renderer *replacement)
 void PagedContent::setZoomFactor(int percent)
 {
     zoomFactor = percent;
-
-    if (renderer != nullptr) {
-        renderer->setZoomFactor(percent);
-        // Images are always rendered at their real pixel size, but layout
-        // calculations use DPI-independent "logical" pixels. You are not
-        // expected to understand this -- just to trust that this produces
-        // correct results on high-DPI screens.
-        qreal dpRatio = devicePixelRatio();
-        int dpiX = logicalDpiX(), dpiY = logicalDpiY();
-        if (!renderer->isPixelExact())
-            // Scale the image to occupy the same relative area as it would
-            // on a standard-DPI display (i.e., based on inches, not pixels)
-            dpiX *= dpRatio, dpiY *= dpRatio;
-        renderer->setPixelDensity(dpiX, dpiY);
-
-        for (int i = 0; i < pages.count(); i++) {
-            Page *page = pages[i];
-            QSize size = renderer->pageSize(i) / dpRatio;
-
-            page->width = size.width();
-            page->height = size.height();
-
-            // Purge the old image so we're forced to re-render
-            page->pixmap = QPixmap();
-        }
-    }
-
-    fitToContent();
-    setPagePositions();
+    display();
 }
 
 void PagedContent::clear()
@@ -208,37 +175,15 @@ void PagedContent::clear()
 
 void PagedContent::display()
 {
-    setZoomFactor(zoomFactor);
+    calculatePageSizes();
+    fitToContent();
+    adjustPagePositions();
     refresh();
 }
 
-/*
- * Render and paint visible pages.
- */
 void PagedContent::refresh()
 {
-    visiblePages.clear();
-    visiblePages.reserve(2);    // this doesn't have to be exact
-
-    QRect visibleArea = visibleRect();
-    for (int i = 0; i < pages.count(); i++) {
-        Page *page = pages[i];
-
-        if (page->rect().intersects(visibleArea)) {
-            if (page->pixmap.isNull()
-                && (!(isMoving || page->isRendering))) {
-                // Request an image from the renderer
-                // setPageImage() will paint it when it comes back
-                page->isRendering = true;
-                emit imageRequested(i);
-            }
-            visiblePages.append(pages.at(i));
-        } else if (purgeInvisible)
-            page->pixmap = QPixmap();   // tantamount to deletion
-        else if (page->y > visibleArea.bottom())
-            break;  // the remaining pages are outside our visible area
-    }
-
+    renderVisiblePages();
     update();
 }
 
@@ -282,7 +227,57 @@ void PagedContent::resizeEvent(QResizeEvent *event)
     if (!updatesEnabled())
         return;
 
-    setPagePositions();
+    adjustPagePositions();
+}
+
+/*
+ * Recalculate page positions when the widget is resized.
+ */
+void PagedContent::adjustPagePositions()
+{
+    QRect visibleArea = visibleRect();
+
+    for (int i = 0, y = 0; i < pages.count(); i++) {
+        Page *page = pages[i];
+        // Center the page if the visible area is wider
+        page->x = std::max(0, (visibleArea.width() - page->width) / 2);
+        page->y = y;
+        y += page->height + PAGE_MARGIN;
+    }
+}
+
+/*
+ * Calculate page sizes at our current zoom level and screen DPI.
+ */
+void PagedContent::calculatePageSizes()
+{
+    if (renderer == nullptr)
+        return;
+
+    renderer->setZoomFactor(zoomFactor);
+    // Images are always rendered at their real pixel size, but layout
+    // calculations use DPI-independent "logical" pixels. You are not
+    // expected to understand this -- just to trust that this produces
+    // correct results on high-DPI screens.
+    qreal dpRatio = devicePixelRatio();
+    int dpiX = logicalDpiX(), dpiY = logicalDpiY();
+    if (!renderer->isPixelExact())
+        // Scale the image based on inches, not pixels, so it fills
+        // the same relative area on screen regardless of DPI
+        dpiX *= dpRatio, dpiY *= dpRatio;
+    renderer->setPixelDensity(dpiX, dpiY);
+
+    // Now the actual page size calculations
+    for (int i = 0; i < pages.count(); i++) {
+        Page *page = pages[i];
+        QSize size = renderer->pageSize(i) / dpRatio;
+
+        page->width = size.width();
+        page->height = size.height();
+
+        // Purge the old image so we're forced to re-render
+        page->pixmap = QPixmap();
+    }
 }
 
 /*
@@ -292,7 +287,6 @@ void PagedContent::fitToContent()
 {
     int w = 0, h = 0, pageCount = pages.count();
     QRect visibleArea = visibleRect();
-    bool wereUpdatesEnabled = updatesEnabled();
 
     if (pageCount) {
         h = (pageCount - 1) * PAGE_MARGIN;
@@ -303,11 +297,13 @@ void PagedContent::fitToContent()
         }
     }
 
-    // Disable updates so the resize event doesn't call setPagePositions().
+    // Disable updates so the resize event doesn't call adjustPagePositions().
     // It isn't reliably triggered here, so we call it manually after calling
     // this method to ensure it always happens when we need it to.
+    bool wereUpdatesEnabled = updatesEnabled();
     setUpdatesEnabled(false);
     setMinimumSize(w, h);
+    // Shrink the widget if its new size is smaller
     resize(std::max(w, visibleArea.width()), h);
     setUpdatesEnabled(wereUpdatesEnabled);
 }
@@ -322,18 +318,30 @@ void PagedContent::purgeCache()
 }
 
 /*
- * Recalculate page positions when the widget is resized.
+ * Determine which pages are currently visible, and render them if needed.
  */
-void PagedContent::setPagePositions()
+void PagedContent::renderVisiblePages()
 {
-    QRect visibleArea = visibleRect();
+    visiblePages.clear();
+    visiblePages.reserve(2);    // this doesn't have to be exact
 
-    for (int i = 0, y = 0; i < pages.count(); i++) {
+    QRect visibleArea = visibleRect();
+    for (int i = 0; i < pages.count(); i++) {
         Page *page = pages[i];
-        // Center the page if the visible area is wider
-        page->x = std::max(0, (visibleArea.width() - page->width) / 2);
-        page->y = y;
-        y += page->height + PAGE_MARGIN;
+
+        if (page->rect().intersects(visibleArea)) {
+            if (page->pixmap.isNull()
+                && (!(isMoving || page->isRendering))) {
+                // Request an image from the renderer
+                // setPageImage() will paint it when it comes back
+                page->isRendering = true;
+                emit imageRequested(i);
+            }
+            visiblePages.append(pages.at(i));
+        } else if (purgeInvisible)
+            page->pixmap = QPixmap();   // tantamount to deletion
+        else if (page->y > visibleArea.bottom())
+            break;  // the remaining pages are outside our visible area
     }
 }
 
