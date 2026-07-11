@@ -52,13 +52,13 @@ const QString findInSystemPath(const QString &fileName)
     return program;
 }
 
-HelperStatus runHelper(const QString &program, const QStringList &arguments)
+HelperResult runHelper(const QString &program, const QStringList &arguments)
 {
     QProcess helper;
     helper.start(program, arguments);
     bool success = (helper.waitForFinished() && helper.exitCode() == 0);
     // If things went well, we just need standard output. If they didn't,
     // we want both standard output and error for debugging.
-    return HelperStatus(success,
+    return HelperResult(success,
         success ? helper.readAllStandardOutput() : helper.readAll());
 }

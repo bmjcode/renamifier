@@ -55,7 +55,7 @@ const QString findInSystemPath(const QString &fileName);
  *   .first indicates whether the program ran successfully, and
  *   .second contains its output (including standard error in case of failure).
  */
-using HelperStatus = QPair<bool, QByteArray>;
-HelperStatus runHelper(const QString &program, const QStringList &arguments);
+using HelperResult = QPair<bool, QByteArray>;
+HelperResult runHelper(const QString &program, const QStringList &arguments);
 
 #endif /* RENDERER_HELPERS_H */

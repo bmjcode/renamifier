@@ -49,11 +49,11 @@ bool PSRenderer::load()
               << "-sOutputFile=-"
               << path();
 
-    HelperStatus status = runHelper(program, arguments);
-    if (status.first)
-        return loadFromData(status.second);
+    HelperResult result = runHelper(program, arguments);
+    if (result.first)
+        return loadFromData(result.second);
     else {
-        storeLoadError(status.second);
+        storeLoadError(result.second);
         return false;
     }
 }
