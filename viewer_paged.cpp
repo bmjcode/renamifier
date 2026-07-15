@@ -158,10 +158,10 @@ PagedContent::PagedContent(QScrollArea *parent)
     zoomFactor = 100;
     purgeInvisible = true;  // purge invisible pages to save memory?
 
-    isMoving = false;
-    moveTimer = new QTimer(this);
-    moveTimer->setSingleShot(true);
-    connect(moveTimer, &QTimer::timeout, this, &PagedContent::stoppedMoving);
+    renderTimer = new QTimer(this);
+    renderTimer->setSingleShot(true);
+    connect(renderTimer, &QTimer::timeout,
+            this, &PagedContent::renderVisiblePages);
 
     // Never shrink smaller than the content
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -218,7 +218,7 @@ void PagedContent::display()
 
 void PagedContent::refresh()
 {
-    renderVisiblePages();
+    checkVisiblePages();
     update();
 }
 
@@ -227,13 +227,7 @@ void PagedContent::moveEvent(QMoveEvent *event)
     if (!updatesEnabled())
         return;
 
-    // Refresh once immediately so the user can see the new content, but
-    // delay further renders until we've stopped moving.
-    // This avoids rendering pages that aren't visible for any meaningful
-    // amount of time when rapidly scrolling.
     refresh();
-    isMoving = true;
-    moveTimer->start(50);
 }
 
 void PagedContent::paintEvent(QPaintEvent *event)
@@ -243,7 +237,7 @@ void PagedContent::paintEvent(QPaintEvent *event)
 
     QPainter painter(this);
     for (int i = 0; i < visiblePages.count(); i++) {
-        const Page *page = visiblePages.at(i);
+        const Page *page = pages.at(visiblePages.at(i));
         QRect pageRect = page->rect();
 
         // The area to paint may be smaller than the total visible area
@@ -316,6 +310,32 @@ void PagedContent::calculatePageSizes()
 }
 
 /*
+ * Determine which pages are currently visible, and render them if needed.
+ */
+void PagedContent::checkVisiblePages()
+{
+    visiblePages.clear();
+    visiblePages.reserve(2);    // this doesn't have to be exact
+
+    QRect visibleArea = visibleRect();
+    for (int i = 0; i < pages.count(); i++) {
+        Page *page = pages[i];
+
+        if (page->rect().intersects(visibleArea))
+            visiblePages.append(i);
+        else if (purgeInvisible)
+            page->pixmap = QPixmap();   // tantamount to deletion
+        else if (page->y > visibleArea.bottom())
+            break;  // the remaining pages are outside our visible area
+    }
+
+    // We trigger rendering via a timer to combine multiple calls occurring
+    // in quick succession when rapidly scrolling. This prevents rendering
+    // pages that aren't visible for any meaningful amount of time.
+    renderTimer->start(10);
+}
+
+/*
  * Adjust this widget's size so it can fit all its content.
  */
 void PagedContent::fitToContent()
@@ -352,31 +372,18 @@ void PagedContent::purgeCache()
     visiblePages.clear();   // this is small so we don't need to squeeze() it
 }
 
-/*
- * Determine which pages are currently visible, and render them if needed.
- */
 void PagedContent::renderVisiblePages()
 {
-    visiblePages.clear();
-    visiblePages.reserve(2);    // this doesn't have to be exact
+    for (int i = 0; i < visiblePages.count(); i++) {
+        int num = visiblePages.at(i);
+        Page *page = pages[num];
 
-    QRect visibleArea = visibleRect();
-    for (int i = 0; i < pages.count(); i++) {
-        Page *page = pages[i];
-
-        if (page->rect().intersects(visibleArea)) {
-            if (page->pixmap.isNull()
-                && (!(isMoving || page->isRendering))) {
-                // Request an image from the renderer
-                // setPageImage() will paint it when it comes back
-                page->isRendering = true;
-                emit imageRequested(i);
-            }
-            visiblePages.append(pages.at(i));
-        } else if (purgeInvisible)
-            page->pixmap = QPixmap();   // tantamount to deletion
-        else if (page->y > visibleArea.bottom())
-            break;  // the remaining pages are outside our visible area
+        if (page->pixmap.isNull() && !page->isRendering) {
+            // Request an image from the renderer
+            // setPageImage() will paint it when it comes back
+            page->isRendering = true;
+            emit imageRequested(num);
+        }
     }
 }
 
@@ -391,10 +398,4 @@ void PagedContent::setPageImage(int num, const QImage &image)
         // We only need to repaint this page; the others are fine
         update(page->rect());
     }
-}
-
-void PagedContent::stoppedMoving()
-{
-    isMoving = false;
-    refresh();
 }

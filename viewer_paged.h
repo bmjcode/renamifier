@@ -102,9 +102,9 @@ private:
     // Other private methods
     void adjustPagePositions();
     void calculatePageSizes();
+    void checkVisiblePages();
     void fitToContent();
     void purgeCache();
-    void renderVisiblePages();
 
     // Area of this widget currently visible in the viewport
     inline QRect visibleRect() const
@@ -114,15 +114,14 @@ private:
     QList<Page*> pages;
     // We use a list rather than a queue for this because Qt may generate
     // multiple paint events between refresh()es
-    QList<const Page*> visiblePages;
-    QTimer *moveTimer;
+    QList<int> visiblePages;
+    QTimer *renderTimer;
     int zoomFactor;
-    bool isMoving;
     bool purgeInvisible;
 
 private slots:
+    void renderVisiblePages();
     void setPageImage(int num, const QImage &image);
-    void stoppedMoving();
 
 signals:
     void imageRequested(int num);
