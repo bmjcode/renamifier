@@ -280,6 +280,11 @@ void MainWindow::createMenus()
                         QKeySequence("Ctrl+0"),
                         this,
                         &MainWindow::zoomActualSize);
+    viewMenu->addSeparator();
+    viewMenu->addAction("&Refresh",
+                        QKeySequence("F5"),
+                        viewer,
+                        &Viewer::refresh);
 
     // Note this is populated by updateGoMenu()
     goMenu = menuBar()->addMenu("&Go");
