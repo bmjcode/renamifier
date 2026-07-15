@@ -181,33 +181,31 @@ void PagedContent::setRenderer(Renderer *replacement)
     if (!pages.isEmpty())
         purgeCache();
 
-    if (replacement != nullptr
-        && replacement->mode() == Renderer::PagedContent) {
-        renderer = (PagedContentRenderer*)replacement;
+    renderer = qobject_cast<PagedContentRenderer*>(replacement);
+    if (renderer == nullptr)
+        return;
 
-        // Prepare the cache
-        int numPages = renderer->numPages();
-        pages.reserve(numPages);
-        for (int i = 0; i < numPages; i++)
-            pages.append(new Page);
+    // Prepare the cache
+    int numPages = renderer->numPages();
+    pages.reserve(numPages);
+    for (int i = 0; i < numPages; i++)
+        pages.append(new Page);
 
-        ImageRenderer *imageRenderer = qobject_cast<ImageRenderer*>(renderer);
-        if (imageRenderer != nullptr && imageRenderer->supportsAnimation()) {
-            // Bypass normal rendering and let QMovie provide the images.
-            // Even though animations and paged content are logically distinct
-            // things, their viewers would share enough layout and painting
-            // logic anyway that it makes practical sense to combine them.
-            movie = new QMovie(imageRenderer->path());
-            connect(movie, &QMovie::updated,
-                    this, &PagedContent::showNextFrame);
-        } else {
-            connect(this, &PagedContent::imageRequested,
-                    renderer, &PagedContentRenderer::renderPage);
-            connect(renderer, &PagedContentRenderer::renderedPage,
-                    this, &PagedContent::setPageImage);
-        }
-    } else
-        renderer = nullptr;
+    ImageRenderer *imageRenderer = qobject_cast<ImageRenderer*>(renderer);
+    if (imageRenderer != nullptr && imageRenderer->supportsAnimation()) {
+        // Bypass normal rendering and let QMovie provide the images.
+        // Even though animations and paged content are logically distinct
+        // things, their viewers would share enough layout and painting
+        // logic anyway that it makes practical sense to combine them.
+        movie = new QMovie(imageRenderer->path());
+        connect(movie, &QMovie::updated,
+                this, &PagedContent::showNextFrame);
+    } else {
+        connect(this, &PagedContent::imageRequested,
+                renderer, &PagedContentRenderer::renderPage);
+        connect(renderer, &PagedContentRenderer::renderedPage,
+                this, &PagedContent::setPageImage);
+    }
 }
 
 void PagedContent::setZoomFactor(int percent)
