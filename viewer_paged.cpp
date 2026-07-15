@@ -286,8 +286,9 @@ void PagedContent::resizeEvent(QResizeEvent *event)
 void PagedContent::adjustPagePositions()
 {
     QRect visibleArea = visibleRect();
+    int y = std::max(0, (visibleArea.bottom() - contentSize.height()) / 2);
 
-    for (int i = 0, y = 0; i < pages.count(); i++) {
+    for (int i = 0; i < pages.count(); i++) {
         Page *page = pages[i];
         // Center the page if the visible area is wider
         page->x = std::max(0, (visibleArea.width() - page->width) / 2);
@@ -378,9 +379,11 @@ void PagedContent::fitToContent()
     // this method to ensure it always happens when we need it to.
     bool wereUpdatesEnabled = updatesEnabled();
     setUpdatesEnabled(false);
-    setMinimumSize(w, h);
+    contentSize = QSize(w, h);
+    setMinimumSize(contentSize);
     // Shrink the widget if its new size is smaller
-    resize(std::max(w, visibleArea.width()), h);
+    resize(std::max(w, visibleArea.width()),
+           std::max(h, visibleArea.height()));
     setUpdatesEnabled(wereUpdatesEnabled);
 }
 

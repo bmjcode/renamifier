@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 * Scrolling through long documents is now smoother.
 ### Changed
+* Small images are now centered vertically as well as horizontally.
 * Continued to clean up and optimize internals.
 
 ## [0.99.2] - 2026-07-05

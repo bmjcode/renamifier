@@ -118,6 +118,7 @@ private:
     QList<int> visiblePages;
     QMovie *movie;
     QTimer *renderTimer;
+    QSize contentSize;
     int zoomFactor;
     bool purgeInvisible;
 
