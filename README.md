@@ -18,7 +18,7 @@ Format | Extensions | Notes
 Plain text | Various | Includes files with an explicit `.txt` extension, as well as other plain-text formats like source code.
 PDF | `.pdf` |
 Bitmap image | `.bmp` |
-GIF | `.gif` | Animations are not currently supported.
+GIF | `.gif` | Animations are supported since version 0.99.3.
 JPEG | `.jpe`, `.jpg`, `.jpeg` |
 PNG | `.png` |
 Netpbm | `.pbm`, `.pgm`, `.pnm`, `.ppm` |

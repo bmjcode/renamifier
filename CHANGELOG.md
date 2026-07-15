@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+* GIF animation support.
+* A "refresh" command in the View menu.
+### Fixed
+* Scrolling through long documents is now smoother.
+### Changed
+* Continued to clean up and optimize internals.
+
 ## [0.99.2] - 2026-07-05
 ### Fixed
 * Correctly handle scaling by inches vs. pixels on high-DPI screens.
