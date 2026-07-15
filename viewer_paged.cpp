@@ -232,10 +232,13 @@ void PagedContent::display()
 
 void PagedContent::refresh()
 {
+    if (movie != nullptr)
+        movie->stop();
+
     checkVisiblePages();
-    if (movie == nullptr)
-        update();
-    else
+    update();
+
+    if (movie != nullptr)
         movie->start();
 }
 
