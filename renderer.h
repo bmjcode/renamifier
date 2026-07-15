@@ -122,6 +122,10 @@ public:
     // Note this is just a hint, and the renderer itself is DPI-agnostic.
     virtual inline bool isPixelExact() const { return false; }
 
+    // If this is true, the viewer will paint placeholders for any pages
+    // that are still rendering.
+    virtual inline bool shouldPaintPlaceholders() const { return true; }
+
     inline int dpiX() const { return dpiX_; }
     inline int dpiY() const { return dpiY_; }
     void setPixelDensity(int dpiX, int dpiY);

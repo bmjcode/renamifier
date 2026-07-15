@@ -259,10 +259,11 @@ void PagedContent::paintEvent(QPaintEvent *event)
 
         // The area to paint may be smaller than the total visible area
         if (pageRect.intersects(event->rect())) {
-            if (page->pixmap.isNull())
+            if (page->pixmap.isNull()) {
                 // Paint a placeholder to reduce flicker
-                painter.fillRect(pageRect, Qt::white);
-            else
+                if (renderer->shouldPaintPlaceholders())
+                    painter.fillRect(pageRect, Qt::white);
+            } else
                 painter.drawPixmap(pageRect, page->pixmap);
         }
     }

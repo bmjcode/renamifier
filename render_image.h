@@ -37,6 +37,7 @@ public:
     inline bool isPixelExact() const { return true; }
     inline int numPages() const { return 1; }
     QSize pageSize(int num) const;
+    inline bool shouldPaintPlaceholders() const override { return false; }
     bool supportsAnimation() const;
 };
 
