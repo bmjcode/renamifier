@@ -397,7 +397,8 @@ void PagedContent::purgeCache()
 
     if (movie != nullptr) {
         movie->stop();
-        movie->deleteLater();   // be gentle, it's a QObject
+        delete movie;       // a hard delete is safe here, and needed to not
+                            // block renaming the file on Windows
         movie = nullptr;
     }
 }
