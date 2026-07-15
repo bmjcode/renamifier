@@ -22,6 +22,11 @@
 
 #include "render_image.h"
 
+/*
+ * If you enjoy weird segfaults, feel free to reuse QImageReader objects.
+ * Otherwise, they're cheap enough to re-create as needed.
+ */
+
 ImageRenderer::ImageRenderer()
     : PagedContentRenderer()
 {
@@ -30,7 +35,7 @@ ImageRenderer::ImageRenderer()
 bool ImageRenderer::load()
 {
     QImageReader reader(path());
-    if (reader.read(&image))
+    if (reader.canRead())
         return true;
     else {
         storeLoadError(reader.errorString());
@@ -40,14 +45,18 @@ bool ImageRenderer::load()
 
 void ImageRenderer::renderPage(int num)
 {
+    QImageReader reader(path());
+    reader.setScaledSize(zoomScaled(reader.size()));
+    QImage image = reader.read();
     if (image.isNull()) {
-        emit errorEncountered();
+        emit errorEncountered(reader.errorString());
         return;
     }
+    emit renderedPage(num, image);
+}
 
-    if (zoomFactor() == 100)
-        emit renderedPage(num, image);
-    else
-        emit renderedPage(num, image.scaledToWidth(zoomScaled(image.width()),
-                                                   Qt::SmoothTransformation));
+QSize ImageRenderer::pageSize(int num) const
+{
+    QImageReader reader(path());
+    return zoomScaled(reader.size());
 }

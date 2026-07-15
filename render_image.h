@@ -22,7 +22,6 @@
 
 #include <QObject>
 #include <QSize>
-#include <QImage>
 
 #include "renderer.h"
 
@@ -37,10 +36,7 @@ public:
 
     inline bool isPixelExact() const { return true; }
     inline int numPages() const { return 1; }
-    inline QSize pageSize(int num) const { return zoomScaled(image.size()); }
-
-private:
-    QImage image;
+    QSize pageSize(int num) const;
 };
 
 #endif /* RENDER_IMAGE_H */
