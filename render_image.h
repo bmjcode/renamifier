@@ -37,6 +37,7 @@ public:
     inline bool isPixelExact() const { return true; }
     inline int numPages() const { return 1; }
     QSize pageSize(int num) const;
+    bool supportsAnimation() const;
 };
 
 #endif /* RENDER_IMAGE_H */

@@ -60,3 +60,9 @@ QSize ImageRenderer::pageSize(int num) const
     QImageReader reader(path());
     return zoomScaled(reader.size());
 }
+
+bool ImageRenderer::supportsAnimation() const
+{
+    QImageReader reader(path());
+    return reader.supportsAnimation();
+}

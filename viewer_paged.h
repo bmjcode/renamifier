@@ -25,6 +25,7 @@
 #include <QPoint>
 #include <QSize>
 #include <QImage>
+#include <QMovie>
 #include <QTimer>
 
 #include <QWidget>
@@ -115,6 +116,7 @@ private:
     // We use a list rather than a queue for this because Qt may generate
     // multiple paint events between refresh()es
     QList<int> visiblePages;
+    QMovie *movie;
     QTimer *renderTimer;
     int zoomFactor;
     bool purgeInvisible;
@@ -122,6 +124,7 @@ private:
 private slots:
     void renderVisiblePages();
     void setPageImage(int num, const QImage &image);
+    void showNextFrame(const QRect &rect);
 
 signals:
     void imageRequested(int num);

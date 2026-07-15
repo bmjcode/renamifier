@@ -24,6 +24,7 @@
 
 #include "viewer_paged.h"
 #include "renderer.h"
+#include "render_image.h"
 
 /* ------------------------------------------------------------------------ */
 
@@ -44,6 +45,7 @@
 struct Page {
     Page();
     inline QRect rect() const { return QRect(x, y, width, height); }
+    inline QSize size() const { return QSize(width, height); }
 
     QPixmap pixmap; // more efficient for display than QImage
     int x;
@@ -155,6 +157,7 @@ PagedContent::PagedContent(QScrollArea *parent)
     : QWidget(parent)
 {
     renderer = nullptr;
+    movie = nullptr;
     zoomFactor = 100;
     purgeInvisible = true;  // purge invisible pages to save memory?
 
@@ -188,10 +191,21 @@ void PagedContent::setRenderer(Renderer *replacement)
         for (int i = 0; i < numPages; i++)
             pages.append(new Page);
 
-        connect(this, &PagedContent::imageRequested,
-                renderer, &PagedContentRenderer::renderPage);
-        connect(renderer, &PagedContentRenderer::renderedPage,
-                this, &PagedContent::setPageImage);
+        ImageRenderer *imageRenderer = qobject_cast<ImageRenderer*>(renderer);
+        if (imageRenderer != nullptr && imageRenderer->supportsAnimation()) {
+            // Bypass normal rendering and let QMovie provide the images.
+            // Even though animations and paged content are logically distinct
+            // things, their viewers would share enough layout and painting
+            // logic anyway that it makes practical sense to combine them.
+            movie = new QMovie(imageRenderer->path());
+            connect(movie, &QMovie::updated,
+                    this, &PagedContent::showNextFrame);
+        } else {
+            connect(this, &PagedContent::imageRequested,
+                    renderer, &PagedContentRenderer::renderPage);
+            connect(renderer, &PagedContentRenderer::renderedPage,
+                    this, &PagedContent::setPageImage);
+        }
     } else
         renderer = nullptr;
 }
@@ -204,6 +218,8 @@ void PagedContent::setZoomFactor(int percent)
 
 void PagedContent::clear()
 {
+    if (movie != nullptr)
+        movie->stop();
     visiblePages.clear();
     update();
 }
@@ -219,7 +235,10 @@ void PagedContent::display()
 void PagedContent::refresh()
 {
     checkVisiblePages();
-    update();
+    if (movie == nullptr)
+        update();
+    else
+        movie->start();
 }
 
 void PagedContent::moveEvent(QMoveEvent *event)
@@ -370,6 +389,12 @@ void PagedContent::purgeCache()
     pages.clear();
     pages.squeeze();
     visiblePages.clear();   // this is small so we don't need to squeeze() it
+
+    if (movie != nullptr) {
+        movie->stop();
+        movie->deleteLater();   // be gentle, it's a QObject
+        movie = nullptr;
+    }
 }
 
 void PagedContent::renderVisiblePages()
@@ -398,4 +423,21 @@ void PagedContent::setPageImage(int num, const QImage &image)
         // We only need to repaint this page; the others are fine
         update(page->rect());
     }
+}
+
+/*
+ * Show the next frame of an animation.
+ */
+void PagedContent::showNextFrame(const QRect &rect)
+{
+    if (pages.isEmpty() || movie == nullptr)
+        return;
+
+    // Animations are always effectively single-"page" documents
+    Page *page = pages[0];
+    // Since we bypassed the renderer we have to handle scaling ourselves
+    page->pixmap = movie->currentPixmap().scaled(
+        page->size() * devicePixelRatio(),
+        Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    update(page->rect());
 }
