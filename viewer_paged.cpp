@@ -63,10 +63,12 @@ Page::Page()
 /* ------------------------------------------------------------------------ */
 
 PagedContentViewer::PagedContentViewer(QWidget *parent)
-    : ViewerScrollArea(parent)
+    : QScrollArea(parent)
 {
     content = new PagedContent(this);
     setWidget(content);
+
+    setBackgroundRole(QPalette::Dark);
 }
 
 /*
@@ -97,6 +99,18 @@ void PagedContentViewer::setZoomFactor(int percent)
     content->setZoomFactor(percent);
 }
 
+QPoint PagedContentViewer::scrollBarPosition() const {
+    return QPoint(
+        horizontalScrollBar()->sliderPosition(),
+        verticalScrollBar()->sliderPosition());
+}
+
+void PagedContentViewer::setScrollBarPosition(int x, int y)
+{
+    horizontalScrollBar()->setSliderPosition(x);
+    verticalScrollBar()->setSliderPosition(y);
+}
+
 void PagedContentViewer::clear()
 {
     content->clear();
@@ -112,6 +126,27 @@ void PagedContentViewer::display()
 void PagedContentViewer::refresh()
 {
     content->refresh();
+}
+
+/*
+ * Resize the inner frame when the widget's size changes.
+ */
+void PagedContentViewer::resizeEvent(QResizeEvent *event)
+{
+    widget()->resize(
+        std::max(viewport()->width(), widget()->minimumWidth()),
+        std::max(viewport()->height(), widget()->minimumHeight()));
+}
+
+void PagedContentViewer::wheelEvent(QWheelEvent *event)
+{
+    // Adapted from QPlainTextEdit::wheelEvent()
+    if (event->modifiers() & Qt::ControlModifier) {
+        float delta = event->angleDelta().y() / 120.f;
+        emit wheelZoomed(delta);
+        return;
+    }
+    QScrollArea::wheelEvent(event);
 }
 
 /* ------------------------------------------------------------------------ */

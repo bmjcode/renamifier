@@ -31,8 +31,7 @@ qt_add_library(renamifier-viewer
                renderer_helpers.cpp
                viewer.cpp
                viewer_paged.cpp
-               viewer_text.cpp
-               viewer_util.cpp)
+               viewer_text.cpp)
 target_include_directories(renamifier-viewer
                            SYSTEM PUBLIC ${POPPLER_INCLUDE_DIRS})
 target_link_libraries(renamifier-viewer
