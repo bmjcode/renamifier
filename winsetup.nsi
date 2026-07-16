@@ -9,7 +9,7 @@
 
 ; Sync this with renamifier.h
 !ifndef VERSION
-  !define VERSION "0.99.2"
+  !define VERSION "0.99.3"
 !endif
 
 ; This can be "win32" or "win64"
