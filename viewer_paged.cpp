@@ -373,13 +373,13 @@ void PagedContent::fitToContent()
             h += page->height;
         }
     }
+    contentSize = QSize(w, h);
 
     // Disable updates so the resize event doesn't call adjustPagePositions().
     // It isn't reliably triggered here, so we call it manually after calling
     // this method to ensure it always happens when we need it to.
     bool wereUpdatesEnabled = updatesEnabled();
     setUpdatesEnabled(false);
-    contentSize = QSize(w, h);
     setMinimumSize(contentSize);
     // Shrink the widget if its new size is smaller
     resize(std::max(w, visibleArea.width()),
