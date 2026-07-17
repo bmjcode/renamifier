@@ -368,7 +368,7 @@ void PagedContent::fitToContent()
     if (pageCount) {
         h = (pageCount - 1) * PAGE_MARGIN;
         for (int i = 0; i < pageCount; i++) {
-            Page *page = pages[i];
+            const Page *page = pages.at(i);
             w = std::max(w, page->width);
             h += page->height;
         }
