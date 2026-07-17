@@ -57,8 +57,7 @@ struct Page {
 
 Page::Page()
 {
-    x = y = -1;
-    width = height = 0;
+    x = y = width = height = 0;
     isRendering = false;
 }
 
@@ -215,9 +214,7 @@ void PagedContent::clear()
 
 void PagedContent::display()
 {
-    calculatePageSizes();
-    fitToContent();
-    adjustPagePositions();
+    updatePageGeometry();
     refresh();
 }
 
@@ -264,55 +261,6 @@ void PagedContent::paintEvent(QPaintEvent *event)
 }
 
 /*
- * Recalculate page positions when the widget is resized.
- */
-void PagedContent::adjustPagePositions()
-{
-    int widgetWidth = width();
-    for (int i = 0, y = 0; i < pages.count(); i++) {
-        Page *page = pages[i];
-        // Center the page if it is narrower than this widget
-        page->x = std::max(0, (widgetWidth - page->width) / 2);
-        page->y = y;
-        y += page->height + PAGE_MARGIN;
-    }
-}
-
-/*
- * Calculate page sizes at our current zoom level and screen DPI.
- */
-void PagedContent::calculatePageSizes()
-{
-    if (renderer == nullptr)
-        return;
-
-    renderer->setZoomFactor(zoomFactor);
-    // Images are always rendered at their real pixel size, but layout
-    // calculations use DPI-independent "logical" pixels. You are not
-    // expected to understand this -- just to trust that this produces
-    // correct results on high-DPI screens.
-    qreal dpRatio = devicePixelRatio();
-    int dpiX = logicalDpiX(), dpiY = logicalDpiY();
-    if (!renderer->isPixelExact())
-        // Scale the image based on inches, not pixels, so it fills
-        // the same relative area on screen regardless of DPI
-        dpiX *= dpRatio, dpiY *= dpRatio;
-    renderer->setPixelDensity(dpiX, dpiY);
-
-    // Now the actual page size calculations
-    for (int i = 0; i < pages.count(); i++) {
-        Page *page = pages[i];
-        QSize size = renderer->pageSize(i) / dpRatio;
-
-        page->width = size.width();
-        page->height = size.height();
-
-        // Purge the old image so we're forced to re-render
-        page->pixmap = QPixmap();
-    }
-}
-
-/*
  * Determine which pages are currently visible, and render them if needed.
  */
 void PagedContent::checkVisiblePages()
@@ -338,28 +286,6 @@ void PagedContent::checkVisiblePages()
     renderTimer->start(10);
 }
 
-/*
- * Adjust this widget's size so it can fit all its content.
- */
-void PagedContent::fitToContent()
-{
-    int w = 0, h = 0, pageCount = pages.count();
-    if (pageCount) {
-        h = (pageCount - 1) * PAGE_MARGIN;
-        for (int i = 0; i < pageCount; i++) {
-            const Page *page = pages.at(i);
-            w = std::max(w, page->width);
-            h += page->height;
-        }
-    }
-
-    // Shrink this widget to fit its contents exactly, and let the parent
-    // QScrollArea worry about centering it in the viewport. This considerably
-    // simplifies our layout calculations for painting.
-    setMinimumSize(w, h);
-    resize(w, h);
-}
-
 void PagedContent::purgeCache()
 {
     for (int i = 0; i < pages.count(); i++)
@@ -374,6 +300,65 @@ void PagedContent::purgeCache()
                             // block renaming the file on Windows
         movie = nullptr;
     }
+}
+
+/*
+ * Calculate page sizes and layouts at our current zoom level and screen DPI.
+ */
+void PagedContent::updatePageGeometry()
+{
+    if (renderer == nullptr)
+        return;
+
+    renderer->setZoomFactor(zoomFactor);
+    // Images are always rendered at their real pixel size, but layout
+    // calculations use DPI-independent "logical" pixels. You are not
+    // expected to understand this -- just to trust that this produces
+    // correct results on high-DPI screens.
+    qreal dpRatio = devicePixelRatio();
+    int dpiX = logicalDpiX(), dpiY = logicalDpiY();
+    if (!renderer->isPixelExact())
+        // Scale the image based on inches, not pixels, so it fills
+        // the same relative area on screen regardless of DPI
+        dpiX *= dpRatio, dpiY *= dpRatio;
+    renderer->setPixelDensity(dpiX, dpiY);
+
+    // Now the actual page size calculations
+    int pageCount = pages.count(),
+        maxWidth = 0,
+        totalHeight = std::max(0, (pageCount - 1) * PAGE_MARGIN);
+
+    for (int i = 0, y = 0; i < pageCount; i++) {
+        Page *page = pages[i];
+
+        // Remember layout uses logical pixels, so dividing by dpRatio
+        // is correct here even though I think it looks wrong
+        QSize size = renderer->pageSize(i) / dpRatio;
+        page->width = size.width();
+        page->height = size.height();
+
+        // Since we only support one hardcoded page layout, we can also
+        // do those calculations now and avoid needing a separate for-loop
+        page->y = y;
+        maxWidth = std::max(maxWidth, page->width);
+        totalHeight += page->height;
+        y += page->height + PAGE_MARGIN;
+
+        // Purge the old image so we're forced to re-render
+        page->pixmap = QPixmap();
+    }
+
+    // Now that we know the width of the widest page, we can offset
+    // smaller pages to center them horizontally
+    for (int i = 0; i < pageCount; i++) {
+        Page *page = pages[i];
+        page->x = std::max(0, (maxWidth - page->width) / 2);
+    }
+
+    // Shrink this widget to fit its contents exactly, and let the parent
+    // QScrollArea worry about centering it in the viewport
+    setMinimumSize(maxWidth, totalHeight);
+    resize(maxWidth, totalHeight);
 }
 
 void PagedContent::renderVisiblePages()

@@ -98,11 +98,9 @@ private:
     void paintEvent(QPaintEvent *event);
 
     // Other private methods
-    void adjustPagePositions();
-    void calculatePageSizes();
     void checkVisiblePages();
-    void fitToContent();
     void purgeCache();
+    void updatePageGeometry();
 
     // Area of this widget currently visible in the viewport
     inline QRect visibleRect() const
