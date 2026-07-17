@@ -70,6 +70,7 @@ PagedContentViewer::PagedContentViewer(QWidget *parent)
     content = new PagedContent(this);
     setWidget(content);
 
+    setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     setBackgroundRole(QPalette::Dark);
 }
 
@@ -128,16 +129,6 @@ void PagedContentViewer::display()
 void PagedContentViewer::refresh()
 {
     content->refresh();
-}
-
-/*
- * Resize the inner frame when the widget's size changes.
- */
-void PagedContentViewer::resizeEvent(QResizeEvent *event)
-{
-    widget()->resize(
-        std::max(viewport()->width(), widget()->minimumWidth()),
-        std::max(viewport()->height(), widget()->minimumHeight()));
 }
 
 void PagedContentViewer::wheelEvent(QWheelEvent *event)
@@ -285,13 +276,11 @@ void PagedContent::resizeEvent(QResizeEvent *event)
  */
 void PagedContent::adjustPagePositions()
 {
-    QRect visibleArea = visibleRect();
-    int y = std::max(0, (visibleArea.bottom() - contentSize.height()) / 2);
-
-    for (int i = 0; i < pages.count(); i++) {
+    int widgetWidth = width();
+    for (int i = 0, y = 0; i < pages.count(); i++) {
         Page *page = pages[i];
-        // Center the page if the visible area is wider
-        page->x = std::max(0, (visibleArea.width() - page->width) / 2);
+        // Center the page if it is narrower than this widget
+        page->x = std::max(0, (widgetWidth - page->width) / 2);
         page->y = y;
         y += page->height + PAGE_MARGIN;
     }
@@ -373,17 +362,17 @@ void PagedContent::fitToContent()
             h += page->height;
         }
     }
-    contentSize = QSize(w, h);
 
     // Disable updates so the resize event doesn't call adjustPagePositions().
     // It isn't reliably triggered here, so we call it manually after calling
     // this method to ensure it always happens when we need it to.
     bool wereUpdatesEnabled = updatesEnabled();
     setUpdatesEnabled(false);
-    setMinimumSize(contentSize);
-    // Shrink the widget if its new size is smaller
-    resize(std::max(w, visibleArea.width()),
-           std::max(h, visibleArea.height()));
+    // Shrink this widget to fit its contents exactly, and let the parent
+    // QScrollArea worry about centering it in the viewport. This considerably
+    // simplifies our layout calculations for painting.
+    setMinimumSize(w, h);
+    resize(w, h);
     setUpdatesEnabled(wereUpdatesEnabled);
 }
 

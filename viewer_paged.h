@@ -64,7 +64,6 @@ public slots:
     void refresh();
 
 private:
-    void resizeEvent(QResizeEvent *event);
     void wheelEvent(QWheelEvent *event);
 
     PagedContent *content;
@@ -118,7 +117,6 @@ private:
     QList<int> visiblePages;
     QMovie *movie;
     QTimer *renderTimer;
-    QSize contentSize;
     int zoomFactor;
     bool purgeInvisible;
 
