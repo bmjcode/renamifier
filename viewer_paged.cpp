@@ -344,8 +344,6 @@ void PagedContent::checkVisiblePages()
 void PagedContent::fitToContent()
 {
     int w = 0, h = 0, pageCount = pages.count();
-    QRect visibleArea = visibleRect();
-
     if (pageCount) {
         h = (pageCount - 1) * PAGE_MARGIN;
         for (int i = 0; i < pageCount; i++) {
