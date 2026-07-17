@@ -32,7 +32,6 @@
 #include <QScrollArea>
 #include <QMoveEvent>
 #include <QPaintEvent>
-#include <QResizeEvent>
 #include <QWheelEvent>
 
 class PagedContent; // defined below
@@ -97,7 +96,6 @@ private:
     // Qt events
     void moveEvent(QMoveEvent *event);
     void paintEvent(QPaintEvent *event);
-    void resizeEvent(QResizeEvent *event);
 
     // Other private methods
     void adjustPagePositions();

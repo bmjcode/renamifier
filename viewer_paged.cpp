@@ -263,14 +263,6 @@ void PagedContent::paintEvent(QPaintEvent *event)
     }
 }
 
-void PagedContent::resizeEvent(QResizeEvent *event)
-{
-    if (!updatesEnabled())
-        return;
-
-    adjustPagePositions();
-}
-
 /*
  * Recalculate page positions when the widget is resized.
  */
@@ -363,17 +355,11 @@ void PagedContent::fitToContent()
         }
     }
 
-    // Disable updates so the resize event doesn't call adjustPagePositions().
-    // It isn't reliably triggered here, so we call it manually after calling
-    // this method to ensure it always happens when we need it to.
-    bool wereUpdatesEnabled = updatesEnabled();
-    setUpdatesEnabled(false);
     // Shrink this widget to fit its contents exactly, and let the parent
     // QScrollArea worry about centering it in the viewport. This considerably
     // simplifies our layout calculations for painting.
     setMinimumSize(w, h);
     resize(w, h);
-    setUpdatesEnabled(wereUpdatesEnabled);
 }
 
 void PagedContent::purgeCache()
