@@ -128,7 +128,6 @@ void Viewer::clear()
     // Do NOT unload the renderer here; we may want to reuse it
     textContentViewer->clear();
     pagedContentViewer->clear();
-
 }
 
 /*
