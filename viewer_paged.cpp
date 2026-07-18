@@ -156,14 +156,13 @@ PagedContent::PagedContent(QScrollArea *parent)
     connect(renderTimer, &QTimer::timeout,
             this, &PagedContent::renderVisiblePages);
 
-    // Never shrink smaller than the content
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    // We manage this widget's size manually in updatePageGeometry()
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }
 
 PagedContent::~PagedContent()
 {
-    if (!pages.isEmpty())
-        purgeCache();
+    purgeCache();
 }
 
 void PagedContent::setRenderer(Renderer *replacement)
@@ -206,15 +205,18 @@ void PagedContent::setZoomFactor(int percent)
 
 void PagedContent::clear()
 {
-    if (movie != nullptr)
-        movie->stop();
-    visiblePages.clear();
-    update();
+    purgeCache();
+    resize(0, 0);
 }
 
 void PagedContent::display()
 {
+    // Temporarily disable updates so resizing in updatePageGeometry()
+    // doesn't force an extra repaint
+    bool wereUpdatesEnabled = updatesEnabled();
+    setUpdatesEnabled(false);
     updatePageGeometry();
+    setUpdatesEnabled(wereUpdatesEnabled);
     refresh();
 }
 
@@ -232,7 +234,7 @@ void PagedContent::refresh()
 
 void PagedContent::moveEvent(QMoveEvent *event)
 {
-    if (!updatesEnabled())
+    if (!updatesEnabled() || pages.isEmpty())
         return;
 
     refresh();
@@ -240,7 +242,7 @@ void PagedContent::moveEvent(QMoveEvent *event)
 
 void PagedContent::paintEvent(QPaintEvent *event)
 {
-    if (!updatesEnabled())
+    if (!updatesEnabled() || visiblePages.isEmpty())
         return;
 
     QPainter painter(this);
@@ -287,23 +289,24 @@ void PagedContent::checkVisiblePages()
     // We trigger rendering via a timer to combine multiple calls occurring
     // in quick succession when rapidly scrolling. This prevents rendering
     // pages that aren't visible for any meaningful amount of time.
-    renderTimer->start(10);
+    if (!visiblePages.isEmpty())
+        renderTimer->start(10);
 }
 
 void PagedContent::purgeCache()
 {
-    for (int i = 0; i < pages.count(); i++)
-        delete pages[i];
-    pages.clear();
-    pages.squeeze();
-    visiblePages.clear();   // this is small so we don't need to squeeze() it
-
     if (movie != nullptr) {
         movie->stop();
         delete movie;       // a hard delete is safe here, and needed to not
                             // block renaming the file on Windows
         movie = nullptr;
     }
+
+    for (int i = 0; i < pages.count(); i++)
+        delete pages[i];
+    pages.clear();
+    pages.squeeze();
+    visiblePages.clear();   // this is small, so we don't need to squeeze() it
 }
 
 /*
@@ -359,14 +362,9 @@ void PagedContent::updatePageGeometry()
         page->x = std::max(0, (maxWidth - page->width) / 2);
     }
 
-    // Temporarily disable updates so this doesn't repaint before we're ready
-    bool wereUpdatesEnabled = updatesEnabled();
-    setUpdatesEnabled(false);
     // Shrink this widget to fit its contents exactly, and let the parent
     // QScrollArea worry about centering it in the viewport
-    setMinimumSize(maxWidth, totalHeight);
     resize(maxWidth, totalHeight);
-    setUpdatesEnabled(wereUpdatesEnabled);
 }
 
 void PagedContent::renderVisiblePages()
