@@ -23,6 +23,7 @@
 #include <QObject>
 #include <QList>
 #include <QPoint>
+#include <QRect>
 #include <QSize>
 #include <QImage>
 #include <QMovie>
