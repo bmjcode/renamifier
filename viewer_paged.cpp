@@ -125,11 +125,6 @@ void PagedContentViewer::display()
     content->display();
 }
 
-void PagedContentViewer::refresh()
-{
-    content->refresh();
-}
-
 void PagedContentViewer::wheelEvent(QWheelEvent *event)
 {
     // Adapted from QPlainTextEdit::wheelEvent()
@@ -216,19 +211,7 @@ void PagedContent::display()
     setUpdatesEnabled(false);
     updatePageGeometry();
     setUpdatesEnabled(wereUpdatesEnabled);
-    refresh();
-}
-
-void PagedContent::refresh()
-{
-    if (movie != nullptr)
-        movie->stop();
-
-    checkVisiblePages();
-    update();
-
-    if (movie != nullptr)
-        movie->start();
+    paintVisiblePages();
 }
 
 void PagedContent::moveEvent(QMoveEvent *event)
@@ -236,7 +219,7 @@ void PagedContent::moveEvent(QMoveEvent *event)
     if (!updatesEnabled() || pages.isEmpty())
         return;
 
-    refresh();
+    paintVisiblePages();
 }
 
 void PagedContent::paintEvent(QPaintEvent *event)
@@ -263,31 +246,36 @@ void PagedContent::paintEvent(QPaintEvent *event)
     }
 }
 
-/*
- * Determine which pages are currently visible, and render them if needed.
- */
-void PagedContent::checkVisiblePages()
+void PagedContent::paintVisiblePages()
 {
+    if (movie != nullptr)
+        movie->stop();
+
     visiblePages.clear();
     visiblePages.reserve(2);    // this doesn't have to be exact
 
+    // Check which pages are visible, and purge cached pixmaps for those
+    // that aren't to save memory
     QRegion vRegion = visibleRegion();
-    int bottom = vRegion.boundingRect().bottom();
-
     for (int i = 0; i < pages.count(); i++) {
         Page *page = pages[i];
-
         if (vRegion.intersects(page->rect()))
             visiblePages.append(i);
         else
-            page->pixmap = QPixmap();   // tantamount to deletion
+            page->pixmap = QPixmap();
     }
 
-    // We trigger rendering via a timer to combine multiple calls occurring
-    // in quick succession when rapidly scrolling. This prevents rendering
-    // pages that aren't visible for any meaningful amount of time.
+    // Immediately paint pages we've previously rendered
+    update();
+
+    // Now render any remaining pages. We trigger this via a timer to combine
+    // multiple calls occurring in quick succession, which avoids rendering
+    // pages that are only momentarily visible when rapidly scrolling
     if (!visiblePages.isEmpty())
         renderTimer->start(10);
+
+    if (movie != nullptr)
+        movie->start();
 }
 
 void PagedContent::purgeCache()

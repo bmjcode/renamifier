@@ -61,7 +61,6 @@ public:
 public slots:
     void clear();
     void display();
-    void refresh();
 
 private:
     void wheelEvent(QWheelEvent *event);
@@ -91,7 +90,6 @@ protected:
 protected slots:
     void clear();
     void display();
-    void refresh();
 
 private:
     // Qt events
@@ -99,7 +97,7 @@ private:
     void paintEvent(QPaintEvent *event);
 
     // Other private methods
-    void checkVisiblePages();
+    void paintVisiblePages();
     void purgeCache();
     void updatePageGeometry();
 
