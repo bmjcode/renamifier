@@ -88,10 +88,12 @@ void Viewer::load(const QString &path)
 
     renderer->moveToThread(renderThread);
 
+    // Error handling is standard across all renderers
     connect(renderer, &Renderer::errorEncountered,
             this, &Viewer::displayError);
 
-    // These will reject one another's Renderers, so no need to overthink this
+    // We don't have to know which renderer goes with which subwidget here
+    // because the subwidgets ignore renderers they don't recognize
     textContentViewer->setRenderer(renderer);
     pagedContentViewer->setRenderer(renderer);
 }
@@ -138,8 +140,9 @@ void Viewer::refresh()
     if (renderer == nullptr)
         return;
 
-    // Do not clear() here! The entire _point_ is that we do not clear() here.
-    // (We don't want its side effects like changing the scrollbar position)
+    // Note we don't clear() the subwidgets here because display() already
+    // erases previous content, and we don't want side effects like changing
+    // the scrollbar position
     switch (renderer->mode()) {
     case Renderer::TextContent:
         setCurrentWidget(textContentViewer);
