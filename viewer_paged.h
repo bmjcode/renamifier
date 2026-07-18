@@ -111,7 +111,6 @@ private:
     QMovie *movie;
     QTimer *renderTimer;
     int zoomFactor;
-    bool purgeInvisible;
 
 private slots:
     void renderVisiblePages();

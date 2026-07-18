@@ -149,7 +149,6 @@ PagedContent::PagedContent(QScrollArea *parent)
     renderer = nullptr;
     movie = nullptr;
     zoomFactor = 100;
-    purgeInvisible = true;  // purge invisible pages to save memory?
 
     renderTimer = new QTimer(this);
     renderTimer->setSingleShot(true);
@@ -280,10 +279,8 @@ void PagedContent::checkVisiblePages()
 
         if (vRegion.intersects(page->rect()))
             visiblePages.append(i);
-        else if (purgeInvisible)
+        else
             page->pixmap = QPixmap();   // tantamount to deletion
-        else if (page->y > bottom)
-            break;  // the remaining pages are outside our visible area
     }
 
     // We trigger rendering via a timer to combine multiple calls occurring
