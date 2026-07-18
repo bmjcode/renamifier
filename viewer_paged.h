@@ -102,10 +102,6 @@ private:
     void purgeCache();
     void updatePageGeometry();
 
-    // Area of this widget currently visible in the viewport
-    inline QRect visibleRect() const
-        { return visibleRegion().boundingRect(); }
-
     PagedContentRenderer *renderer;
     QList<Page*> pages;
     // We use a list rather than a queue for this because Qt may generate

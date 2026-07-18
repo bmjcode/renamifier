@@ -268,15 +268,15 @@ void PagedContent::checkVisiblePages()
     visiblePages.clear();
     visiblePages.reserve(2);    // this doesn't have to be exact
 
-    QRect visibleArea = visibleRect();
+    QRect visibleRect = visibleRegion().boundingRect();
     for (int i = 0; i < pages.count(); i++) {
         Page *page = pages[i];
 
-        if (page->rect().intersects(visibleArea))
+        if (page->rect().intersects(visibleRect))
             visiblePages.append(i);
         else if (purgeInvisible)
             page->pixmap = QPixmap();   // tantamount to deletion
-        else if (page->y > visibleArea.bottom())
+        else if (page->y > visibleRect.bottom())
             break;  // the remaining pages are outside our visible area
     }
 
