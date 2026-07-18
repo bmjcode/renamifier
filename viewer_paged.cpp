@@ -244,12 +244,14 @@ void PagedContent::paintEvent(QPaintEvent *event)
         return;
 
     QPainter painter(this);
+    QRegion eventRegion = event->region();
+
     for (int i = 0; i < visiblePages.count(); i++) {
         const Page *page = pages.at(visiblePages.at(i));
         QRect pageRect = page->rect();
 
         // The area to paint may be smaller than the total visible area
-        if (pageRect.intersects(event->rect())) {
+        if (eventRegion.intersects(pageRect)) {
             if (page->pixmap.isNull()) {
                 // Paint a placeholder to reduce flicker
                 if (renderer->shouldPaintPlaceholders())
