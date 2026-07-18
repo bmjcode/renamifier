@@ -359,10 +359,14 @@ void PagedContent::updatePageGeometry()
         page->x = std::max(0, (maxWidth - page->width) / 2);
     }
 
+    // Temporarily disable updates so this doesn't repaint before we're ready
+    bool wereUpdatesEnabled = updatesEnabled();
+    setUpdatesEnabled(false);
     // Shrink this widget to fit its contents exactly, and let the parent
     // QScrollArea worry about centering it in the viewport
     setMinimumSize(maxWidth, totalHeight);
     resize(maxWidth, totalHeight);
+    setUpdatesEnabled(wereUpdatesEnabled);
 }
 
 void PagedContent::renderVisiblePages()
