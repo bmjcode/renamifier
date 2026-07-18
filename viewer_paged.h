@@ -109,6 +109,7 @@ private:
     QMovie *movie;
     QTimer *renderTimer;
     int zoomFactor;
+    bool paintPlaceholders;
 
 private slots:
     void renderVisiblePages();

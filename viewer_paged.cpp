@@ -144,6 +144,7 @@ PagedContent::PagedContent(QScrollArea *parent)
     renderer = nullptr;
     movie = nullptr;
     zoomFactor = 100;
+    paintPlaceholders = false;
 
     renderTimer = new QTimer(this);
     renderTimer->setSingleShot(true);
@@ -173,6 +174,12 @@ void PagedContent::setRenderer(Renderer *replacement)
     pages.reserve(numPages);
     for (int i = 0; i < numPages; i++)
         pages.append(new Page);
+
+    // Placeholders can be helpful for long, relatively slow-to-render
+    // files like PDF documents, but can cause flicker for other things
+    // like images with transparent backgrounds. We trust the renderer
+    // to know what's best for its specific file types.
+    paintPlaceholders = renderer->shouldPaintPlaceholders();
 
     ImageRenderer *imageRenderer = qobject_cast<ImageRenderer*>(renderer);
     if (imageRenderer != nullptr && imageRenderer->supportsAnimation()) {
@@ -237,8 +244,7 @@ void PagedContent::paintEvent(QPaintEvent *event)
         // The area to paint may be smaller than the total visible area
         if (eventRegion.intersects(pageRect)) {
             if (page->pixmap.isNull()) {
-                // Paint a placeholder to reduce flicker
-                if (renderer->shouldPaintPlaceholders())
+                if (paintPlaceholders)
                     painter.fillRect(pageRect, Qt::white);
             } else
                 painter.drawPixmap(pageRect, page->pixmap);
