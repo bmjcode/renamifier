@@ -160,7 +160,8 @@ void Viewer::setFitToWidth(bool enabled)
 
 void Viewer::setZoom(int percent)
 {
-    // Testing rather than clamping forces a hard stop when we hit the limits
+    // Using an if-statement rather than clamp() here avoids triggering a
+    // re-display if the requested zoom level is outside our limits
     if (ZOOM_MIN <= percent && percent <= ZOOM_MAX) {
         zoomFactor = percent;
         textContentViewer->setZoomFactor(zoomFactor);

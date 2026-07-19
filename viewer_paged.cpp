@@ -137,8 +137,9 @@ void PagedContentViewer::setFitToWidth(bool enabled)
 void PagedContentViewer::resizeEvent(QResizeEvent *event)
 {
     QScrollArea::resizeEvent(event);
+    // Only update the display if the content needs resizing to avoid flicker.
     // Calling display() directly during the resize event would result in a
-    // black screen, but with the timer it's actually called slightly after
+    // black screen, but with the timer it's actually called slightly after.
     if (m_fitToWidth && viewport()->width() < content->widthBeforeFitting())
         QTimer::singleShot(0, this, &PagedContentViewer::display);
 }
