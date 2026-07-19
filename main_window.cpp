@@ -1,6 +1,6 @@
 /*
  * Renamifier's main window.
- * Copyright (c) 2021 Benjamin Johnson
+ * Copyright (c) 2021-2026 Benjamin Johnson
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,8 +73,7 @@ void MainWindow::browseForDir()
     QString path = QFileDialog::getExistingDirectory(
         this,
         BROWSE_FOR_DIR_LABEL,
-        lastBrowseDir
-    );
+        lastBrowseDir);
 
     if (!path.isEmpty()) {
         closeAll();
@@ -90,8 +89,7 @@ void MainWindow::browseForFiles()
     QStringList pathList = QFileDialog::getOpenFileNames(
         this,
         "Select Files to Rename",
-        lastBrowseDir
-    );
+        lastBrowseDir);
 
     if (!pathList.isEmpty()) {
         closeAll();
@@ -282,9 +280,9 @@ void MainWindow::createMenus()
                         this,
                         &MainWindow::zoomActualSize);
     viewMenu->addSeparator();
-    actionFitToWidth = viewMenu->addAction("&Fit to Width",
-                                           viewer,
-                                           &Viewer::setFitToWidth);
+    QAction *actionFitToWidth = viewMenu->addAction("&Fit to Width",
+                                                    viewer,
+                                                    &Viewer::setFitToWidth);
     actionFitToWidth->setCheckable(true);
     actionFitToWidth->setChecked(true);
     viewMenu->addSeparator();
@@ -312,7 +310,6 @@ void MainWindow::createMenus()
 
 void MainWindow::createToolBar()
 {
-
     toolBar = new QToolBar(this);
     toolBar->setMovable(false);
     toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -341,7 +338,7 @@ void MainWindow::createToolBar()
 
     // Display text on the Rename button since the icon alone may not make
     // its purpose immediately clear
-    ((QToolButton*)toolBar->widgetForAction(actionRename))
+    qobject_cast<QToolButton*>(toolBar->widgetForAction(actionRename))
         ->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 }
 
@@ -352,8 +349,7 @@ void MainWindow::displayNextOrPromptToExit()
             this,
             "Done Renaming Files",
             "All files have been renamed. Exit Renamifier?",
-            QMessageBox::Yes | QMessageBox::No
-        );
+            QMessageBox::Yes | QMessageBox::No);
         if (response == QMessageBox::Yes)
             QTimer::singleShot(0, this, &QApplication::quit);
         else
@@ -466,8 +462,7 @@ bool MainWindow::processRenameAndMove()
     QString dstPath = QFileDialog::getSaveFileName(
         this,
         "Rename and Move",
-        dstNameSuggestion
-    );
+        dstNameSuggestion);
 
     if (dstPath.isEmpty())
         return false;
@@ -506,11 +501,14 @@ bool MainWindow::rename_(const QString &srcPath, const QString &dstPath)
     } else {
         QString message;
         QTextStream(&message)
-            << "Unable to rename \""
-            << QFileInfo(srcPath).fileName() << "\".\n"
-            << "\n"
+            << "Unable to rename \"" << QFileInfo(srcPath).fileName() << "\"."
+            << Qt::endl
+            << Qt::endl
             << srcFile.errorString();
         QMessageBox::critical(this, "Error", message);
+        // Unloading the renderer cleared the display
+        viewer->load(srcPath);
+        viewer->refresh();
         return false;
     }
 }
