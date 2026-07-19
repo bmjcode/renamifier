@@ -139,10 +139,10 @@ void PagedContentViewer::setFitToWidth(bool enabled)
 void PagedContentViewer::resizeEvent(QResizeEvent *event)
 {
     QScrollArea::resizeEvent(event);
-    // Only update the display if the content needs resizing to avoid flicker.
-    // Calling display() directly during the resize event would result in a
+    // If fit-to-width is enabled, call display() again to re-fit the content.
+    // Note calling this directly during the resize event would result in a
     // black screen, but with the timer it's actually called slightly after.
-    if (m_fitToWidth && viewport()->width() < content->widthBeforeFitting())
+    if (m_fitToWidth)
         QTimer::singleShot(0, this, &PagedContentViewer::display);
 }
 
@@ -165,7 +165,6 @@ PagedContent::PagedContent(QScrollArea *parent)
     renderer = nullptr;
     movie = nullptr;
     m_zoomFactor = 100;
-    m_widthBeforeFitting = 0;
     paintPlaceholders = false;
 
     renderTimer = new QTimer(this);
@@ -360,9 +359,6 @@ void PagedContent::updatePageGeometry()
         widestPageWidth = 0,
         totalHeight = std::max(0, (pageCount - 1) * PAGE_MARGIN);
 
-    // This is used for flicker reduction in PagedContentViewer::resizeEvent()
-    m_widthBeforeFitting = 0;
-
     for (int i = 0, y = 0; i < pageCount; i++) {
         Page *page = pages[i];
         QSize size = renderer->pageSize(i); // in physical pixels
@@ -375,7 +371,6 @@ void PagedContent::updatePageGeometry()
             page->pixmap = QPixmap();
 
         size /= dpRatio;    // convert to logical pixels for layout math
-        m_widthBeforeFitting = std::max(m_widthBeforeFitting, size.width());
 
         // Technically we always fit our content to the widget's width, and
         // the feature called "fit-to-width" simply reduces the maximum widget

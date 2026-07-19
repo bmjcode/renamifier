@@ -91,8 +91,6 @@ protected:
     void setRenderer(Renderer *replacement);
     void setZoomFactor(int percent);
 
-    inline int widthBeforeFitting() const { return m_widthBeforeFitting; }
-
     friend class PagedContentViewer;
 
 protected slots:
@@ -117,7 +115,6 @@ private:
     QMovie *movie;
     QTimer *renderTimer;
     int m_zoomFactor;
-    int m_widthBeforeFitting;
     bool paintPlaceholders;
 
 private slots:
