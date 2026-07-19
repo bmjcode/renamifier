@@ -51,13 +51,14 @@ public:
                             QString *errorOut = nullptr);
     static void init();
 
-    inline QString path() const { return path_; }
+    inline QString path() const { return m_path; }
 
     enum Mode { TextContent, PagedContent };
     virtual Renderer::Mode mode() const = 0;
 
 protected:
     Renderer();
+    inline void setPath(const QString &path) { m_path = path; }
 
     // This runs in the constructor to load the file specified by path().
     // Override this and return true if the file loaded, false otherwise.
@@ -67,7 +68,7 @@ protected:
     static void storeLoadError(const QString &message);
 
 private:
-    QString path_;
+    QString m_path;
 
 signals:
     void errorEncountered(const QString &details = QString());
@@ -126,11 +127,11 @@ public:
     // that are still rendering.
     virtual inline bool shouldPaintPlaceholders() const { return true; }
 
-    inline int dpiX() const { return dpiX_; }
-    inline int dpiY() const { return dpiY_; }
+    inline int dpiX() const { return m_dpiX; }
+    inline int dpiY() const { return m_dpiY; }
     void setPixelDensity(int dpiX, int dpiY);
 
-    inline int zoomFactor() const { return zoomFactor_; }
+    inline int zoomFactor() const { return m_zoomFactor; }
     void setZoomFactor(int percent);
 
     inline bool pageExists(int num) const
@@ -143,13 +144,13 @@ protected:
     PagedContentRenderer();
 
     inline int zoomScaled(int value) const
-        { return (zoomFactor_ == 100) ? value : value * zoomFactor_ / 100; }
+        { return (m_zoomFactor == 100) ? value : value * m_zoomFactor / 100; }
     inline QSize zoomScaled(const QSize &size) const
-        { return (zoomFactor_ == 100) ? size : size * zoomFactor_ / 100; }
+        { return (m_zoomFactor == 100) ? size : size * m_zoomFactor / 100; }
 
 private:
-    int dpiX_, dpiY_;
-    int zoomFactor_;
+    int m_dpiX, m_dpiY;
+    int m_zoomFactor;
 
 signals:
     void renderedPage(int num, const QImage &image);

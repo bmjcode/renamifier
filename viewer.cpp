@@ -71,13 +71,13 @@ void Viewer::display(const QString &path)
  * Create and connect a renderer for the specified file,
  * but do not immediately display it.
  */
-void Viewer::load(const QString &path)
+void Viewer::load(const QString &path_)
 {
     QString loadError;
     unloadRenderer();
 
-    path_ = path;
-    renderer = Renderer::create(path_, &loadError);
+    path = path_;
+    renderer = Renderer::create(path, &loadError);
     if (renderer == nullptr) {
         // An error occurred while loading the file
         displayError(loadError);
@@ -101,7 +101,7 @@ void Viewer::load(const QString &path)
  */
 void Viewer::unloadRenderer()
 {
-    path_.clear();
+    path.clear();
     textContentViewer->setRenderer(nullptr);
     pagedContentViewer->setRenderer(nullptr);
 
@@ -173,22 +173,15 @@ void Viewer::displayError(const QString &details)
 {
     QString message;
     QTextStream textStream(&message);
-    QString path = path_;   // save this before unloadRenderer() clears it
-
-    // Stop rendering immediately; we'll do other cleanup later
-    unloadRenderer();
-
-    // Tell the user what happened
     textStream << "An error occurred while attempting to display this file:"
                << Qt::endl
                << path;
-
-    // Append details if we have them
     if (!details.isEmpty())
         textStream << Qt::endl
                    << Qt::endl
                    << details;
 
+    unloadRenderer();
     clear();
     setCurrentWidget(textContentViewer);
     textContentViewer->setPlainText(message);

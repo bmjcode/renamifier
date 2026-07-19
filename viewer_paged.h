@@ -116,7 +116,7 @@ private:
     QList<int> visiblePages;
     QMovie *movie;
     QTimer *renderTimer;
-    int zoomFactor;
+    int m_zoomFactor;
     int m_widthBeforeFitting;
     bool paintPlaceholders;
 

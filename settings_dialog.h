@@ -74,16 +74,16 @@ public:
     QString path() const { return lineEdit->text(); }
 
 public slots:
-    inline void setDir(const QString &dir) { dir_ = dir; }
-    inline void setFilter(const QString &filter) { filter_ = filter; }
+    inline void setDir(const QString &dir) { m_dir = dir; }
+    inline void setFilter(const QString &filter) { m_filter = filter; }
     inline void setPath(const QString &path) { lineEdit->setText(path); }
 
 private:
     QHBoxLayout *layout;
     QLineEdit *lineEdit;
     QPushButton *browseButton;
-    QString dir_;
-    QString filter_;
+    QString m_dir;
+    QString m_filter;
 
 private slots:
     void browse();

@@ -47,7 +47,9 @@ struct Page {
     inline QRect rect() const { return QRect(x, y, width, height); }
     inline QSize size() const { return QSize(width, height); }
 
-    QPixmap pixmap; // more efficient for display than QImage
+    // QPixmap is more efficient for display than QImage
+    QPixmap pixmap;
+    // All geometry here is in logical pixels
     int x;
     int y;
     int width;
@@ -162,7 +164,7 @@ PagedContent::PagedContent(QScrollArea *parent)
 {
     renderer = nullptr;
     movie = nullptr;
-    zoomFactor = 100;
+    m_zoomFactor = 100;
     m_widthBeforeFitting = 0;
     paintPlaceholders = false;
 
@@ -220,7 +222,7 @@ void PagedContent::setRenderer(Renderer *replacement)
 
 void PagedContent::setZoomFactor(int percent)
 {
-    zoomFactor = percent;
+    m_zoomFactor = percent;
     display();
 }
 
@@ -339,7 +341,7 @@ void PagedContent::updatePageGeometry()
     if (renderer == nullptr)
         return;
 
-    renderer->setZoomFactor(zoomFactor);
+    renderer->setZoomFactor(m_zoomFactor);
     // Images are always rendered at their real pixel size, but layout
     // calculations use DPI-independent "logical" pixels. You are not
     // expected to understand this -- just to trust that this produces

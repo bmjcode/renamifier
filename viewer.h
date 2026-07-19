@@ -73,7 +73,7 @@ private:
     // Specialized widgets to display different types of content
     TextContentViewer *textContentViewer;
     PagedContentViewer *pagedContentViewer;
-    QString path_;
+    QString path;
     int zoomFactor;
 
 private slots:

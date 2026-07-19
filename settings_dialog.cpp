@@ -159,8 +159,8 @@ void PathEdit::browse()
     QString fileName = QFileDialog::getOpenFileName(
         this,
         "Browse",
-        dir_,
-        filter_);
+        m_dir,
+        m_filter);
     if (!fileName.isEmpty())
         lineEdit->setText(fileName);
     lineEdit->setFocus();

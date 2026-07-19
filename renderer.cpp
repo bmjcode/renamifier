@@ -37,8 +37,8 @@ PagedContentRenderer::PagedContentRenderer()
     : Renderer()
 {
     // Default to the DPI of a standard PC screen
-    dpiX_ = dpiY_ = 96;
-    zoomFactor_ = 100;
+    m_dpiX = m_dpiY = 96;
+    m_zoomFactor = 100;
 }
 
 /*
@@ -51,11 +51,11 @@ PagedContentRenderer::PagedContentRenderer()
 void PagedContentRenderer::setPixelDensity(int dpiX, int dpiY)
 {
     if (dpiX > 0 && dpiY > 0)
-        dpiX_ = dpiX, dpiY_ = dpiY;
+        m_dpiX = dpiX, m_dpiY = dpiY;
 }
 
 void PagedContentRenderer::setZoomFactor(int percent)
 {
     if (percent > 0)
-        zoomFactor_ = percent;
+        m_zoomFactor = percent;
 }
