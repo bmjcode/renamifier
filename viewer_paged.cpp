@@ -266,8 +266,19 @@ void PagedContent::paintEvent(QPaintEvent *event)
             if (page->pixmap.isNull()) {
                 if (paintPlaceholders)
                     painter.fillRect(pageRect, Qt::white);
-            } else
-                painter.drawPixmap(pageRect, page->pixmap);
+            } else {
+                QPixmap pixmap;
+                // The cached image may need resizing when fit-to-width is
+                // enabled or when zooming an animation
+                QSize desiredSize = page->size() * devicePixelRatio();
+                if (page->pixmap.size() == desiredSize)
+                    pixmap = page->pixmap;
+                else
+                    pixmap = page->pixmap.scaled(desiredSize,
+                                                 Qt::IgnoreAspectRatio,
+                                                 Qt::SmoothTransformation);
+                painter.drawPixmap(pageRect, pixmap);
+            }
         }
     }
 }
@@ -352,11 +363,21 @@ void PagedContent::updatePageGeometry()
 
     for (int i = 0, y = 0; i < pageCount; i++) {
         Page *page = pages[i];
+        QSize size = renderer->pageSize(i); // in physical pixels
 
-        // Remember layout uses logical pixels, so dividing by dpRatio
-        // is correct here even though I think it looks wrong
-        QSize size = renderer->pageSize(i) / dpRatio;
+        // If the cached pixmap is already the right size, keep it to avoid
+        // unnecessary re-rendering; otherwise, purge it. Note we check this
+        // before the fit-to-width calculations because it's more efficient
+        // to cache the image at full size and shrink it ourselves as needed
+        if (page->pixmap.size() != size)
+            page->pixmap = QPixmap();
+
+        size /= dpRatio;    // convert to logical pixels for layout math
         m_widthBeforeFitting = std::max(m_widthBeforeFitting, size.width());
+
+        // Technically we always fit our content to the widget's width, and
+        // the feature called "fit-to-width" simply reduces the maximum widget
+        // width from Qt's default; see PagedContentViewer::display()
         if (size.width() > maxWidgetWidth)
             size.scale(maxWidgetWidth, size.height(), Qt::KeepAspectRatio);
         page->width = size.width();
@@ -368,9 +389,6 @@ void PagedContent::updatePageGeometry()
         widestPageWidth = std::max(widestPageWidth, page->width);
         totalHeight += page->height;
         y += page->height + PAGE_MARGIN;
-
-        // Purge the old image so we're forced to re-render
-        page->pixmap = QPixmap();
     }
 
     // Now that we know the width of the widest page, we can offset
@@ -410,17 +428,9 @@ void PagedContent::setPagePixmap(int num, const QPixmap &pixmap)
     if (0 <= num && num < pages.count()) {
         Page *page = pages[num];
         page->isRendering = false;
-
-        // page->size() is in logical pixels, but we need the physical size
-        QSize desiredSize = page->size() * devicePixelRatio();
-        if (pixmap.size() == desiredSize)
-            page->pixmap = pixmap;
-        else
-            page->pixmap = pixmap.scaled(
-                desiredSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        page->pixmap = pixmap;
         // Paint at the correct physical size on high-DPI screens
         page->pixmap.setDevicePixelRatio(devicePixelRatio());
-
         update(page->rect());
     }
 }
