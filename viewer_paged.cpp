@@ -70,7 +70,7 @@ PagedContentViewer::PagedContentViewer(QWidget *parent)
 {
     content = new PagedContent(this);
     setWidget(content);
-    m_fitToWidth = false;   // we're not ready when the constructor runs
+    m_fitToWidth = false;
 
     setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     setBackgroundRole(QPalette::Dark);
