@@ -46,6 +46,7 @@ bool ImageRenderer::load()
 void ImageRenderer::renderPage(int num)
 {
     QImageReader reader(path());
+    reader.setAutoTransform(true);  // auto flip or rotate per EXIF data
     reader.setScaledSize(zoomScaled(reader.size()));
     QImage image = reader.read();
     if (image.isNull()) {
@@ -58,7 +59,10 @@ void ImageRenderer::renderPage(int num)
 QSize ImageRenderer::pageSize(int num) const
 {
     QImageReader reader(path());
-    return zoomScaled(reader.size());
+    if (reader.transformation() & QImageIOHandler::TransformationRotate90)
+        return zoomScaled(reader.size().transposed());
+    else
+        return zoomScaled(reader.size());
 }
 
 bool ImageRenderer::supportsAnimation() const
