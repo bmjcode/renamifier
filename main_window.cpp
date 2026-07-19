@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags f)
 {
     viewer = new Viewer(this);
     setCentralWidget(viewer);
+    viewer->setFitToWidth(true);
 
     createMenus();
     createToolBar();
@@ -280,6 +281,12 @@ void MainWindow::createMenus()
                         QKeySequence("Ctrl+0"),
                         this,
                         &MainWindow::zoomActualSize);
+    viewMenu->addSeparator();
+    actionFitToWidth = viewMenu->addAction("&Fit to Width",
+                                           viewer,
+                                           &Viewer::setFitToWidth);
+    actionFitToWidth->setCheckable(true);
+    actionFitToWidth->setChecked(true);
     viewMenu->addSeparator();
     viewMenu->addAction("&Refresh",
                         QKeySequence("F5"),

@@ -80,6 +80,7 @@ private:
     QMenu *helpMenu;
     QToolBar *toolBar;
     QLineEdit *nameEntry;
+    QAction *actionFitToWidth;
     QAction *actionDisplayNext;
     QAction *actionDisplayPrevious;
     QAction *actionFocusNameEntry;

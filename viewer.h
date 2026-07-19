@@ -58,6 +58,8 @@ public slots:
     void clear();
     void refresh();
 
+    void setFitToWidth(bool enabled);
+
     void setZoom(int percent);
     inline void zoomActualSize()     { setZoom(100); }
     inline void zoomIn(int range=1)  { setZoom(zoomFactor + 10 * range); }

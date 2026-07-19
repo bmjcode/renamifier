@@ -27,12 +27,14 @@
 #include <QSize>
 #include <QImage>
 #include <QMovie>
+#include <QPixmap>
 #include <QTimer>
 
 #include <QWidget>
 #include <QScrollArea>
 #include <QMoveEvent>
 #include <QPaintEvent>
+#include <QResizeEvent>
 #include <QWheelEvent>
 
 class PagedContent; // defined below
@@ -62,10 +64,14 @@ public slots:
     void clear();
     void display();
 
+    void setFitToWidth(bool enabled);
+
 private:
+    void resizeEvent(QResizeEvent *event);
     void wheelEvent(QWheelEvent *event);
 
     PagedContent *content;
+    bool m_fitToWidth;
 
 signals:
     void wheelZoomed(int delta);
@@ -114,6 +120,7 @@ private:
 private slots:
     void renderVisiblePages();
     void setPageImage(int num, const QImage &image);
+    void setPagePixmap(int num, const QPixmap &pixmap);
     void showNextFrame(const QRect &rect);
 
 signals:

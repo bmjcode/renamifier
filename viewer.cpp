@@ -155,6 +155,11 @@ void Viewer::refresh()
     }
 }
 
+void Viewer::setFitToWidth(bool enabled)
+{
+    pagedContentViewer->setFitToWidth(enabled);
+}
+
 void Viewer::setZoom(int percent)
 {
     zoomFactor = std::clamp(percent, ZOOM_MIN, ZOOM_MAX);

@@ -68,6 +68,7 @@ PagedContentViewer::PagedContentViewer(QWidget *parent)
 {
     content = new PagedContent(this);
     setWidget(content);
+    m_fitToWidth = false;   // we're not ready when the constructor runs
 
     setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     setBackgroundRole(QPalette::Dark);
@@ -122,7 +123,24 @@ void PagedContentViewer::clear()
 
 void PagedContentViewer::display()
 {
+    content->setMaximumWidth(
+        m_fitToWidth ? viewport()->width() : QWidget::maximumWidth());
     content->display();
+}
+
+void PagedContentViewer::setFitToWidth(bool enabled)
+{
+    m_fitToWidth = enabled;
+    display();
+}
+
+void PagedContentViewer::resizeEvent(QResizeEvent *event)
+{
+    QScrollArea::resizeEvent(event);
+    // Calling display() directly during the resize event would result in a
+    // black screen, but with the timer it's actually called slightly after
+    if (m_fitToWidth)
+        QTimer::singleShot(0, this, &PagedContentViewer::display);
 }
 
 void PagedContentViewer::wheelEvent(QWheelEvent *event)
@@ -323,7 +341,8 @@ void PagedContent::updatePageGeometry()
 
     // Now the actual page size calculations
     int pageCount = pages.count(),
-        maxWidth = 0,
+        maxWidgetWidth = maximumWidth(),
+        widestPageWidth = 0,
         totalHeight = std::max(0, (pageCount - 1) * PAGE_MARGIN);
 
     for (int i = 0, y = 0; i < pageCount; i++) {
@@ -332,13 +351,15 @@ void PagedContent::updatePageGeometry()
         // Remember layout uses logical pixels, so dividing by dpRatio
         // is correct here even though I think it looks wrong
         QSize size = renderer->pageSize(i) / dpRatio;
+        if (size.width() > maxWidgetWidth)
+            size.scale(maxWidgetWidth, size.height(), Qt::KeepAspectRatio);
         page->width = size.width();
         page->height = size.height();
 
         // Since we only support one hardcoded page layout, we can also
         // do those calculations now and avoid needing a separate for-loop
         page->y = y;
-        maxWidth = std::max(maxWidth, page->width);
+        widestPageWidth = std::max(widestPageWidth, page->width);
         totalHeight += page->height;
         y += page->height + PAGE_MARGIN;
 
@@ -350,12 +371,12 @@ void PagedContent::updatePageGeometry()
     // smaller pages to center them horizontally
     for (int i = 0; i < pageCount; i++) {
         Page *page = pages[i];
-        page->x = std::max(0, (maxWidth - page->width) / 2);
+        page->x = std::max(0, (widestPageWidth - page->width) / 2);
     }
 
     // Shrink this widget to fit its contents exactly, and let the parent
     // QScrollArea worry about centering it in the viewport
-    resize(maxWidth, totalHeight);
+    resize(widestPageWidth, totalHeight);
 }
 
 void PagedContent::renderVisiblePages()
@@ -375,13 +396,25 @@ void PagedContent::renderVisiblePages()
 
 void PagedContent::setPageImage(int num, const QImage &image)
 {
+    setPagePixmap(num, QPixmap::fromImage(image));
+}
+
+void PagedContent::setPagePixmap(int num, const QPixmap &pixmap)
+{
     if (0 <= num && num < pages.count()) {
         Page *page = pages[num];
-        page->pixmap = QPixmap::fromImage(image);
         page->isRendering = false;
+
+        // page->size() is in logical pixels, but we need the physical size
+        QSize desiredSize = page->size() * devicePixelRatio();
+        if (pixmap.size() == desiredSize)
+            page->pixmap = pixmap;
+        else
+            page->pixmap = pixmap.scaled(
+                desiredSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         // Paint at the correct physical size on high-DPI screens
         page->pixmap.setDevicePixelRatio(devicePixelRatio());
-        // We only need to repaint this page; the others are fine
+
         update(page->rect());
     }
 }
@@ -391,14 +424,7 @@ void PagedContent::setPageImage(int num, const QImage &image)
  */
 void PagedContent::showNextFrame(const QRect &rect)
 {
-    if (pages.isEmpty() || movie == nullptr)
-        return;
-
     // Animations are always effectively single-"page" documents
-    Page *page = pages[0];
-    // Since we bypassed the renderer we have to handle scaling ourselves
-    page->pixmap = movie->currentPixmap().scaled(
-        page->size() * devicePixelRatio(),
-        Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    update(page->rect());
+    if (movie != nullptr)
+        setPagePixmap(0, movie->currentPixmap());
 }
