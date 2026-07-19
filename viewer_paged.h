@@ -72,10 +72,6 @@ private:
 
     PagedContent *content;
     bool m_fitToWidth;
-    bool m_isResizing;  // used to avoid an infinite loop in resizeEvent()
-
-private slots:
-    inline void doneResizing() { m_isResizing = false; }
 
 signals:
     void wheelZoomed(int delta);

@@ -71,7 +71,6 @@ PagedContentViewer::PagedContentViewer(QWidget *parent)
     content = new PagedContent(this);
     setWidget(content);
     m_fitToWidth = false;
-    m_isResizing = false;
 
     setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     setBackgroundRole(QPalette::Dark);
@@ -134,27 +133,24 @@ void PagedContentViewer::display()
 void PagedContentViewer::setFitToWidth(bool enabled)
 {
     m_fitToWidth = enabled;
+    // FIXME: When fit-to-width is enabled, the vertical scrollbar policy is
+    // set to "as needed", and the content is just large enough to toggle both
+    // scrollbars' visibility, resizeEvent() will fall into an infinite loop.
+    // Forcing the scrollbar on is the least ugly workaround I've found.
+    if (m_fitToWidth)
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     display();
 }
 
 void PagedContentViewer::resizeEvent(QResizeEvent *event)
 {
-    // Protect against an infinite loop when the content is just large enough
-    // to toggle both scrollbars' visibility
-    if (m_isResizing)
-        return;
-    m_isResizing = true;
-
+    // This toggles scroll bars as needed
     QScrollArea::resizeEvent(event);
     // If fit-to-width is enabled, call display() again to re-fit the content.
     // Note calling this directly during the resize event would result in a
     // black screen, but with the timer it's actually called slightly after.
     if (m_fitToWidth)
         QTimer::singleShot(0, this, &PagedContentViewer::display);
-
-    // Since display() might trigger another resize event, give it time to
-    // finish before we clear this
-    QTimer::singleShot(25, this, &PagedContentViewer::doneResizing);
 }
 
 void PagedContentViewer::wheelEvent(QWheelEvent *event)
