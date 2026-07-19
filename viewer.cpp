@@ -17,8 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <algorithm>    // for std::clamp()
-
 #include <QtCore>
 #include <QtWidgets>
 
@@ -162,9 +160,12 @@ void Viewer::setFitToWidth(bool enabled)
 
 void Viewer::setZoom(int percent)
 {
-    zoomFactor = std::clamp(percent, ZOOM_MIN, ZOOM_MAX);
-    textContentViewer->setZoomFactor(zoomFactor);
-    pagedContentViewer->setZoomFactor(zoomFactor);
+    // Testing rather than clamping forces a hard stop when we hit the limits
+    if (ZOOM_MIN <= percent && percent <= ZOOM_MAX) {
+        zoomFactor = percent;
+        textContentViewer->setZoomFactor(zoomFactor);
+        pagedContentViewer->setZoomFactor(zoomFactor);
+    }
 }
 
 void Viewer::displayError(const QString &details)
