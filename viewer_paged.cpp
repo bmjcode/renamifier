@@ -139,7 +139,7 @@ void PagedContentViewer::resizeEvent(QResizeEvent *event)
     QScrollArea::resizeEvent(event);
     // Calling display() directly during the resize event would result in a
     // black screen, but with the timer it's actually called slightly after
-    if (m_fitToWidth)
+    if (m_fitToWidth && viewport()->width() < content->minimumWidth())
         QTimer::singleShot(0, this, &PagedContentViewer::display);
 }
 
@@ -345,12 +345,17 @@ void PagedContent::updatePageGeometry()
         widestPageWidth = 0,
         totalHeight = std::max(0, (pageCount - 1) * PAGE_MARGIN);
 
+    // We repurpose this to hold the original content width before fitting,
+    // which is used for flicker reduction in PagedContentViewer::resizeEvent()
+    setMinimumWidth(0);
+
     for (int i = 0, y = 0; i < pageCount; i++) {
         Page *page = pages[i];
 
         // Remember layout uses logical pixels, so dividing by dpRatio
         // is correct here even though I think it looks wrong
         QSize size = renderer->pageSize(i) / dpRatio;
+        setMinimumWidth(std::max(minimumWidth(), size.width()));
         if (size.width() > maxWidgetWidth)
             size.scale(maxWidgetWidth, size.height(), Qt::KeepAspectRatio);
         page->width = size.width();
