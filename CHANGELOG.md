@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * Fit-to-width for paged content.
 ### Fixed
 * Horizontal scrolling when the displayed content is wider than the window.
+* Reduced flicker when scrolling and zooming.
 ### Changed
 * Continued to clean up and optimize internals.
 
